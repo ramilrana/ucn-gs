@@ -1,0 +1,321 @@
+:root {
+  --color-ink: #5c0000;
+  --color-primary: #800000;
+  --color-gold: #d4a537;
+  --color-paper: #f7f5f4;
+  --color-line: #e6dedc;
+  --color-text: #2a1a1d;
+  --font-heading:
+    "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia,
+    serif;
+}
+
+body {
+  margin: 0;
+}
+
+img,
+video {
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h1.ant-typography,
+h2.ant-typography,
+h3.ant-typography,
+h4.ant-typography,
+h5.ant-typography {
+  font-family: var(--font-heading);
+  letter-spacing: -0.005em;
+}
+
+.page-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+
+.page-body {
+  padding-top: 48px;
+  padding-bottom: 72px;
+}
+
+.section {
+  padding: 72px 0;
+}
+
+.section--alt {
+  background: #fff;
+  border-top: 1px solid var(--color-line);
+  border-bottom: 1px solid var(--color-line);
+}
+
+/* Header */
+.header-inner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 100%;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-ink);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.brand__mark {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  /* background: var(--color-ink); */
+  /* border-bottom: 3px solid var(--color-gold); */
+  color: var(--color-gold);
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.brand__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.brand__name {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.brand__sub {
+  color: #6b5a5e;
+  font-size: 12px;
+}
+
+@media (max-width: 575px) {
+  .brand__sub {
+    display: none;
+  }
+}
+
+/* Hero: graph-paper grid is the one signature motif */
+.hero,
+.contact-band {
+  background-color: var(--color-ink);
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 48px 48px;
+  color: #fff;
+}
+
+.hero {
+  padding: 88px 0;
+}
+
+.hero .hero__title.ant-typography {
+  margin: 0 0 20px;
+  color: #fff;
+  font-size: clamp(2.25rem, 4.6vw, 3.6rem);
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.hero .hero__text.ant-typography {
+  max-width: 34rem;
+  margin: 0 0 32px;
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.hero__figure {
+  margin: 0;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.hero__figure .ant-image {
+  display: block;
+}
+
+.hero__figure figcaption {
+  padding: 12px 4px 2px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+}
+
+@media (max-width: 767px) {
+  .hero {
+    padding: 56px 0;
+  }
+
+  .section {
+    padding: 48px 0;
+  }
+}
+
+/* Contact band */
+.contact-band {
+  padding: 64px 0;
+}
+
+.contact-band .contact-band__title.ant-typography {
+  margin: 0 0 8px;
+  color: #fff;
+}
+
+.contact-band .contact-band__text.ant-typography {
+  max-width: 36rem;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 17px;
+}
+
+/* Page banner */
+.banner {
+  padding: 40px 0 36px;
+  background: #fff;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.banner .banner__title.ant-typography {
+  margin: 16px 0 8px;
+  font-size: clamp(1.9rem, 3.4vw, 2.6rem);
+  font-weight: 600;
+}
+
+.banner .banner__text.ant-typography {
+  max-width: 40rem;
+  margin: 0;
+  font-size: 17px;
+}
+
+/* Cards and areas */
+.media-card__image {
+  display: block;
+  width: 100%;
+}
+
+.media-card .ant-card-cover img {
+  border-radius: 0;
+}
+
+.area {
+  height: 100%;
+  padding-top: 16px;
+  border-top: 3px solid var(--color-gold);
+}
+
+/* Footer */
+.site-footer,
+.site-footer a {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.site-footer a {
+  text-decoration: none;
+}
+
+.site-footer a:hover,
+.site-footer a:focus-visible {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.site-footer h2 {
+  margin: 0 0 12px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.site-footer p,
+.site-footer ul {
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.site-footer li {
+  margin-bottom: 6px;
+}
+
+/* Responsive navigation: desktop menu from 768px up, drawer below */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+.nav-desktop {
+  flex: 1;
+  min-width: 0;
+}
+
+.nav-mobile {
+  display: none;
+  margin-left: auto;
+}
+
+@media (max-width: 767px) {
+  .nav-desktop {
+    display: none;
+  }
+
+  .nav-mobile {
+    display: inline-flex;
+  }
+
+  .page-container {
+    padding: 0 16px;
+  }
+
+  .page-body {
+    padding-top: 32px;
+    padding-bottom: 48px;
+  }
+
+  .banner {
+    padding: 28px 0 24px;
+  }
+
+  .contact-band {
+    padding: 48px 0;
+  }
+
+  .hero .hero__text.ant-typography {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 479px) {
+  .hero {
+    padding: 40px 0;
+  }
+}
+
+.ant-layout .ant-layout-footer.site-footer {
+  background: var(--color-primary);
+}
+
+.page-body--intro {
+  padding-bottom: 48px;
+}
+
+@media (max-width: 575px) {
+  .page-body--intro {
+    padding-bottom: 32px;
+  }
+}

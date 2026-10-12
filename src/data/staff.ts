@@ -1,0 +1,61 @@
+import type { StaffMember } from "../types/staff";
+
+export const staffMembers: readonly StaffMember[] = [
+  {
+    id: "staff-001",
+    name: "Dr. Maria Santos",
+    title: "Director, Research Office",
+    group: "leadership",
+    email: "director@university.edu",
+    researchInterests: ["Research policy", "Science communication"],
+    photoId: "portrait-001",
+  },
+  {
+    id: "staff-002",
+    name: "Dr. Juan Dela Cruz",
+    title: "Associate Professor",
+    group: "faculty",
+    department: "College of Science",
+    email: "jdelacruz@university.edu",
+    researchInterests: ["Marine biology", "Coastal ecosystems"],
+    photoId: "portrait-002",
+  },
+  {
+    id: "staff-002",
+    name: "Dr. Juan Dela Cruz",
+    title: "Associate Professor",
+    group: "faculty",
+    department: "College of Science",
+    email: "jdelacruz@university.edu",
+    researchInterests: ["Marine biology", "Coastal ecosystems"],
+    photoId: "portrait-002",
+  },
+  {
+    id: "staff-003",
+    name: "Ana Reyes",
+    title: "Research Coordinator",
+    group: "staff",
+    email: "areyes@university.edu",
+  },
+  {
+    id: "staff-003",
+    name: "Ana Reyes",
+    title: "Research Coordinator",
+    group: "staff",
+    email: "areyes@university.edu",
+  },
+  {
+    id: "staff-003",
+    name: "Ana Reyes",
+    title: "Research Coordinator",
+    group: "staff",
+    email: "areyes@university.edu",
+  },
+  {
+    id: "staff-003",
+    name: "Ana Reyes",
+    title: "Research Coordinator",
+    group: "staff",
+    email: "areyes@university.edu",
+  },
+];
