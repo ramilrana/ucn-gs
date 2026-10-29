@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
-import { normalizeBase } from './base.mjs';
+import { baseFromIndexHtml, normalizeBase } from './base.mjs';
 import { CSP_HEADER, CSP_META, FRAME_HOSTS, SECURITY_HEADERS } from './csp.mjs';
 
 describe('normalizeBase', () => {
@@ -12,6 +12,23 @@ describe('normalizeBase', () => {
     ['/gs/', '/gs/'],
     ['//a//', '/a/'],
   ])('normalizeBase(%j) → %s', (i, o) => expect(normalizeBase(i)).toBe(o));
+});
+
+describe('baseFromIndexHtml', () => {
+  const html = (src: string): string => `<html><head><script type="module" crossorigin src="${src}"></script></head></html>`;
+
+  it.each([
+    ['/assets/index-a.js', '/'],
+    ['/gs/assets/index-a.js', '/gs/'],
+    ['/ucn-assets/assets/index-a.js', '/ucn-assets/'],
+    ['/assets/assets/index-a.js', '/assets/'],
+    ['/a/b/assets/index-a.js', '/a/b/'],
+  ])('src %s gives base %s', (src, base) => expect(baseFromIndexHtml(html(src))).toBe(base));
+
+  it('returns null when there is no module script or no assets/ segment', () => {
+    expect(baseFromIndexHtml('<html></html>')).toBeNull();
+    expect(baseFromIndexHtml(html('/main.js'))).toBeNull();
+  });
 });
 
 describe('csp', () => {

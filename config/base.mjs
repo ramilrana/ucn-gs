@@ -31,7 +31,8 @@ export function baseFromIndexHtml(html) {
   const tag = /<script\b[^>]*\btype="module"[^>]*>/i.exec(html)?.[0];
   const src = tag ? /\bsrc="([^"]+)"/i.exec(tag)?.[1] : undefined;
   if (!src) return null;
-  const at = src.indexOf('assets/');
+  // Last "/assets/": the base itself may contain "assets" (for example "/ucn-assets/").
+  const at = src.lastIndexOf('/assets/');
   if (at < 0 || !src.startsWith('/')) return null;
-  return src.slice(0, at);
+  return src.slice(0, at + 1);
 }
