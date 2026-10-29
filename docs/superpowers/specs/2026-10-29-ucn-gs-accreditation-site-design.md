@@ -1,7 +1,7 @@
 # UCN Graduate School Accreditation Website: Design Spec
 
 - **Date:** 2026-10-29
-- **Status:** design approved in conversation, section by section (2026-10-29). Awaiting the user's review of this written spec.
+- **Status:** approved. The design was approved section by section and the written spec was approved by the user (2026-10-29).
 - **Inputs:** the user's master prompt; the existing repo (`ucn-gs`); the reference site inventory in [`docs/reference-inventory.md`](../../reference-inventory.md).
 - **Next stage:** implementation plan (writing-plans), only after this spec is approved.
 

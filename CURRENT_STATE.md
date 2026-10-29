@@ -10,7 +10,7 @@ Existing stack (from `package.json`): React 19, TypeScript 5.8, Vite 7, Ant Desi
 
 ## Phase
 
-**Brainstorming: design approved in conversation; written spec awaiting the user's review.**
+**Brainstorming complete. Spec approved by the user (2026-10-29). Next: the implementation plan (writing-plans), in a new session.**
 
 - Spec: `docs/superpowers/specs/2026-10-29-ucn-gs-accreditation-site-design.md`
 - Reference inventory: `docs/reference-inventory.md`
@@ -58,8 +58,8 @@ The target architecture is in spec §6.
 
 ## Plan and progress
 
-- Done: workflow setup; repo and reference inspection; brainstorming Q&A; design sections 1–5 approved; spec written.
-- Current task: the user reviews the written spec.
+- Done: workflow setup; repo and reference inspection; brainstorming Q&A; design sections 1–5 approved; spec written and approved.
+- Current task: none. Writing the plan was deliberately left for a new session, as the brainstorming session's stage lock required.
 - Implementation plan: not written.
 
 ## Recent changes (2026-10-29)
@@ -93,7 +93,6 @@ No checks were run this session (documentation only).
 
 ## Next actions
 
-1. User reviews the spec. Apply any changes and re-run the spec self-review.
-2. After spec approval, invoke writing-plans (Plan Mode, Opus) to write the implementation plan, and link it here.
+1. Invoke the writing-plans skill (Plan Mode, Opus) on the approved spec to write the implementation plan, and link it here. Include the spec §12 agency-agents inspection in the plan.
 3. Collect the answers to the spec §14 open questions and the UCN materials (spec §13).
 4. Merge or open a PR for `chore/claude-model-routing` so the workflow config reaches `main`.
