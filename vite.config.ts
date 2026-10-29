@@ -1,6 +1,8 @@
 /// <reference types="vitest/config" />
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
+import { imagetools } from 'vite-imagetools';
 
 // Mirrors public/_headers, minus directives that meta tags cannot enforce (frame-ancestors).
 const CSP_META =
@@ -27,7 +29,7 @@ function cspMetaOnBuild(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), cspMetaOnBuild()],
+  plugins: [react(), tailwindcss(), imagetools(), cspMetaOnBuild()],
   test: {
     environment: 'jsdom',
     setupFiles: ['src/test/setup.ts'],
@@ -37,10 +39,5 @@ export default defineConfig({
   build: {
     sourcemap: false,
     target: 'es2020',
-    rollupOptions: {
-      output: {
-        manualChunks: { antd: ['antd', '@ant-design/icons'] },
-      },
-    },
   },
 });
