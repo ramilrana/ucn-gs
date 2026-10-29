@@ -41,6 +41,15 @@ export default defineConfig([
     },
   },
   {
+    files: ['scripts/**/*.mjs', 'config/**/*.mjs'],
+    extends: [js.configs.recommended],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: globals.node,
+    },
+  },
+  {
     files: ['src/components/media/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-syntax': [

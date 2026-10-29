@@ -1,0 +1,19 @@
+# Generated into dist/.htaccess by scripts/write-route-pages.mjs. Do not edit dist/.htaccess by hand.
+# Requires mod_headers, and AllowOverride Options FileInfo Indexes (see docs/deployment.md).
+
+Options -Indexes
+DirectorySlash On
+ErrorDocument 404 __BASE__404.html
+
+<IfModule mod_headers.c>
+  Header always set Content-Security-Policy "__CSP__"
+  Header always set X-Content-Type-Options "__X-Content-Type-Options__"
+  Header always set Referrer-Policy "__Referrer-Policy__"
+  Header always set Permissions-Policy "__Permissions-Policy__"
+  Header always set Cross-Origin-Opener-Policy "__Cross-Origin-Opener-Policy__"
+
+  # HTML is revalidated on every visit so a new deploy shows at once.
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>

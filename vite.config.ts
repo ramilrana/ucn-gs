@@ -1,12 +1,10 @@
 /// <reference types="vitest/config" />
-import { defineConfig, type Plugin } from 'vite';
+import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { imagetools } from 'vite-imagetools';
-
-// Mirrors public/_headers, minus directives that meta tags cannot enforce (frame-ancestors).
-const CSP_META =
-  "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'";
+import { normalizeBase } from './config/base.mjs';
+import { CSP_META } from './config/csp.mjs';
 
 /**
  * Adds the CSP fallback meta tag to production builds only.
@@ -28,7 +26,9 @@ function cspMetaOnBuild(): Plugin {
   };
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  // VITE_BASE_PATH=/gs/ in .env.production.local builds for a subpath (docs/deployment.md).
+  base: normalizeBase(loadEnv(mode, process.cwd(), '').VITE_BASE_PATH),
   plugins: [react(), tailwindcss(), imagetools(), cspMetaOnBuild()],
   test: {
     environment: 'jsdom',
@@ -40,4 +40,4 @@ export default defineConfig({
     sourcemap: false,
     target: 'es2020',
   },
-});
+}));
