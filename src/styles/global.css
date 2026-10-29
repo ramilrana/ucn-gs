@@ -50,6 +50,11 @@
     outline-offset: 2px;
   }
 
+  /* The mobile menu is a modal dialog: keep the page behind it from scrolling. */
+  body:has(dialog[open]) {
+    overflow: hidden;
+  }
+
   .on-maroon :focus-visible {
     outline-color: var(--color-gold-500);
   }

@@ -27,6 +27,7 @@
     ]
   },
   "include": [
+    "src/vite-env.d.ts",
     "src/**/*.test.ts",
     "src/**/*.test.tsx",
     "src/test",

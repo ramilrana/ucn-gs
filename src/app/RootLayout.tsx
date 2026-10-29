@@ -1,5 +1,7 @@
 import { Suspense, useEffect, useRef } from 'react';
 import { Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
+import { SiteHeader } from '../components/layout/SiteHeader';
+import { SkipLink } from '../components/layout/SkipLink';
 import { RouteLoading } from './RouteLoading';
 
 const GIVE_UP_MS = 5000;
@@ -41,7 +43,9 @@ export function RootLayout() {
 
   return (
     <>
-      <main id="main">
+      <SkipLink />
+      <SiteHeader />
+      <main id="main" tabIndex={-1} className="outline-none">
         <Suspense fallback={<RouteLoading />}>
           <Outlet />
         </Suspense>
