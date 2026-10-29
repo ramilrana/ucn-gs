@@ -12,10 +12,10 @@ it('is closed by default and opens with defaultOpen', () => {
 
 // jsdom does not implement the browser rule "Enter/Space on a focused <summary> fires click",
 // and user-event does not synthesize it either, so Enter alone cannot toggle <details> here.
-// What can be verified honestly: the summary is a native, keyboard-focusable <summary>; Enter
-// is not intercepted (default not prevented, so the browser's native activation proceeds);
-// and the activation click that Enter produces in browsers toggles the element open and closed.
-it('Disclosure toggles open with Enter on summary (native activation)', async () => {
+// What can be verified: the summary is a native, keyboard-focusable <summary>, and activating it
+// (the click that Enter/Space produce in browsers) toggles the element open and closed.
+// The real Enter/Space check happens in the Task 27 browser keyboard pass.
+it('summary is natively focusable and activation toggles it', async () => {
   const user = userEvent.setup();
   const { container } = render(<Disclosure summary="Question">Answer</Disclosure>);
   const details = container.querySelector('details');
@@ -24,10 +24,6 @@ it('Disclosure toggles open with Enter on summary (native activation)', async ()
 
   await user.tab();
   expect(document.activeElement).toBe(summary);
-
-  const enter = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
-  summary?.dispatchEvent(enter);
-  expect(enter.defaultPrevented).toBe(false);
 
   await user.click(summary as HTMLElement);
   expect(details?.hasAttribute('open')).toBe(true);
