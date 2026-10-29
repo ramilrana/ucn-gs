@@ -4,79 +4,96 @@ Canonical snapshot of where the project stands. Update in place; do not append s
 
 ## Objective
 
-Build the UCN (University of Camarines Norte) Graduate School Accreditation Website as a static frontend.
+Build the UCN (University of Camarines Norte) Graduate School Accreditation Website as a static frontend for one GS program.
 
-Existing stack (from `package.json`): React 19, TypeScript 5.8, Vite 7, Ant Design 5, React Router 7, ESLint 9. Deployed config exists for Vercel (`vercel.json`) and Netlify-style hosts (`public/_headers`, `public/_redirects`). Node >= 20; CI uses Node 22.
+Existing stack (from `package.json`): React 19, TypeScript 5.8, Vite 7, Ant Design 5, React Router 7, ESLint 9. Node >= 20; CI uses Node 22. Under the design, Ant Design is replaced by Tailwind CSS v4.
 
 ## Phase
 
-**Setup complete. Next: brainstorming.** No design spec or implementation plan exists yet.
+**Brainstorming: design approved in conversation; written spec awaiting the user's review.**
+
+- Spec: `docs/superpowers/specs/2026-10-29-ucn-gs-accreditation-site-design.md`
+- Reference inventory: `docs/reference-inventory.md`
+
+No implementation plan exists. No implementation has started.
 
 ## Approved decisions
 
 - Workflow: Plan Mode on Opus, execution on Sonnet via `opusplan`, `effortLevel: high` (`.claude/settings.json`).
-- Read-only `ucn-opus-reviewer` subagent (Opus, high effort) runs sequentially at three checkpoints; see `CLAUDE.md`.
-- `CURRENT_STATE.md` is the single state snapshot; the approved plan (once written) is the source of truth for tasks.
-
-Not yet decided: whether to keep the existing stack and code, site structure, design direction, and content.
+- Read-only `ucn-opus-reviewer` subagent runs sequentially at checkpoints A, B and C; see `CLAUDE.md`.
+- `CURRENT_STATE.md` is the single state snapshot. The approved spec and plan are the source of truth.
+- Design decisions D1–D9, approved section by section on 2026-10-29. Full text is in spec §3:
+  - **D1:** the reference is used for structure only; no PUP content.
+  - **D2:** Tailwind v4 replaces Ant Design.
+  - **D3:** mixed hosting (local files plus Drive/YouTube).
+  - **D4:** one program.
+  - **D5:** published/pending items; pending is hidden in production.
+  - **D6:** UCN's own server, with per-route `index.html` and `.htaccess`.
+  - **D7:** refactor in place, typed TS content.
+  - **D8:** no slideshow autoplay.
+  - **D9:** no gold text or state indicators on white.
 
 ## Reference and content status
 
-- Reference website: not provided yet.
-- Verified content: none. Every value in `src/data/site.ts`, `staff.ts`, and `media.ts` is placeholder content for a "Research Office" media site (example.edu emails, `+00` phone).
-- Assets in repo: `public/SchoolLogo.png`, `public/favicon.svg`, placeholder SVGs in `public/media/images` and `public/media/posters`, `public/media/videos/sample.mp4`.
-- Asset outside repo: `../ucn_logo.png` (about 1 MB, in the parent `gsweb` folder; not committed).
-- Missing: accreditation content (programs, accreditation levels/status, documents, faculty, contact details), real photos, and the reference site.
+- **Reference:** https://sites.google.com/view/pupgs-mapsych/, inspected 2026-10-29. It is **PUP Graduate School's MA Psychology site**, used for structure only.
+- **Verified UCN content:** none. Everything in `src/data/` is Research Office placeholder content.
+- **UCN assets available:** `../ucn_logo.png` (full seal with wordmark, about 1 MB, outside the repo) is the only one. It is the single logo under the design.
+- **Missing:** all accreditation content. The full list is in spec §13.
+- **Open questions** (spec §14):
+  - program name
+  - area list
+  - number and titles of recommendations
+  - Apache or Nginx, domain and base path, HTTPS
+  - download permissions
+  - Filipino text
 
-## Architecture overview
+## Architecture overview (existing code, before refactor)
 
-The existing code is a Research Office photo/video gallery, not yet the accreditation site.
+The repo is still a Research Office photo and video gallery:
+- **Routes:** `/`, `/gallery`, `/videos`, `/about`, `*`
+- **Shell:** Ant Design `Layout` in `src/app/App.tsx`
+- **Content:** typed data in `src/data/`
 
-- Routes (`src/app/routes.tsx`, lazy-loaded): `/`, `/gallery`, `/videos`, `/about`, `*` (404).
-- Shell: `src/app/App.tsx` (AntD `Layout`, `AppHeader`, `AppFooter`, `Suspense` skeleton), `src/app/AppProviders.tsx`.
-- Shared components: `src/components/` (header, footer, `PageBanner`, `SectionHeading`, `ContactBand`, `ErrorBoundary`, `OnDark`).
-- Features: `src/features/{home,gallery,about}` with their own components; gallery has `categories.ts` and `useMediaFilter`.
-- Content: typed data modules in `src/data/` with types in `src/types/`. Design tokens in `src/styles/tokens.ts`, global CSS in `src/styles/global.css`.
-- Utilities: `src/utils/safeUrl.ts`, `src/utils/fallbackImage.ts`.
+The target architecture is in spec §6.
 
 ## Plan and progress
 
-- Design spec: not written.
+- Done: workflow setup; repo and reference inspection; brainstorming Q&A; design sections 1–5 approved; spec written.
+- Current task: the user reviews the written spec.
 - Implementation plan: not written.
-- Done: Claude Code workflow setup (model routing, reviewer, continuity docs).
-- Current task: none in progress.
 
 ## Recent changes (2026-10-29)
 
-- `.claude/settings.json`: `opusplan` routing and high effort.
-- `.claude/agents/ucn-opus-reviewer.md`: read-only Opus reviewer.
-- `CLAUDE.md`: plan/execute/review workflow and continuity rules.
-- `CURRENT_STATE.md`: this file.
+- Added `docs/reference-inventory.md` and the design spec.
+- Updated this file.
+- Earlier: workflow config (`5606edc`, `2c3c6b2`, `ea12c28`) on `chore/claude-model-routing`, pushed, not merged to `main`, no PR.
 
-All are committed (`5606edc`, `2c3c6b2`) on branch `chore/claude-model-routing` and pushed; that branch is not merged to `main` and has no PR.
-
-## Verification status (2026-10-29, on the existing code)
+## Verification status (2026-10-29, on the existing code, before this session)
 
 | Check | Result |
 |---|---|
 | `npm run lint` | Pass |
 | `npm run typecheck` | Pass |
-| `npm run build` | Pass, with warning: `antd` chunk 719 kB (> 500 kB limit) |
+| `npm run build` | Pass, with warning: `antd` chunk 719 kB |
 | `npm run audit:prod` | Pass, 0 vulnerabilities |
 | Unit/E2E tests | None exist |
-| Reviewer | Only a config smoke test (verdict PASS on `.claude/settings.json`). No code review has been run. |
+| Reviewer | Config smoke test only (PASS). No code review has run. |
 | Browser/visual check | Not run |
+
+No checks were run this session (documentation only).
 
 ## Known issues and blockers
 
-- Blocker for content work: no reference website or verified accreditation content yet.
-- `src/data/staff.ts`: `staff-002` is duplicated (likely duplicate React keys). Found by reading, not confirmed at runtime.
-- `src/components/AppHeader.tsx:32` and `src/data/media.ts:167` use `/public/SchoolLogo.png`; Vite serves `public/` at the root, so the path should probably be `/SchoolLogo.png`. Not confirmed at runtime.
-- `index.html` title and description still say "Research Office"; `package.json` name is `research-office-site`.
-- Large `antd` bundle chunk (see build warning).
+- **Content blocker:** no verified UCN accreditation content yet.
+- **Existing-code defects, removed by the planned refactor (spec §6):**
+  - duplicate `staff-002` in `src/data/staff.ts`
+  - `/public/SchoolLogo.png` paths in `AppHeader.tsx:32` and `media.ts:167`
+  - "Research Office" title in `index.html`
+  - `package.json` name
 
 ## Next actions
 
-1. Brainstorm in Plan Mode: site purpose and audience, page structure, reference website, content inventory, and whether to repurpose or replace the Research Office code.
-2. Write and approve the design spec, then the implementation plan; link both here.
-3. Merge or open a PR for `chore/claude-model-routing` so the workflow config is on `main`.
+1. User reviews the spec. Apply any changes and re-run the spec self-review.
+2. After spec approval, invoke writing-plans (Plan Mode, Opus) to write the implementation plan, and link it here.
+3. Collect the answers to the spec §14 open questions and the UCN materials (spec §13).
+4. Merge or open a PR for `chore/claude-model-routing` so the workflow config reaches `main`.
