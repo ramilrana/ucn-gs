@@ -4,12 +4,8 @@ interface ImportMetaEnv {
   readonly VITE_CONTENT_PREVIEW?: string;
 }
 
-// vite-imagetools does not export a `Picture` type, so the shape is declared here.
+// vite-imagetools does not export a `Picture` type, so the shape lives in src/types/picture.ts.
 declare module '*as=picture' {
-  interface Picture {
-    sources: Record<string, string>;
-    img: { src: string; w: number; h: number };
-  }
-  const picture: Picture;
+  const picture: import('./types/picture').Picture;
   export default picture;
 }
