@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Alert, Card, Flex, Tag, Typography } from 'antd';
 import type { VideoItem } from '../../../types/media';
-import { safeUrl } from '../../../utils/safeUrl';
+import { safeHref as safeUrl } from '../../../lib/safeUrl';
 import { colors } from '../../../styles/tokens';
 import { CATEGORY_LABELS } from '../categories';
 

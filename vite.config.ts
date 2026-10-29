@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 
@@ -27,6 +28,12 @@ function cspMetaOnBuild(): Plugin {
 
 export default defineConfig({
   plugins: [react(), cspMetaOnBuild()],
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['src/test/setup.ts'],
+    include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.ts', 'config/**/*.test.ts'],
+    exclude: ['**/*.live.test.ts', '**/node_modules/**'],
+  },
   build: {
     sourcemap: false,
     target: 'es2020',

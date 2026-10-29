@@ -4,7 +4,7 @@ import { OnDark } from '../../../components/OnDark';
 import { site } from '../../../data/site';
 import type { ImageItem } from '../../../types/media';
 import { FALLBACK_IMAGE } from '../../../utils/fallbackImage';
-import { safeUrl } from '../../../utils/safeUrl';
+import { safeHref as safeUrl } from '../../../lib/safeUrl';
 import { CATEGORY_LABELS } from '../../gallery/categories';
 
 export function HomeHero({ image }: { image?: ImageItem }) {

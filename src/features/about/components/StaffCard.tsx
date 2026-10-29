@@ -2,7 +2,7 @@ import { MailOutlined } from "@ant-design/icons";
 import { Avatar, Card, Space, Tag, Typography } from "antd";
 import type { ImageItem } from "../../../types/media";
 import type { StaffMember } from "../../../types/staff";
-import { safeUrl } from "../../../utils/safeUrl";
+import { safeHref as safeUrl } from '../../../lib/safeUrl';
 
 interface StaffCardProps {
   member: StaffMember;

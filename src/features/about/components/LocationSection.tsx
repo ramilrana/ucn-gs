@@ -2,7 +2,7 @@ import { CompassOutlined, EnvironmentOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Image, List, Row, Space, Typography } from "antd";
 import { campusMap } from "../../../data/media";
 import { site } from "../../../data/site";
-import { safeUrl } from "../../../utils/safeUrl";
+import { safeHref as safeUrl } from '../../../lib/safeUrl';
 
 export function LocationSection() {
   const mapSrc = safeUrl(campusMap.src);

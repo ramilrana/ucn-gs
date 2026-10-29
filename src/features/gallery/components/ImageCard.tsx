@@ -1,7 +1,7 @@
 import { Card, Flex, Image, Skeleton, Tag, Typography } from 'antd';
 import type { ImageItem } from '../../../types/media';
 import { FALLBACK_IMAGE } from '../../../utils/fallbackImage';
-import { safeUrl } from '../../../utils/safeUrl';
+import { safeHref as safeUrl } from '../../../lib/safeUrl';
 import { colors } from '../../../styles/tokens';
 import { CATEGORY_LABELS } from '../categories';
 
