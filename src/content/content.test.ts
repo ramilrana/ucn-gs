@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { existsSync, readdirSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import type { Area, ImageAsset, Person, Recommendation, Resource } from '../types/content';
+import type { Area, EvidenceBlock, EvidenceGroup, Faq, ImageAsset, Person, Recommendation, Resource, ResourceGroup } from '../types/content';
 import * as content from './index';
 import {
   checkFilenames,
@@ -132,5 +132,106 @@ describe('rejects a bad fixture', () => {
       expect(checkSlugs([s]), s).toHaveLength(1);
     }
     expect(checkSlugs(['research', 'teaching-and-learning', 'area-2'])).toEqual([]);
+  });
+});
+
+describe('collectors traverse nested content', () => {
+  const res = (id: string, status: Resource['status'] = 'pending'): Resource => ({ id, title: id, format: 'pdf', status }) as Resource;
+  const img = (src: string): ImageAsset => image({ src });
+  const group = (id: string, status: 'published' | 'pending', blocks: EvidenceBlock[]): EvidenceGroup => ({ id, title: id, status, blocks });
+
+  const area: Area = {
+    slug: 'sample', order: 1, title: 'Sample', status: 'published',
+    gallery: { status: 'published', label: 'g', value: [img('/area-pub.jpg')] },
+    narrativeReport: res('area-narrative'),
+    groups: [
+      group('g-pub', 'published', [
+        { type: 'document', resource: res('blk-doc') },
+        { type: 'resources', items: [res('blk-item-1'), res('blk-item-2')] },
+        { type: 'video', resource: { ...res('blk-video'), format: 'video' } },
+        { type: 'gallery', images: [img('/ev-pub.jpg')] },
+      ]),
+      group('g-pend', 'pending', [{ type: 'gallery', images: [img('/ev-pend.jpg')] }]),
+    ],
+    additionalFiles: [res('area-extra')],
+    avp: { ...res('area-avp'), format: 'video', avpTitle: 'AVP' },
+  };
+  const pendingArea: Area = {
+    ...area, slug: 'pending-area', status: 'pending',
+    gallery: { status: 'pending', label: 'g', value: [img('/area-pend.jpg')] },
+    narrativeReport: res('pa-narrative'), groups: [], additionalFiles: [], avp: undefined,
+  };
+  const rec: Recommendation = {
+    number: 1, title: 'R1', status: 'published',
+    document: res('rec-doc'),
+    evidence: [group('rec-ev', 'published', [{ type: 'resources', items: [res('rec-ev-item')] }, { type: 'gallery', images: [img('/rec-pub.jpg')] }])],
+    additionalFiles: [res('rec-extra')],
+  };
+  const pendingRec: Recommendation = {
+    ...rec, number: 2, status: 'pending', document: res('rec2-doc'), additionalFiles: [],
+    evidence: [group('rec2-ev', 'published', [{ type: 'gallery', images: [img('/rec-pend.jpg')] }])],
+  };
+  const pubPerson = person({ id: 'person-pub', photo: img('/person-pub.jpg') });
+  const pendPerson = person({ id: 'person-pend', status: 'pending', photo: img('/person-pend.jpg') });
+  const faq: Faq = { id: 'faq-1', question: 'q', answer: ['a'], status: 'published' };
+  const rgroup: ResourceGroup = { id: 'rg-1', title: 'rg', status: 'published', items: [res('rg-item')] };
+  const fixture = { areas: [area, pendingArea], recommendations: [rec, pendingRec], people: [pubPerson, pendPerson], faqs: [faq], additionalFiles: [rgroup] };
+
+  it('collectResources finds resources at every depth', () => {
+    const ids = collectResources(fixture).map((r) => r.id);
+    for (const id of [
+      'area-narrative', 'blk-doc', 'blk-item-1', 'blk-item-2', 'blk-video', 'area-extra', 'area-avp',
+      'rec-doc', 'rec-ev-item', 'rec-extra', 'rg-item', 'pa-narrative', 'rec2-doc',
+    ]) {
+      expect(ids, id).toContain(id);
+    }
+    // Evidence groups, people and FAQs are not resources.
+    expect(ids).not.toContain('g-pub');
+    expect(ids).not.toContain('person-pub');
+    expect(ids).not.toContain('faq-1');
+  });
+
+  it('collectIds finds ids from groups, people, FAQs and resource groups', () => {
+    const ids = collectIds(fixture);
+    for (const id of ['g-pub', 'g-pend', 'rec-ev', 'person-pub', 'person-pend', 'faq-1', 'rg-1', 'blk-doc', 'rec-doc']) {
+      expect(ids, id).toContain(id);
+    }
+    expect(checkIds(ids)).toEqual([]);
+  });
+
+  it('a duplicate id across two different types is reported', () => {
+    const clash = { ...fixture, faqs: [{ ...faq, id: 'person-pub' }] };
+    expect(checkIds(collectIds(clash))).toEqual(['duplicate id "person-pub"']);
+    const clash2 = { ...fixture, additionalFiles: [{ ...rgroup, id: 'g-pub' }] };
+    expect(checkIds(collectIds(clash2))).toEqual(['duplicate id "g-pub"']);
+  });
+
+  it('collectPeople finds people inside a fixture', () => {
+    expect(collectPeople(fixture).map((p) => p.id).sort()).toEqual(['person-pend', 'person-pub']);
+    expect(collectPeople({ nested: { deeper: [{ list: [pubPerson] }] } })).toEqual([pubPerson]);
+  });
+
+  it('collectImages collects published images only', () => {
+    const where = collectImages(fixture).map((l) => l.image.src).sort();
+    expect(where).toEqual(['/area-pub.jpg', '/ev-pub.jpg', '/person-pub.jpg', '/rec-pub.jpg']);
+    for (const pending of ['/area-pend.jpg', '/ev-pend.jpg', '/person-pend.jpg', '/rec-pend.jpg']) {
+      expect(where).not.toContain(pending);
+    }
+  });
+
+  it('collectImages catches a missing alt on each nested location', () => {
+    const noAlt = (src: string): ImageAsset => ({ ...img(src), alt: '' });
+    const broken = {
+      home: {
+        leadershipSlides: { status: 'published', value: [noAlt('/l.jpg')] },
+        accreditationSlide1: { status: 'published', value: noAlt('/s1.jpg') },
+        accreditationSlide2: { status: 'published', value: noAlt('/s2.jpg') },
+        gallery: { status: 'published', value: [noAlt('/hg.jpg')] },
+      },
+      people: [person({ photo: noAlt('/p.jpg') })],
+      areas: [{ ...area, gallery: { status: 'published' as const, label: 'g', value: [noAlt('/ag.jpg')] }, groups: [group('x', 'published', [{ type: 'gallery', images: [noAlt('/eg.jpg')] }])] }],
+      recommendations: [{ ...rec, evidence: [group('y', 'published', [{ type: 'gallery', images: [noAlt('/rg.jpg')] }])] }],
+    };
+    expect(checkImages(collectImages(broken))).toHaveLength(8);
   });
 });
