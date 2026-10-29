@@ -10,5 +10,5 @@ describe('safeHref', () => {
   ])('allows %s', (input, out) => expect(safeHref(input)).toBe(out));
 
   it.each(['javascript:alert(1)', ' JavaScript:alert(1)', 'data:text/html,x', 'http://example.org',
-    '//evil.example', 'ftp://x', '', 'not a url'])('rejects %j', (input) => expect(safeHref(input)).toBeNull());
+    '//evil.example', '/\\evil.example', '/\t/evil.example', '/\n/evil.example', 'ftp://x', '', 'not a url'])('rejects %j', (input) => expect(safeHref(input)).toBeNull());
 });
