@@ -15,4 +15,16 @@ Model routing is set in `.claude/settings.json` (`model: opusplan`, `effortLevel
 4. **Fix** every Critical and High finding (and Medium ones unless deferral is justified), then rerun the relevant checks.
 5. **Re-review** the same checkpoint if Critical or High findings remain unresolved. Move on only when the verdict is PASS or PASS WITH ISSUES with no open Critical/High findings.
 6. Only say a review happened if the reviewer actually ran and returned findings. Quote its verdict; never paraphrase a review that did not occur.
-7. **Track state** in `.claude/review-log.md` (append-only): per checkpoint, the date, task status, checks run with pass/fail, reviewer verdict, findings fixed, and findings still open. Read it at the start of each phase and after context compaction.
+7. **Track state** in `CURRENT_STATE.md`: task status, checks run with pass/fail, reviewer verdicts, and findings still open (see Continuity).
+
+## Continuity across conversations
+
+`CURRENT_STATE.md` is the compact snapshot of progress. The approved design spec and implementation plan remain the source of truth for requirements and the full task breakdown; do not turn the state file into a second plan.
+
+- **Start of a conversation:** read `CURRENT_STATE.md` and this file before continuing. Open the design spec and plan only for the sections the current task needs. Do not ask for the original master prompt when these documents already cover it.
+- **Update `CURRENT_STATE.md`** at design approval, plan approval, significant implementation progress, each review checkpoint, and the end of every working session. Edit sections in place; do not append repeated summaries. Keep it short and accurate.
+- **Always preserve** unfinished work, failed or unrun checks, unresolved review findings, and the exact next task. Record only checks and reviews that actually ran.
+- **Never change an approved decision** without a stated reason, recorded under Approved decisions.
+- **End of session:** update `CURRENT_STATE.md`, then give the user (1) a short summary of work done, files changed, checks run, and open issues, and (2) a ready-to-paste continuation prompt such as:
+
+  > Read `CLAUDE.md` and `CURRENT_STATE.md`, then resume the first item under Next actions. Read the design spec and plan only as that task needs.
