@@ -41,3 +41,14 @@ export interface SiteContent {
   contact: Slot<{ address: string; email?: string; phone?: string; hours?: string }>;
   mapQuery: Slot<string>;
 }
+export interface HomeContent {
+  leadershipSlides: Slot<ImageAsset[]>; accreditationSlide1: Slot<ImageAsset>;
+  accreditationHeading: string; accreditationSlide2: Slot<ImageAsset>;
+  gallery: Slot<ImageAsset[]>; video: Resource;
+  deanMessage: Slot<LeaderMessage>; programChairMessage: Slot<LeaderMessage>;
+}
+export interface AboutContent {
+  photo: Slot<ImageAsset>; mission: Slot<string[]>; vision: Slot<string[]>;
+  goals: Slot<string[]>; objectives: Slot<string[]>; history: Slot<string[]>;
+}
+export interface CertificateContent { pdf: Resource; image: Slot<ImageAsset> }
