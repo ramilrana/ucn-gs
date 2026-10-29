@@ -10,7 +10,12 @@ Existing stack (from `package.json`): React 19, TypeScript 5.8, Vite 7, Ant Desi
 
 ## Phase
 
-**Brainstorming complete. Spec approved by the user (2026-10-29). Next: the implementation plan (writing-plans), in a new session.**
+**Implementation plan written and self-reviewed (2026-10-29). Awaiting the user's approval before execution.**
+
+- Plan: `docs/superpowers/plans/2026-10-29-ucn-gs-accreditation-site.md`
+  - 29 tasks in 8 phases
+  - reviewer checkpoints A (after Task 12), B (after Task 25) and C (Task 28)
+  - Task 29 is blocked on UCN materials
 
 - Spec: `docs/superpowers/specs/2026-10-29-ucn-gs-accreditation-site-design.md`
 - Reference inventory: `docs/reference-inventory.md`
@@ -59,8 +64,12 @@ The target architecture is in spec §6.
 ## Plan and progress
 
 - Done: workflow setup; repo and reference inspection; brainstorming Q&A; design sections 1–5 approved; spec written and approved.
-- Current task: none. Writing the plan was deliberately left for a new session, as the brainstorming session's stage lock required.
-- Implementation plan: not written.
+- Implementation plan: written and awaiting approval. No task has started; every checkbox in it is unchecked.
+- Version facts verified for the plan (2026-10-29):
+  - `vite-imagetools@12` needs Vite 8, so the plan pins `^10.0.1`, which supports Vite 7.
+  - Vitest 5 needs Node ≥22.12, so `engines.node` becomes `>=22.12.0`.
+  - The local machine runs Node 26.3.0.
+- Plan deltas from the spec are listed in the plan under "Spec deltas". One example: the `testing-accessibility-auditor` agent from agency-agents is installed read-only for checkpoint C.
 
 ## Recent changes (2026-10-29)
 
@@ -93,6 +102,6 @@ No checks were run this session (documentation only).
 
 ## Next actions
 
-1. Invoke the writing-plans skill (Plan Mode, Opus) on the approved spec to write the implementation plan, and link it here. Include the spec §12 agency-agents inspection in the plan.
+1. The user reviews and approves the plan. Then execute it from Task 1 in the main session (CLAUDE.md workflow), one task at a time, ticking checkboxes only after verification.
 3. Collect the answers to the spec §14 open questions and the UCN materials (spec §13).
 4. Merge or open a PR for `chore/claude-model-routing` so the workflow config reaches `main`.
