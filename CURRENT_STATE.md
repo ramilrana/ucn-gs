@@ -63,7 +63,11 @@ The target architecture is in spec §6.
 
 - Done: workflow setup; repo and reference inspection; brainstorming Q&A; design sections 1–5 approved; spec written and approved.
 - Implementation plan: approved 2026-10-29.
-- Task 1 done: branch `feat/accreditation-site`, baseline recorded, logo at `src/assets/brand/ucn-logo.png`.
+- Tasks 1–8 complete and task-reviewed (per-task Sonnet reviewer, fix rounds where needed). Commits 7f10675..e33a329.
+- Task 9 implemented (commit 6491843; 123/123 tests; first-load JS 103.88 kB gzip of 120 kB budget) but its task review has **not** run yet.
+- Execution ledger with every ruling and deferred minor finding: `.superpowers/sdd/2026-10-29-ucn-gs-accreditation-site/progress.md` (git-ignored via `.git/info/exclude`).
+- Rulings that deviate from plan text: `engines.node` is `>=22.22.2` (jsdom 30 floor); `safeHref` also rejects `\` and control chars; the a11y agent omits upstream `npx` commands; `useRouteEntry` lives in `src/app/useRouteEntry.ts`; Task 18 must export sample-free `contentAreas`/`contentRecommendations` for the routes test.
+- `ucn-opus-reviewer` and `accessibility-auditor` were not registered in this session (it started in the parent folder). Checkpoints must run them as registered agents after restarting Claude Code in `ucn-gs`, or as general-purpose Opus agents using the agent file verbatim.
 - Version facts verified for the plan (2026-10-29):
   - `vite-imagetools@12` needs Vite 8, so the plan pins `^10.0.1`, which supports Vite 7.
   - Vitest 5 needs Node ≥22.12, so `engines.node` becomes `>=22.12.0`.
@@ -87,8 +91,10 @@ Baseline on `feat/accreditation-site` before refactor (2026-10-29, Task 1):
 | `npm run typecheck` | Pass |
 | `npm run build` | Pass, with warning: `antd` chunk 719.20 kB (gzip 225.99 kB) |
 | `npm run audit:prod` | Pass, 0 vulnerabilities |
-| Unit/E2E tests | None exist yet |
+| Unit/E2E tests | None before Task 3 |
 | Reviewer | Config smoke test only (PASS). No code review has run yet. |
+
+Latest (after Task 9, implementer-reported, 2026-10-29): lint, typecheck, `npm test` (123/123), build, check:dist, audit:prod (0 vulnerabilities) all pass. `/gs/` and `/ucn-assets/` subpath builds passed check:dist in Task 5. No checkpoint review (A/B/C) has run yet.
 
 ## Known issues and blockers
 
@@ -101,6 +107,7 @@ Baseline on `feat/accreditation-site` before refactor (2026-10-29, Task 1):
 
 ## Next actions
 
-1. Execute the approved plan from Task 1 (Task 1 creates `feat/accreditation-site` from `docs/accreditation-design-spec`). Follow the CLAUDE.md workflow: main session, one task at a time, tick checkboxes only after verification, and reviewer checkpoints after Tasks 12, 25 and 28.
-3. Collect the answers to the spec §14 open questions and the UCN materials (spec §13).
-4. Merge or open a PR for `chore/claude-model-routing` so the workflow config reaches `main`.
+1. Dispatch the Task 9 task review (package `review-e33a329..6491843.diff` in the ledger folder), fix findings, then continue with Tasks 10–12 and checkpoint A. Follow the CLAUDE.md workflow.
+2. Collect the answers to the spec §14 open questions and the UCN materials (spec §13).
+3. Merge or open a PR for `chore/claude-model-routing` so the workflow config reaches `main`.
+4. Two stale `npm run dev` Vite servers (started 10:25 and 15:47) still run from this folder. Stop them yourself; the session was not permitted to.
