@@ -10,7 +10,7 @@ Existing stack (from `package.json`): React 19, TypeScript 5.8, Vite 7, Ant Desi
 
 ## Phase
 
-**Implementation plan approved by the user (2026-10-29). Next: execute from Task 1.**
+**Implementation in progress on branch `feat/accreditation-site` (started 2026-10-29).** Task progress is in the Plan and progress section.
 
 - Plan: `docs/superpowers/plans/2026-10-29-ucn-gs-accreditation-site.md`
   - 29 tasks in 8 phases
@@ -19,8 +19,6 @@ Existing stack (from `package.json`): React 19, TypeScript 5.8, Vite 7, Ant Desi
 
 - Spec: `docs/superpowers/specs/2026-10-29-ucn-gs-accreditation-site-design.md`
 - Reference inventory: `docs/reference-inventory.md`
-
-No implementation plan exists. No implementation has started.
 
 ## Approved decisions
 
@@ -64,7 +62,8 @@ The target architecture is in spec §6.
 ## Plan and progress
 
 - Done: workflow setup; repo and reference inspection; brainstorming Q&A; design sections 1–5 approved; spec written and approved.
-- Implementation plan: approved 2026-10-29. No task has started; every checkbox in it is unchecked.
+- Implementation plan: approved 2026-10-29.
+- Task 1 done: branch `feat/accreditation-site`, baseline recorded, logo at `src/assets/brand/ucn-logo.png`.
 - Version facts verified for the plan (2026-10-29):
   - `vite-imagetools@12` needs Vite 8, so the plan pins `^10.0.1`, which supports Vite 7.
   - Vitest 5 needs Node ≥22.12, so `engines.node` becomes `>=22.12.0`.
@@ -77,19 +76,19 @@ The target architecture is in spec §6.
 - Updated this file.
 - Earlier: workflow config (`5606edc`, `2c3c6b2`, `ea12c28`) on `chore/claude-model-routing`, pushed, not merged to `main`, no PR.
 
-## Verification status (2026-10-29, on the existing code, before this session)
+## Verification status
+
+Baseline on `feat/accreditation-site` before refactor (2026-10-29, Task 1):
 
 | Check | Result |
 |---|---|
+| `npm ci` | Pass (after moving aside files locked by two stale `npm run dev` Vite servers; npm warns esbuild postinstall is not approved, build unaffected) |
 | `npm run lint` | Pass |
 | `npm run typecheck` | Pass |
-| `npm run build` | Pass, with warning: `antd` chunk 719 kB |
+| `npm run build` | Pass, with warning: `antd` chunk 719.20 kB (gzip 225.99 kB) |
 | `npm run audit:prod` | Pass, 0 vulnerabilities |
-| Unit/E2E tests | None exist |
-| Reviewer | Config smoke test only (PASS). No code review has run. |
-| Browser/visual check | Not run |
-
-No checks were run this session (documentation only).
+| Unit/E2E tests | None exist yet |
+| Reviewer | Config smoke test only (PASS). No code review has run yet. |
 
 ## Known issues and blockers
 
