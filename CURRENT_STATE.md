@@ -10,7 +10,7 @@ Existing stack (from `package.json`): React 19, TypeScript 5.8, Vite 7, Ant Desi
 
 ## Phase
 
-**Implementation plan written and self-reviewed (2026-10-29). Awaiting the user's approval before execution.**
+**Implementation plan approved by the user (2026-10-29). Next: execute from Task 1.**
 
 - Plan: `docs/superpowers/plans/2026-10-29-ucn-gs-accreditation-site.md`
   - 29 tasks in 8 phases
@@ -64,7 +64,7 @@ The target architecture is in spec §6.
 ## Plan and progress
 
 - Done: workflow setup; repo and reference inspection; brainstorming Q&A; design sections 1–5 approved; spec written and approved.
-- Implementation plan: written and awaiting approval. No task has started; every checkbox in it is unchecked.
+- Implementation plan: approved 2026-10-29. No task has started; every checkbox in it is unchecked.
 - Version facts verified for the plan (2026-10-29):
   - `vite-imagetools@12` needs Vite 8, so the plan pins `^10.0.1`, which supports Vite 7.
   - Vitest 5 needs Node ≥22.12, so `engines.node` becomes `>=22.12.0`.
@@ -102,6 +102,6 @@ No checks were run this session (documentation only).
 
 ## Next actions
 
-1. The user reviews and approves the plan. Then execute it from Task 1 in the main session (CLAUDE.md workflow), one task at a time, ticking checkboxes only after verification.
+1. Execute the approved plan from Task 1 (Task 1 creates `feat/accreditation-site` from `docs/accreditation-design-spec`). Follow the CLAUDE.md workflow: main session, one task at a time, tick checkboxes only after verification, and reviewer checkpoints after Tasks 12, 25 and 28.
 3. Collect the answers to the spec §14 open questions and the UCN materials (spec §13).
 4. Merge or open a PR for `chore/claude-model-routing` so the workflow config reaches `main`.
