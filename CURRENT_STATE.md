@@ -53,7 +53,7 @@ The existing code is a Research Office photo/video gallery, not yet the accredit
 - `CLAUDE.md`: plan/execute/review workflow and continuity rules.
 - `CURRENT_STATE.md`: this file.
 
-The first three are committed (`5606edc`) on branch `chore/claude-model-routing` and pushed; that branch is not merged to `main` and has no PR. `CURRENT_STATE.md` and the latest `CLAUDE.md` edits are uncommitted.
+All are committed (`5606edc`, `2c3c6b2`) on branch `chore/claude-model-routing` and pushed; that branch is not merged to `main` and has no PR.
 
 ## Verification status (2026-10-29, on the existing code)
 
