@@ -1,14 +1,9 @@
 import { useRouteEntry } from '../app/useRouteEntry';
-import { useDocumentTitle } from '../lib/useDocumentTitle';
+import { PageShell } from '../components/layout/PageShell';
 import NotFoundPage from './NotFoundPage';
 
 export default function AvpPage() {
   const entry = useRouteEntry();
-  useDocumentTitle(entry?.title ?? 'Page not found');
   if (!entry) return <NotFoundPage />;
-  return (
-    <h1 id="page-title" tabIndex={-1}>
-      {entry.title}
-    </h1>
-  );
+  return <PageShell title={entry.title} hasContent={false} />;
 }

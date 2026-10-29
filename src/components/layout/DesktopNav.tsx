@@ -12,7 +12,7 @@ interface DesktopNavProps {
 const TRAILING_RIGHT_ANCHORED = 2;
 
 const linkBase =
-  'inline-flex min-h-11 items-center border-b-[3px] px-3 font-medium text-ink hover:text-maroon-800';
+  'inline-flex min-h-11 items-center whitespace-nowrap border-b-[3px] px-1.5 font-medium text-ink hover:text-maroon-800 xl:px-3';
 
 /** Visible from 1024px. Items with children are a link plus a separate 44px chevron button. */
 export function DesktopNav({ items, pathname }: DesktopNavProps) {
@@ -54,7 +54,7 @@ export function DesktopNav({ items, pathname }: DesktopNavProps) {
 
   return (
     <nav ref={navRef} aria-label="Main" className="hidden lg:block">
-      <ul className="flex items-center gap-1">
+      <ul className="flex items-center xl:gap-1">
         {items.map((item, index) => {
           const current = currentFor(item, pathname);
           const linkClass = `${linkBase} ${current ? 'border-maroon-800 text-maroon-800' : 'border-transparent'}`;
@@ -81,7 +81,7 @@ export function DesktopNav({ items, pathname }: DesktopNavProps) {
               className="relative flex items-center"
               onBlur={closeWhenFocusLeaves(item.label)}
             >
-              <Link to={item.path} aria-current={current} className={`${linkClass} pr-1`}>
+              <Link to={item.path} aria-current={current} className={`${linkClass} pr-1 xl:pr-1`}>
                 {item.label}
               </Link>
               <button

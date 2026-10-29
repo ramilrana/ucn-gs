@@ -58,4 +58,9 @@ describe('ActionLink', () => {
     render(<ActionLink href="https://example.org" variant="primary">Go</ActionLink>);
     expect(screen.getByRole('link').classList.contains('bg-maroon-800')).toBe(true);
   });
+
+  it('link variant turns white inside an on-maroon container, since maroon text is invisible there', () => {
+    render(<ActionLink href="https://example.org/a">Contact</ActionLink>);
+    expect(screen.getByRole('link').className).toContain('[.on-maroon_&]:text-white');
+  });
 });
