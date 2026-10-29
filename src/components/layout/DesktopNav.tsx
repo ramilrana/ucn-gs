@@ -8,6 +8,9 @@ interface DesktopNavProps {
   pathname: string;
 }
 
+/** How many trailing top-level items open their dropdown right-aligned. */
+const TRAILING_RIGHT_ANCHORED = 2;
+
 const linkBase =
   'inline-flex min-h-11 items-center border-b-[3px] px-3 font-medium text-ink hover:text-maroon-800';
 
@@ -68,6 +71,8 @@ export function DesktopNav({ items, pathname }: DesktopNavProps) {
           }
 
           const panelId = `${idPrefix}-panel-${index}`;
+          // The last items sit at the right edge of the header: a left-anchored 256px panel would overflow the viewport.
+          const anchor = index >= items.length - TRAILING_RIGHT_ANCHORED ? 'right-0' : 'left-0';
           const open = openLabel === item.label;
           return (
             <li
@@ -95,7 +100,7 @@ export function DesktopNav({ items, pathname }: DesktopNavProps) {
               <ul
                 id={panelId}
                 hidden={!open}
-                className="absolute left-0 top-full z-40 min-w-64 rounded border border-line bg-white py-1"
+                className={`absolute ${anchor} top-full z-40 min-w-64 rounded border border-line bg-white py-1`}
               >
                 {children.map((child) => {
                   const isCurrent = normalizePath(pathname) === child.path;

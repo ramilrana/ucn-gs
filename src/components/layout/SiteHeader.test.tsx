@@ -109,6 +109,19 @@ describe('SiteHeader', () => {
     expect(compliance.getAttribute('aria-expanded')).toBe('false');
   });
 
+  it('anchors trailing dropdown panels to the right edge and leading ones to the left', () => {
+    renderHeader();
+    const nav = within(desktopNav());
+    const panelFor = (name: RegExp) =>
+      document.getElementById(nav.getByRole('button', { name }).getAttribute('aria-controls') ?? '');
+    const first = panelFor(/Accreditation Areas/);
+    const last = panelFor(/About/);
+    expect(first?.classList.contains('left-0')).toBe(true);
+    expect(first?.classList.contains('right-0')).toBe(false);
+    expect(last?.classList.contains('right-0')).toBe(true);
+    expect(last?.classList.contains('left-0')).toBe(false);
+  });
+
   it('mobile menu opens a dialog and closes on link click', async () => {
     const user = userEvent.setup();
     renderHeader('/');
