@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 import { buildRouteObjects } from '../../app/router';
@@ -149,6 +149,42 @@ describe('SiteHeader', () => {
     expect(links).toContain('/compliance-report');
     expect(links).toContain('/compliance-report/recommendation-2');
     expect(links).toContain('/about');
+  });
+
+  it('mobile group containing the current page opens after client navigation', async () => {
+    const user = userEvent.setup();
+    const router = renderHeader('/compliance-report/recommendation-1');
+    const groupOpen = (label: string) => {
+      const summary = Array.from(getDialog().querySelectorAll('summary')).find((s) => s.textContent === label);
+      return summary?.parentElement?.hasAttribute('open');
+    };
+    expect(groupOpen('Compliance Report')).toBe(true);
+    expect(groupOpen('Accreditation Areas')).toBe(false);
+
+    await act(async () => {
+      await router.navigate('/accreditation-areas/research');
+    });
+    await user.click(screen.getByRole('button', { name: 'Menu' }));
+    expect(groupOpen('Accreditation Areas')).toBe(true);
+  });
+
+  it('mobile group is reopened after navigation even if the visitor collapsed it earlier', async () => {
+    const user = userEvent.setup();
+    const router = renderHeader('/compliance-report/recommendation-1');
+    const summary = Array.from(getDialog().querySelectorAll('summary')).find((s) => s.textContent === 'Compliance Report');
+    const details = summary?.parentElement;
+    if (!summary || !details) throw new Error('missing group');
+    expect(details.hasAttribute('open')).toBe(true);
+
+    await user.click(screen.getByRole('button', { name: 'Menu' }));
+    await user.click(summary); // the visitor collapses the group that holds the current page
+    expect(details.hasAttribute('open')).toBe(false);
+
+    await act(async () => {
+      await router.navigate('/compliance-report/recommendation-2');
+    });
+    const after = Array.from(getDialog().querySelectorAll('summary')).find((s) => s.textContent === 'Compliance Report');
+    expect(after?.parentElement?.hasAttribute('open')).toBe(true);
   });
 
   it('logo has alt text and links home', () => {

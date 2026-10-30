@@ -83,9 +83,16 @@ export function MobileNav({ items, pathname }: MobileNavProps) {
               }
               // The parent keeps its own link unless it is the same page as one of its children.
               const overviewIsChild = children.some((child) => child.path === item.path);
+              // defaultOpen is only read at mount, and the dialog stays mounted across navigations,
+              // so the key re-mounts the group (open when it holds the current page) on every navigation.
+              const active = isActive(item, pathname);
               return (
                 <li key={item.path}>
-                  <Disclosure summary={item.label} defaultOpen={isActive(item, pathname)}>
+                  <Disclosure
+                    key={`${normalizePath(pathname)}:${active}`}
+                    summary={item.label}
+                    defaultOpen={active}
+                  >
                     <ul>
                       {!overviewIsChild && (
                         <li>
