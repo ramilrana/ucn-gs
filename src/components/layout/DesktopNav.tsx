@@ -12,7 +12,7 @@ interface DesktopNavProps {
 const TRAILING_RIGHT_ANCHORED = 2;
 
 const linkBase =
-  'inline-flex min-h-11 items-center whitespace-nowrap border-b-[3px] px-1.5 font-medium text-ink hover:text-maroon-800 xl:px-3';
+  'inline-flex min-h-11 items-center whitespace-nowrap border-b-[3px] px-1.5 text-sm font-medium text-ink hover:text-maroon-800 xl:px-3 xl:text-base';
 
 /** Visible from 1024px. Items with children are a link plus a separate 44px chevron button. */
 export function DesktopNav({ items, pathname }: DesktopNavProps) {

@@ -223,6 +223,17 @@ describe('SiteHeader', () => {
     expect(brand?.querySelector('img')?.className).toContain('shrink-0');
   });
 
+  it('keeps the brand on two lines and the nav on one row at 1024px by tightening only at lg', () => {
+    renderHeader('/');
+    const row = screen.getByRole('banner').firstElementChild;
+    expect(row?.className).toContain('lg:px-4');
+    expect(row?.className).toContain('xl:px-6');
+    // Top-level desktop links are 14px at lg and return to 16px from xl.
+    const link = within(desktopNav()).getByRole('link', { name: 'Home' });
+    expect(link.className).toContain('text-sm');
+    expect(link.className).toContain('xl:text-base');
+  });
+
   it('logo has alt text and links home', () => {
     renderHeader();
     const logo = screen.getByAltText('University of Camarines Norte seal');

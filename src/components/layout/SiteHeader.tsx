@@ -21,7 +21,7 @@ export function SiteHeader({ manifest = routeManifest }: SiteHeaderProps) {
 
   return (
     <header className="border-b border-line bg-white">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-4 xl:px-6">
         <Link to="/" className="flex min-h-11 min-w-0 items-center gap-3 rounded">
           <img
             src={seal.src}
