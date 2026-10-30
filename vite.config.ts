@@ -26,18 +26,38 @@ function cspMetaOnBuild(): Plugin {
   };
 }
 
-export default defineConfig(({ mode }) => ({
-  // VITE_BASE_PATH=/gs/ in .env.production.local builds for a subpath (docs/deployment.md).
-  base: normalizeBase(loadEnv(mode, process.cwd(), '').VITE_BASE_PATH),
-  plugins: [react(), tailwindcss(), imagetools(), cspMetaOnBuild()],
-  test: {
-    environment: 'jsdom',
-    setupFiles: ['src/test/setup.ts'],
-    include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.ts', 'config/**/*.test.ts'],
-    exclude: ['**/*.live.test.ts', '**/node_modules/**'],
-  },
-  build: {
-    sourcemap: false,
-    target: 'es2020',
-  },
-}));
+/**
+ * Keeps the dev sample PDF out of production builds. Rollup drops the unused sample module, but Vite
+ * still emits every asset it loads, so without this stub dist/ would contain assets/sample-<hash>.pdf.
+ * Preview builds (VITE_CONTENT_PREVIEW=true) keep the real file.
+ */
+function dropSamplePdfFromProduction(includeSamples: boolean): Plugin {
+  return {
+    name: 'drop-sample-pdf-from-production',
+    apply: 'build',
+    enforce: 'pre',
+    load(id) {
+      if (!includeSamples && id.split('?')[0]?.endsWith('/src/dev/sample.pdf')) return 'export default "";';
+      return null;
+    },
+  };
+}
+
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  return {
+    // VITE_BASE_PATH=/gs/ in .env.production.local builds for a subpath (docs/deployment.md).
+    base: normalizeBase(env.VITE_BASE_PATH),
+    plugins: [react(), tailwindcss(), imagetools(), cspMetaOnBuild(), dropSamplePdfFromProduction(env.VITE_CONTENT_PREVIEW === 'true')],
+    test: {
+      environment: 'jsdom',
+      setupFiles: ['src/test/setup.ts'],
+      include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.ts', 'config/**/*.test.ts'],
+      exclude: ['**/*.live.test.ts', '**/node_modules/**'],
+    },
+    build: {
+      sourcemap: false,
+      target: 'es2020',
+    },
+  };
+});

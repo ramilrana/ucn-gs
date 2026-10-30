@@ -33,11 +33,15 @@ const person = (over: Partial<Person> = {}): Person => ({
 });
 const image = (over: Partial<ImageAsset> = {}): ImageAsset => ({ src: '/a.jpg', width: 1, height: 1, alt: 'x', ...over });
 
+// Dev samples are merged into `areas` and `recommendations` in dev and test runs. They are not real
+// content, and their local PDF lives in src/dev/ rather than public/files/, so the rules skip them.
+const isReal = (id: string) => !id.startsWith('DEV-SAMPLE-');
+
 describe('content (real data)', () => {
-  const resources = collectResources(content);
+  const resources = collectResources(content).filter((r) => isReal(r.id));
 
   it('has unique ids across resources, evidence groups, people, FAQs and resource groups', () => {
-    expect(checkIds(collectIds(content))).toEqual([]);
+    expect(checkIds(collectIds(content).filter(isReal))).toEqual([]);
   });
   it('local source paths exist under public/', () => {
     expect(checkResources(resources, publicFileExists).filter((m) => m.includes('local file'))).toEqual([]);
@@ -55,9 +59,10 @@ describe('content (real data)', () => {
     expect(checkResources(resources, publicFileExists)).toEqual([]);
   });
   it('published people have a name and position', () => {
-    expect(checkPeople(collectPeople(content))).toEqual([]);
+    expect(checkPeople(collectPeople(content).filter((p) => isReal(p.id)))).toEqual([]);
   });
   it('published images have alt text', () => {
+    // Sample areas and recommendations are pending, so collectImages skips their images anyway.
     expect(checkImages(collectImages(content))).toEqual([]);
   });
   it('area and recommendation filenames match their slug and number', () => {
@@ -72,6 +77,9 @@ describe('content (real data)', () => {
       readdirSync(new URL(`./${dir}/`, import.meta.url)).filter((n) => re.test(n)).map((n) => `./${dir}/${n}`).sort();
     expect(Object.keys(areaModules).sort()).toEqual(onDisk('areas', /^(?!.*\.test\.ts$).+\.ts$/));
     expect(Object.keys(recModules).sort()).toEqual(onDisk('recommendations', /^rec-.*\.ts$/));
+  });
+  it('real content exports never contain samples', () => {
+    expect(collectIds({ a: content.contentAreas, r: content.contentRecommendations }).filter((id) => !isReal(id))).toEqual([]);
   });
   it('exports the documented shape', () => {
     expect(content.site.universityName).toBe('University of Camarines Norte');

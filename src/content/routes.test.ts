@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { listRoutePaths } from '../../scripts/route-paths.mjs';
 import type { Area, Recommendation, Resource } from '../types/content';
-import { areas, recommendations } from './index';
+import { contentAreas, contentRecommendations } from './index';
 import { buildRouteManifest } from './routes';
 
 const pendingDoc: Resource = { id: 'doc', title: 'Doc', format: 'pdf', status: 'pending' };
@@ -99,7 +99,8 @@ describe('buildRouteManifest', () => {
   });
 
   it('content-file routes match the server route list', () => {
-    const manifest = buildRouteManifest({ areas, recommendations, includePending: true });
+    // Real content files only: the server route list knows nothing about dev samples.
+    const manifest = buildRouteManifest({ areas: contentAreas, recommendations: contentRecommendations, includePending: true });
     const clientPaths = manifest.filter((e) => !e.devOnly).map((e) => e.path);
     expect([...clientPaths].sort()).toEqual([...listRoutePaths('src/content')].sort());
   });
