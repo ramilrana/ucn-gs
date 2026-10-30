@@ -7,7 +7,7 @@ interface QuickAccessProps {
 }
 
 const tile =
-  'flex min-h-16 items-center justify-between gap-3 rounded border border-line bg-white px-4 py-3 font-serif text-lg font-semibold leading-snug text-maroon-800 transition-colors duration-150 hover:border-maroon-800 hover:text-maroon-900';
+  'flex h-full min-h-16 items-center justify-between gap-3 rounded border border-line bg-white px-4 py-3 font-serif text-lg font-semibold leading-snug text-maroon-800 transition-colors duration-150 hover:border-maroon-800 hover:text-maroon-900';
 
 /** The four principal accreditation resources, one tap from the top of the Home page. */
 export function QuickAccess({ areasLabel }: QuickAccessProps) {
