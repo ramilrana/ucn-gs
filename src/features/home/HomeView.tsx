@@ -178,7 +178,7 @@ export function HomeView({ home, about, site }: HomeViewProps) {
               <SectionHeading level={2} id="messages-title">
                 Messages
               </SectionHeading>
-              <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
                 {dean ? <LeaderMessageCard message={dean} /> : <PendingNotice label={home.deanMessage.label} />}
                 {chair ? (
                   <LeaderMessageCard message={chair} />
@@ -211,7 +211,7 @@ export function HomeView({ home, about, site }: HomeViewProps) {
                 <PendingNotice label={about.photo.label} />
               )}
               {previews.length > 0 && (
-                <div className="grid gap-8 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
                   {previews.map((preview) => (
                     <PreviewBlock key={preview.id} preview={preview} />
                   ))}

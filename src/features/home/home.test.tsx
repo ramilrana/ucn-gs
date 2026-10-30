@@ -6,6 +6,7 @@ import HomePage from '../../pages/HomePage';
 import type { AboutContent, HomeContent, ImageAsset, LeaderMessage, SiteContent } from '../../types/content';
 import { HomeView } from './HomeView';
 import { LeaderMessageCard } from './LeaderMessageCard';
+import { QuickAccess } from './QuickAccess';
 
 const renderUi = (ui: React.ReactElement, path = '/') => {
   const router = createMemoryRouter([{ path: '*', element: ui }], { initialEntries: [path] });
@@ -226,5 +227,14 @@ describe('HomePage', () => {
   it('home renders exactly one h1', () => {
     renderUi(<HomePage />);
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+  });
+});
+
+describe('QuickAccess', () => {
+  it('uses shrinkable grid tracks so 200% text never overflows', () => {
+    renderUi(<QuickAccess areasLabel="Accreditation Areas" />);
+    const list = screen.getByRole('navigation', { name: 'Principal accreditation resources' }).querySelector('ul');
+    expect(list?.className).toContain('grid-cols-1');
+    expect(screen.getAllByRole('link')).toHaveLength(4);
   });
 });

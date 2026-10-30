@@ -14,7 +14,7 @@ export function AreasIndexView({ areas, label }: AreasIndexViewProps) {
   const shown = visible(areas);
   return (
     <PageShell title={label} hasContent={shown.length > 0}>
-      <ol className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <ol className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {shown.map((area) => {
           const firstParagraph = area.summary?.[0];
           return (

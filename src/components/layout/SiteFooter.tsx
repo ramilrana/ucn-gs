@@ -34,8 +34,8 @@ export function SiteFooter({ manifest = routeManifest, contact = site.contact }:
   return (
     <footer className="on-maroon bg-maroon-900 text-white">
       <div
-        className={`mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-2 ${
-          details ? 'lg:grid-cols-[1.4fr_1fr_1fr]' : ''
+        className={`mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-12 sm:px-6 md:grid-cols-2 ${
+          details ? 'lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]' : ''
         }`}
       >
         <div>
@@ -81,7 +81,7 @@ export function SiteFooter({ manifest = routeManifest, contact = site.contact }:
         <nav aria-label="Footer">
           <h2 className="font-serif text-lg font-semibold">Explore</h2>
           <div aria-hidden="true" className="mt-2 h-[3px] w-10 bg-gold-500" />
-          <ul className={`mt-4 grid gap-x-8 gap-y-1 ${details ? '' : 'sm:grid-flow-col sm:grid-rows-3'}`}>
+          <ul className={`mt-4 grid grid-cols-1 gap-x-8 gap-y-1 ${details ? '' : 'sm:grid-flow-col sm:grid-rows-3'}`}>
             {items.map((item) => (
               <li key={item.path}>
                 <Link to={item.path} className={`${footerLink} underline underline-offset-2 hover:no-underline`}>

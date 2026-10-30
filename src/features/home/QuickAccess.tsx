@@ -19,7 +19,7 @@ export function QuickAccess({ areasLabel }: QuickAccessProps) {
   ];
   return (
     <nav aria-label="Principal accreditation resources" className="border-b border-line bg-paper">
-      <ul className="mx-auto grid max-w-7xl gap-3 px-4 py-6 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+      <ul className="mx-auto grid max-w-7xl grid-cols-1 gap-3 px-4 py-6 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
         {links.map((link) => (
           <li key={link.to}>
             <Link to={link.to} className={tile}>

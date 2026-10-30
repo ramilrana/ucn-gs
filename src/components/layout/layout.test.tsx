@@ -219,6 +219,20 @@ describe('SiteFooter', () => {
     for (const link of within(nav).getAllByRole('link')) expect(link.className).toContain('min-h-11');
   });
 
+  it('footer grid tracks can shrink below their content so 200% text never overflows', () => {
+    renderPlain(
+      <SiteFooter
+        manifest={manifest}
+        contact={{ label: 'Contact', status: 'published', value: { address: '1 Test Road' } }}
+      />,
+    );
+    const grid = screen.getByRole('contentinfo').firstElementChild;
+    expect(grid?.className).toContain('grid-cols-1');
+    expect(grid?.className).toContain('lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]');
+    expect(grid?.className).not.toMatch(/\[1\.4fr_1fr_1fr\]/);
+    expect(screen.getByRole('navigation', { name: 'Footer' }).querySelector('ul')?.className).toContain('grid-cols-1');
+  });
+
   it('footer formats contentUpdated', () => {
     renderPlain(<SiteFooter manifest={manifest} />);
     expect(screen.getByText('Content last updated October 29, 2026')).not.toBeNull();

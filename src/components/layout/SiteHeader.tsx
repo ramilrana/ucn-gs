@@ -22,7 +22,7 @@ export function SiteHeader({ manifest = routeManifest }: SiteHeaderProps) {
   return (
     <header className="border-b border-line bg-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-        <Link to="/" className="flex min-h-11 items-center gap-3 rounded">
+        <Link to="/" className="flex min-h-11 min-w-0 items-center gap-3 rounded">
           <img
             src={seal.src}
             srcSet={seal.srcSet}
@@ -30,10 +30,11 @@ export function SiteHeader({ manifest = routeManifest }: SiteHeaderProps) {
             width={sealWidth}
             height={LOGO_HEIGHT}
             alt={seal.alt}
+            className="shrink-0"
           />
-          <span className="flex flex-col leading-tight">
-            <span className="font-serif text-base font-semibold text-maroon-800 xl:text-lg">{site.universityName}</span>
-            <span className="text-sm text-ink-muted">{site.schoolName}</span>
+          <span className="flex min-w-0 flex-col leading-tight">
+            <span className="break-words font-serif text-base font-semibold text-maroon-800 xl:text-lg">{site.universityName}</span>
+            <span className="break-words text-sm text-ink-muted">{site.schoolName}</span>
           </span>
         </Link>
         <DesktopNav items={items} pathname={pathname} />

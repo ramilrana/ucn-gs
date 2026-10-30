@@ -6,7 +6,7 @@ import type { LeaderMessage } from '../../types/content';
 export function LeaderMessageCard({ message }: { message: LeaderMessage }) {
   const { photo } = message;
   return (
-    <article className="grid gap-6 rounded border border-line bg-white p-5 sm:grid-cols-[12rem_1fr] sm:p-6">
+    <article className="grid grid-cols-1 gap-6 rounded border border-line bg-white p-5 sm:grid-cols-[12rem_minmax(0,1fr)] sm:p-6">
       {photo ? (
         <img
           src={photo.src}

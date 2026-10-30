@@ -139,6 +139,24 @@ describe('SiteHeader', () => {
     expect(dialog.hasAttribute('open')).toBe(false);
   });
 
+  it('mobile dialog stays open for a click on blank space and closes for a backdrop click', async () => {
+    const user = userEvent.setup();
+    renderHeader('/');
+    const dialog = getDialog();
+    await user.click(screen.getByRole('button', { name: 'Menu' }));
+    // The backdrop is the dialog element itself, so the content must fill it in a wrapper that takes
+    // clicks on its own blank space (the full-height dialog has more room than the menu needs).
+    const wrapper = dialog.firstElementChild;
+    expect(wrapper?.className).toContain('min-h-full');
+    if (!wrapper) throw new Error('missing wrapper');
+    await user.click(wrapper);
+    expect(dialog.hasAttribute('open')).toBe(true);
+    await user.click(within(dialog).getByRole('navigation', { name: 'Mobile' }));
+    expect(dialog.hasAttribute('open')).toBe(true);
+    await user.click(dialog);
+    expect(dialog.hasAttribute('open')).toBe(false);
+  });
+
   it('mobile groups keep a link to the index page', async () => {
     const user = userEvent.setup();
     renderHeader('/');
@@ -185,6 +203,24 @@ describe('SiteHeader', () => {
     });
     const after = Array.from(getDialog().querySelectorAll('summary')).find((s) => s.textContent === 'Compliance Report');
     expect(after?.parentElement?.hasAttribute('open')).toBe(true);
+  });
+
+  it('the Menu button never shrinks and drops its visible text below sm, keeping the name Menu (200% text)', () => {
+    renderHeader('/');
+    const button = screen.getByRole('button', { name: 'Menu' });
+    expect(button.getAttribute('aria-label')).toBe('Menu');
+    expect(button.className).toContain('shrink-0');
+    const text = Array.from(button.querySelectorAll('span')).find((span) => span.textContent === 'Menu');
+    expect(text?.className).toContain('hidden');
+    expect(text?.className).toContain('sm:inline');
+    expect(button.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('the brand link can shrink so the Menu button stays on screen', () => {
+    renderHeader('/');
+    const brand = screen.getByAltText('University of Camarines Norte seal').closest('a');
+    expect(brand?.className).toContain('min-w-0');
+    expect(brand?.querySelector('img')?.className).toContain('shrink-0');
   });
 
   it('logo has alt text and links home', () => {
