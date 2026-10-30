@@ -1,9 +1,10 @@
 import { useRouteEntry } from '../app/useRouteEntry';
-import { PageShell } from '../components/layout/PageShell';
+import { about } from '../content';
+import { AboutView } from '../features/about/AboutView';
 import NotFoundPage from './NotFoundPage';
 
 export default function AboutPage() {
   const entry = useRouteEntry();
   if (!entry) return <NotFoundPage />;
-  return <PageShell title={entry.title} hasContent={false} />;
+  return <AboutView about={about} />;
 }

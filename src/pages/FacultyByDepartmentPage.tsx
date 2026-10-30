@@ -1,9 +1,10 @@
 import { useRouteEntry } from '../app/useRouteEntry';
-import { PageShell } from '../components/layout/PageShell';
+import { people } from '../content';
+import { FacultyByDepartmentView } from '../features/about/FacultyByDepartmentView';
 import NotFoundPage from './NotFoundPage';
 
 export default function FacultyByDepartmentPage() {
   const entry = useRouteEntry();
   if (!entry) return <NotFoundPage />;
-  return <PageShell title={entry.title} hasContent={false} />;
+  return <FacultyByDepartmentView people={people} />;
 }
