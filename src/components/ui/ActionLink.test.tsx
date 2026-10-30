@@ -150,6 +150,17 @@ describe('ActionLink', () => {
 
   it('link variant turns white inside an on-maroon container, since maroon text is invisible there', () => {
     render(<ActionLink href="https://example.org/a">Contact</ActionLink>);
-    expect(screen.getByRole('link').className).toContain('[.on-maroon_&]:text-white');
+    const cls = screen.getByRole('link').className;
+    expect(cls).toContain('on-maroon:text-white');
+    expect(cls).toContain('on-maroon:hover:text-white');
+    // The custom variant skips white .on-light panels; the old descendant selector did not.
+    expect(cls).not.toContain('[.on-maroon_&]');
+  });
+
+  it('transitions colours only, so the focus outline never fades in from white', () => {
+    render(<ActionLink href="https://example.org/a" variant="primary">Go</ActionLink>);
+    const cls = screen.getByRole('link').className;
+    expect(cls).toContain('transition-[color,background-color,border-color]');
+    expect(cls).not.toContain('transition-colors');
   });
 });

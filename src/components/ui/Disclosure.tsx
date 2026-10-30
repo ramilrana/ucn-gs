@@ -15,7 +15,7 @@ export function Disclosure({ summary, children, defaultOpen = false }: Disclosur
         <span>{summary}</span>
         <ChevronDown
           aria-hidden="true"
-          className="size-5 shrink-0 text-maroon-800 transition-transform duration-150 group-open:rotate-180 motion-reduce:group-open:rotate-0"
+          className="size-5 shrink-0 text-maroon-800 transition-transform duration-150 group-open:rotate-180"
         />
       </summary>
       <div className="pb-4 text-ink">{children}</div>

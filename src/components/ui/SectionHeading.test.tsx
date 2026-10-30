@@ -12,6 +12,8 @@ it('shows the gold rule only inside .on-maroon', () => {
   render(<SectionHeading level={2}>Title</SectionHeading>);
   const cls = screen.getByRole('heading', { level: 2 }).className;
   expect(cls).toContain('after:hidden');
-  expect(cls).toContain('[.on-maroon_&]:after:block');
+  expect(cls).toContain('on-maroon:after:block');
+  expect(cls).toContain('on-maroon:text-white');
+  expect(cls).not.toContain('[.on-maroon_&]');
   expect(cls).toContain('after:bg-gold-500');
 });

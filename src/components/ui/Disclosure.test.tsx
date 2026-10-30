@@ -31,6 +31,13 @@ it('summary is natively focusable and activation toggles it', async () => {
   expect(details?.hasAttribute('open')).toBe(false);
 });
 
+it('the chevron still flips under reduced motion (the global rule makes it instant)', () => {
+  const { container } = render(<Disclosure summary="Q">A</Disclosure>);
+  const cls = container.querySelector('svg')?.getAttribute('class') ?? '';
+  expect(cls).toContain('group-open:rotate-180');
+  expect(cls).not.toContain('motion-reduce');
+});
+
 it('summary has a 44px target and the chevron is hidden from assistive tech', () => {
   const { container } = render(<Disclosure summary="Q">A</Disclosure>);
   const summary = container.querySelector('summary');

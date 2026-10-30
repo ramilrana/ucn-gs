@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Descendants of .on-maroon, except inside a white .on-light panel nested in it (D9: no gold or white-on-white there). */
+@custom-variant on-maroon (&:where(.on-maroon *):not(:where(.on-light, .on-light *)));
+
 @theme {
   --color-maroon-800: #8f0404;
   --color-maroon-900: #6a0303;

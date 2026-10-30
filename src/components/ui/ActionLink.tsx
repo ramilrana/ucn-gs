@@ -13,9 +13,9 @@ export interface ActionLinkProps {
 }
 
 const base =
-  'inline-flex items-center gap-1.5 rounded font-medium transition-colors duration-150';
+  'inline-flex items-center gap-1.5 rounded font-medium transition-[color,background-color,border-color] duration-150';
 const variants = {
-  link: 'text-maroon-800 underline underline-offset-2 hover:text-maroon-900 [.on-maroon_&]:text-white [.on-maroon_&]:hover:text-white',
+  link: 'text-maroon-800 underline underline-offset-2 hover:text-maroon-900 on-maroon:text-white on-maroon:hover:text-white',
   primary: 'min-h-11 bg-maroon-800 px-4 py-2 text-white hover:bg-maroon-900',
   secondary:
     'min-h-11 border border-maroon-800 px-4 py-2 text-maroon-800 hover:bg-paper hover:text-maroon-900',
