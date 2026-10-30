@@ -1,9 +1,9 @@
 import { useId } from 'react';
-import { isVisible } from '../../lib/published';
 import type { EvidenceGroup as EvidenceGroupData } from '../../types/content';
 import { SectionHeading } from '../ui/SectionHeading';
 import { BlockRenderer } from './BlockRenderer';
 import { PendingNotice } from './PendingNotice';
+import { groupHasVisibleContent } from './visibility';
 
 interface EvidenceGroupProps {
   group: EvidenceGroupData;
@@ -14,7 +14,7 @@ interface EvidenceGroupProps {
 /** A titled evidence section. Hidden when the group is pending in production. */
 export function EvidenceGroup({ group, headingLevel, index }: EvidenceGroupProps) {
   const headingId = useId();
-  if (!isVisible(group)) return null;
+  if (!groupHasVisibleContent(group)) return null;
   const heading = index === undefined ? group.title : `Evidence ${index}: ${group.title}`;
 
   return (

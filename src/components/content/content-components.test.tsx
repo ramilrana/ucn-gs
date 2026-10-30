@@ -87,6 +87,32 @@ describe('content components', () => {
     expect(container.innerHTML).toBe('');
   });
 
+  it('hides a published group with no visible content in production', () => {
+    vi.stubEnv('DEV', false);
+    vi.stubEnv('VITE_CONTENT_PREVIEW', '');
+    const onlyPending = group({ blocks: [{ type: 'resources', items: [pending('p', 'Hidden')] }] });
+    const { container, unmount } = renderUi(<EvidenceGroup group={onlyPending} headingLevel={2} />);
+    expect(container.innerHTML).toBe('');
+    unmount();
+    expect(hasVisibleContent([onlyPending], [])).toBe(false);
+    const empty = renderUi(<EvidenceGroup group={group({ blocks: [] })} headingLevel={2} />);
+    expect(empty.container.innerHTML).toBe('');
+    expect(hasVisibleContent([group({ blocks: [] })], [])).toBe(false);
+    empty.unmount();
+    const withOne = group({ blocks: [{ type: 'resources', items: [pdf('r1', 'Shown')] }] });
+    renderUi(<EvidenceGroup group={withOne} headingLevel={2} />);
+    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('Faculty Profile');
+    expect(screen.getByRole('link', { name: /Shown/ })).toBeTruthy();
+    expect(hasVisibleContent([withOne], [])).toBe(true);
+  });
+
+  it('shows heading and pending notice for an empty visible group in dev', () => {
+    vi.stubEnv('DEV', true);
+    renderUi(<EvidenceGroup group={group({ blocks: [] })} headingLevel={2} />);
+    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('Faculty Profile');
+    expect(screen.getByRole('note').textContent).toBe('Pending: Faculty Profile');
+  });
+
   it('empty ResourceList renders nothing', () => {
     vi.stubEnv('DEV', false);
     vi.stubEnv('VITE_CONTENT_PREVIEW', '');
