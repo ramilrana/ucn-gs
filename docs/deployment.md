@@ -70,6 +70,10 @@ HTML files should be revalidated on every visit: add `add_header Cache-Control "
 
 Nginx drops inherited `add_header` lines in any location that declares its own, so repeat the security headers wherever you add `Cache-Control`. Keep the CSP string identical to `config/csp.mjs` (`CSP_HEADER`).
 
+## Documents and inline viewing
+
+Documents meant for inline viewing should be hosted on Google Drive (spec D3). Local PDFs under `public/files/` open in a new tab, because the security policy forbids framing them.
+
 ## HTTPS and HSTS
 
 `upgrade-insecure-requests` is part of the CSP header. Serve the site over HTTPS. Add HSTS **only after HTTPS is confirmed to work on the whole domain**, because browsers remember it:

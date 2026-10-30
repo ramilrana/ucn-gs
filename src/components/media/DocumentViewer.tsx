@@ -27,9 +27,12 @@ export function DocumentViewer({ resource, mode }: DocumentViewerProps) {
   const frameSrc = embedUrl(source);
   const openHref = viewUrl(source);
   const downloadHref = resource.downloadable ? downloadUrl(source) : null;
-  // Only the browser's own viewer can show a local PDF; Drive previews bring their own.
-  const noInlineViewer = source.kind === 'local' && navigator.pdfViewerEnabled === false;
-  const showPanel = frameSrc !== null && (mode === 'embedded' || previewOpen);
+  // Local files are never framed. Under the spec section 8 CSP a same-origin PDF frame is blocked three
+  // ways: frame-src has no 'self', the PDF response carries frame-ancestors 'none', and Chrome disables
+  // its PDF viewer in sandboxed frames. A card with Open and Download links replaces it (ruling R19).
+  const localCard = source.kind === 'local';
+  const canFrame = frameSrc !== null && !localCard;
+  const showPanel = canFrame && (mode === 'embedded' || previewOpen);
 
   return (
     <div className="space-y-3">
@@ -37,7 +40,7 @@ export function DocumentViewer({ resource, mode }: DocumentViewerProps) {
         <span className="font-semibold text-ink">{resource.title}</span>
         <Badge format={resource.format} />
         <span className="text-sm text-ink-muted">{hostLabel(source)}</span>
-        {mode === 'on-demand' && frameSrc !== null && (
+        {mode === 'on-demand' && canFrame && (
           <button
             type="button"
             aria-expanded={previewOpen}
@@ -52,36 +55,37 @@ export function DocumentViewer({ resource, mode }: DocumentViewerProps) {
             />
           </button>
         )}
-        {openHref && (
+        {!localCard && openHref && (
           <ActionLink href={openHref} newTab>
             Open in new tab
           </ActionLink>
         )}
-        {downloadHref && (
+        {!localCard && downloadHref && (
           <ActionLink href={downloadHref} download>
             Download
           </ActionLink>
         )}
       </div>
-      <div id={panelId}>
-        {showPanel &&
-          (noInlineViewer ? (
-            <div className="rounded border border-line bg-paper p-4">
-              <p className="text-ink">Your browser can&apos;t show this PDF here.</p>
-              <div className="mt-3 flex flex-wrap gap-3">
-                {openHref && (
-                  <ActionLink href={openHref} newTab variant="primary">
-                    Open PDF
-                  </ActionLink>
-                )}
-                {downloadHref && (
-                  <ActionLink href={downloadHref} download variant="secondary">
-                    Download PDF
-                  </ActionLink>
-                )}
-              </div>
-            </div>
-          ) : (
+      {localCard && (
+        <div className="rounded border border-line bg-paper p-4">
+          <p className="text-ink">Open this PDF in a new tab or download it.</p>
+          <div className="mt-3 flex flex-wrap gap-3">
+            {openHref && (
+              <ActionLink href={openHref} newTab variant="primary">
+                Open PDF
+              </ActionLink>
+            )}
+            {downloadHref && (
+              <ActionLink href={downloadHref} download variant="secondary">
+                Download PDF
+              </ActionLink>
+            )}
+          </div>
+        </div>
+      )}
+      {!localCard && (
+        <div id={panelId}>
+          {showPanel && (
             <iframe
               title={`${resource.title} (PDF)`}
               src={frameSrc}
@@ -91,8 +95,9 @@ export function DocumentViewer({ resource, mode }: DocumentViewerProps) {
               allow="fullscreen"
               className="w-full h-[min(85vh,960px)] min-h-[480px]"
             />
-          ))}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

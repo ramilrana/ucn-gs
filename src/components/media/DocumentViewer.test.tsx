@@ -66,26 +66,41 @@ describe('DocumentViewer', () => {
     expect(button.getAttribute('aria-expanded')).toBe('false');
   });
 
-  it('local PDF without inline viewer shows fallback card', () => {
-    Object.defineProperty(navigator, 'pdfViewerEnabled', { value: false, configurable: true, writable: true });
-    renderViewer(<DocumentViewer resource={localPdf({ downloadable: true })} mode="embedded" />);
-    expect(screen.queryByTitle(/PDF/)).toBeNull();
-    expect(screen.getByText("Your browser can't show this PDF here.")).toBeTruthy();
+  it('embedded local PDF renders no iframe, only a card with Open and Download links', () => {
+    const { container } = renderViewer(<DocumentViewer resource={localPdf({ downloadable: true })} mode="embedded" />);
+    expect(container.querySelector('iframe')).toBeNull();
+    expect(screen.getByText('Local Report').tagName).not.toMatch(/^H[1-6]$/);
+    expect(screen.getByText('Open this PDF in a new tab or download it.')).toBeTruthy();
     expect(screen.getByRole('link', { name: /Open PDF/ }).getAttribute('href')).toBe('/files/report.pdf');
-    expect(screen.getAllByRole('link', { name: /Download/ }).length).toBe(2);
+    expect(screen.getAllByRole('link', { name: /Download/ })).toHaveLength(1);
+    expect(screen.getByRole('link', { name: /Download/ }).getAttribute('href')).toBe('/files/report.pdf');
+    expect(screen.getByText('This site')).toBeTruthy();
   });
 
-  it('drive PDF always uses the frame even without an inline viewer', () => {
-    Object.defineProperty(navigator, 'pdfViewerEnabled', { value: false, configurable: true, writable: true });
+  it('embedded local PDF that is not downloadable offers Open but no Download', () => {
+    const { container } = renderViewer(<DocumentViewer resource={localPdf()} mode="embedded" />);
+    expect(container.querySelector('iframe')).toBeNull();
+    expect(screen.getByRole('link', { name: /Open PDF/ }).getAttribute('href')).toBe('/files/report.pdf');
+    expect(screen.queryByRole('link', { name: /Download/ })).toBeNull();
+  });
+
+  it('on-demand local PDF has no Preview button and no iframe', () => {
+    const { container } = renderViewer(<DocumentViewer resource={localPdf({ downloadable: true })} mode="on-demand" />);
+    expect(screen.queryByRole('button')).toBeNull();
+    expect(container.querySelector('iframe')).toBeNull();
+    expect(screen.getByRole('link', { name: /Open PDF/ }).getAttribute('href')).toBe('/files/report.pdf');
+  });
+
+  it('local PDF never embeds regardless of pdfViewerEnabled', () => {
+    Object.defineProperty(navigator, 'pdfViewerEnabled', { value: true, configurable: true, writable: true });
+    const { container } = renderViewer(<DocumentViewer resource={localPdf()} mode="embedded" />);
+    expect(container.querySelector('iframe')).toBeNull();
+  });
+
+  it('drive PDF still embeds', () => {
     renderViewer(<DocumentViewer resource={drivePdf()} mode="embedded" />);
     expect(screen.getByTitle('Narrative Report (PDF)')).toBeTruthy();
-    expect(screen.queryByText("Your browser can't show this PDF here.")).toBeNull();
-  });
-
-  it('local PDF with inline viewer embeds the file URL', () => {
-    renderViewer(<DocumentViewer resource={localPdf()} mode="embedded" />);
-    expect(screen.getByTitle('Local Report (PDF)').getAttribute('src')).toBe('/files/report.pdf');
-    expect(screen.getByText('This site')).toBeTruthy();
+    expect(screen.queryByText('Open this PDF in a new tab or download it.')).toBeNull();
   });
 
   it('download link only when downloadable', () => {

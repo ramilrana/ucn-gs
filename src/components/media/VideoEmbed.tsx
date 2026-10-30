@@ -40,6 +40,23 @@ export function VideoEmbed({ resource, poster }: VideoEmbedProps) {
     );
   }
 
+  // Local files are never framed. The spec section 8 CSP blocks a same-origin frame (frame-src has no
+  // 'self' and the file response carries frame-ancestors 'none'), so show the title and an Open link only.
+  if (source.kind === 'local') {
+    return (
+      <div className="space-y-3">
+        <span className="font-semibold text-ink">{resource.title}</span>
+        {openHref && (
+          <div>
+            <ActionLink href={openHref} newTab>
+              Open video in new tab
+            </ActionLink>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   const frameBase = embedUrl(source);
   const isYouTube = source.kind === 'youtube';
   const frameSrc = frameBase === null ? null : frameBase + (isYouTube ? '?autoplay=1' : '');

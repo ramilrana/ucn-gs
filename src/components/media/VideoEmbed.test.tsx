@@ -79,6 +79,16 @@ describe('VideoEmbed', () => {
     expect(link.getAttribute('rel')).toBe('noopener noreferrer');
   });
 
+  it('local video renders no frame and no play button, only the title and an Open link', () => {
+    const { container } = renderVideo(<VideoEmbed resource={video({ kind: 'local', path: '/files/tour.mp4' })} />);
+    expect(container.querySelector('iframe')).toBeNull();
+    expect(screen.queryByRole('button')).toBeNull();
+    expect(screen.getByText('Campus Tour').tagName).not.toMatch(/^H[1-6]$/);
+    const open = screen.getByRole('link', { name: /Open video in new tab/ });
+    expect(open.getAttribute('href')).toBe('/files/tour.mp4');
+    expect(open.getAttribute('target')).toBe('_blank');
+  });
+
   it('pending video without source shows PendingNotice in dev, nothing in prod', () => {
     const pending = { id: 'p', title: 'Future Video', format: 'video', status: 'pending' } as Resource;
     vi.stubEnv('DEV', true);
