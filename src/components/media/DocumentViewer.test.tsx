@@ -47,7 +47,9 @@ describe('DocumentViewer', () => {
     const open = screen.getByRole('link', { name: /Open in new tab/ });
     expect(open.getAttribute('href')).toBe(`https://drive.google.com/file/d/${FILE_ID}/view`);
     expect(open.getAttribute('target')).toBe('_blank');
-    expect(screen.getByText('Narrative Report').tagName).not.toMatch(/^H[1-6]$/);
+    expect(screen.getByRole('group', { name: 'Narrative Report' }).querySelector('span.font-semibold')?.tagName).toBe(
+      'SPAN',
+    );
     expect(screen.getByText('PDF')).toBeTruthy();
     expect(screen.getByText('Google Drive')).toBeTruthy();
   });
@@ -72,7 +74,8 @@ describe('DocumentViewer', () => {
   it('embedded local PDF renders no iframe, only a card with Open and Download links', () => {
     const { container } = renderViewer(<DocumentViewer resource={localPdf({ downloadable: true })} mode="embedded" />);
     expect(container.querySelector('iframe')).toBeNull();
-    expect(screen.getByText('Local Report').tagName).not.toMatch(/^H[1-6]$/);
+    expect(screen.getByRole('group', { name: 'Local Report' })).toBeTruthy();
+    expect(screen.queryByRole('heading')).toBeNull();
     expect(screen.getByText('Open this file in a new tab or download it.')).toBeTruthy();
     expect(screen.getByRole('link', { name: /^Open file/ }).getAttribute('href')).toBe('/files/report.pdf');
     expect(screen.getAllByRole('link', { name: /Download/ })).toHaveLength(1);
@@ -100,7 +103,7 @@ describe('DocumentViewer', () => {
     expect(container.querySelector('iframe')).toBeNull();
     expect(screen.getByText('Open this file in a new tab or download it.')).toBeTruthy();
     expect(screen.getByRole('link', { name: /^Open file/ }).getAttribute('href')).toBe('/files/minutes.docx');
-    expect(screen.getByRole('link', { name: 'Download' }).getAttribute('href')).toBe('/files/minutes.docx');
+    expect(screen.getByRole('link', { name: /^Download\s*Minutes$/ }).getAttribute('href')).toBe('/files/minutes.docx');
     expect(container.textContent).not.toMatch(/Open PDF|Download PDF|this PDF/);
   });
 
@@ -144,7 +147,7 @@ describe('DocumentViewer', () => {
     const bad = drivePdf({ source: { kind: 'drive', fileId: 'short' } } as Partial<Resource>);
     renderViewer(<DocumentViewer resource={bad} mode="embedded" />);
     expect(screen.queryByTitle(/PDF/)).toBeNull();
-    expect(screen.getByText('Narrative Report')).toBeTruthy();
+    expect(screen.getByRole('group', { name: 'Narrative Report' })).toBeTruthy();
     expect(screen.queryByRole('link', { name: /Open in new tab/ })).toBeNull();
   });
 
@@ -152,5 +155,45 @@ describe('DocumentViewer', () => {
     const bad = drivePdf({ source: { kind: 'drive', fileId: 'short' } } as Partial<Resource>);
     renderViewer(<DocumentViewer resource={bad} mode="on-demand" />);
     expect(screen.queryByRole('button')).toBeNull();
+  });
+
+  it('names each action link after its document so two viewers are distinguishable (2.4.4)', () => {
+    render(
+      <MemoryRouter>
+        <DocumentViewer resource={drivePdf({ id: 'a', title: 'Report A', downloadable: true })} mode="embedded" />
+        <DocumentViewer resource={drivePdf({ id: 'b', title: 'Report B', downloadable: true })} mode="embedded" />
+        <DocumentViewer resource={localPdf({ id: 'c', title: 'Report C', downloadable: true })} mode="embedded" />
+      </MemoryRouter>,
+    );
+    // Label in name: the visible text comes first, the title follows (jsdom drops the sr-only span's leading space).
+    expect(screen.getByRole('link', { name: /^Download\s*Report A/ })).toBeTruthy();
+    expect(screen.getByRole('link', { name: /^Download\s*Report B/ })).toBeTruthy();
+    expect(screen.getByRole('link', { name: /^Open in new tab\s*Report A/ })).toBeTruthy();
+    expect(screen.getByRole('link', { name: /^Open in new tab\s*Report B/ })).toBeTruthy();
+    expect(screen.getByRole('link', { name: /^Open file\s*Report C/ })).toBeTruthy();
+    expect(screen.getByRole('link', { name: /^Download\s*Report C/ })).toBeTruthy();
+    expect(screen.getAllByRole('link', { name: /^Download/ })).toHaveLength(3);
+  });
+
+  it('wraps the viewer in a group named by the bold title', () => {
+    render(
+      <MemoryRouter>
+        <DocumentViewer resource={drivePdf({ title: 'Report A' })} mode="embedded" />
+        <DocumentViewer resource={drivePdf({ id: 'b', title: 'Report B' })} mode="embedded" />
+      </MemoryRouter>,
+    );
+    const groups = screen.getAllByRole('group');
+    expect(groups.map((g) => g.getAttribute('aria-labelledby'))).not.toContain(null);
+    expect(new Set(groups.map((g) => g.getAttribute('aria-labelledby'))).size).toBe(2);
+    expect(screen.getByRole('group', { name: 'Report A' })).toBeTruthy();
+    expect(screen.getByRole('group', { name: 'Report B' })).toBeTruthy();
+  });
+
+  it('builds the iframe title suffix from the resource format', () => {
+    const { unmount } = renderViewer(<DocumentViewer resource={drivePdf({ format: 'doc', title: 'Minutes' })} mode="embedded" />);
+    expect(screen.getByTitle('Minutes (Doc)')).toBeTruthy();
+    unmount();
+    renderViewer(<DocumentViewer resource={drivePdf({ format: 'pdf', title: 'Minutes' })} mode="embedded" />);
+    expect(screen.getByTitle('Minutes (PDF)')).toBeTruthy();
   });
 });

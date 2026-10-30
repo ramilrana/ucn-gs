@@ -1,6 +1,7 @@
 import { ChevronDown } from 'lucide-react';
 import { useId, useState } from 'react';
 import { isVisible } from '../../lib/published';
+import { formatLabels } from '../../lib/resourceFormat';
 import { downloadUrl, embedUrl, hostLabel, viewUrl } from '../../lib/resourceUrls';
 import type { Resource } from '../../types/content';
 import { PendingNotice } from '../content/PendingNotice';
@@ -19,6 +20,7 @@ const SANDBOX = 'allow-scripts allow-same-origin allow-popups allow-presentation
 export function DocumentViewer({ resource, mode }: DocumentViewerProps) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const panelId = useId();
+  const titleId = useId();
 
   if (!isVisible(resource)) return null;
   const source = resource.source;
@@ -35,9 +37,9 @@ export function DocumentViewer({ resource, mode }: DocumentViewerProps) {
   const showPanel = canFrame && (mode === 'embedded' || previewOpen);
 
   return (
-    <div className="space-y-3">
+    <div role="group" aria-labelledby={titleId} className="space-y-3">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <span className="font-semibold text-ink">{resource.title}</span>
+        <span id={titleId} className="font-semibold text-ink">{resource.title}</span>
         <Badge format={resource.format} />
         <span className="text-sm text-ink-muted">{hostLabel(source)}</span>
         {mode === 'on-demand' && canFrame && (
@@ -58,11 +60,13 @@ export function DocumentViewer({ resource, mode }: DocumentViewerProps) {
         {!localCard && openHref && (
           <ActionLink href={openHref} newTab>
             Open in new tab
+            <span className="sr-only"> {resource.title}</span>
           </ActionLink>
         )}
         {!localCard && downloadHref && (
           <ActionLink href={downloadHref} download>
             Download
+            <span className="sr-only"> {resource.title}</span>
           </ActionLink>
         )}
       </div>
@@ -73,11 +77,13 @@ export function DocumentViewer({ resource, mode }: DocumentViewerProps) {
             {openHref && (
               <ActionLink href={openHref} newTab variant="primary">
                 Open file
+                <span className="sr-only"> {resource.title}</span>
               </ActionLink>
             )}
             {downloadHref && (
               <ActionLink href={downloadHref} download variant="secondary">
                 Download
+                <span className="sr-only"> {resource.title}</span>
               </ActionLink>
             )}
           </div>
@@ -87,7 +93,7 @@ export function DocumentViewer({ resource, mode }: DocumentViewerProps) {
         <div id={panelId}>
           {showPanel && (
             <iframe
-              title={`${resource.title} (PDF)`}
+              title={`${resource.title} (${formatLabels[resource.format]})`}
               src={frameSrc}
               loading="lazy"
               sandbox={SANDBOX}
