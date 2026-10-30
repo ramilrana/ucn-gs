@@ -53,7 +53,7 @@ describe('content components', () => {
   it('renders each block type', () => {
     renderUi(<EvidenceGroup group={group()} headingLevel={2} />);
     expect(screen.getByText('Alpha paragraph.')).toBeTruthy();
-    expect(screen.getByText('Main Document')).toBeTruthy();
+    expect(screen.getByRole('group', { name: 'Main Document' })).toBeTruthy();
     expect(screen.getByRole('button', { name: /Preview Main Document/ })).toBeTruthy();
     const list = screen.getByText('About it').closest('ul') as HTMLElement;
     const link = within(list).getByRole('link', { name: /Listed Resource/ });
