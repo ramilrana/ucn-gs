@@ -2,6 +2,7 @@ import type { ComponentType } from 'react';
 import { createBrowserRouter, type RouteObject } from 'react-router-dom';
 import { routeManifest, type RouteEntry, type RouteKind } from '../content/routes';
 import { RootLayout } from './RootLayout';
+import { RouteErrorPage } from './RouteErrorPage';
 import { RouteLoading } from './RouteLoading';
 
 type PageModule = { default: ComponentType };
@@ -34,7 +35,7 @@ export function buildRouteObjects(manifest: RouteEntry[]): RouteObject[] {
     lazy: lazyPage(pageLoaders[entry.kind]),
   }));
   children.push({ path: '*', lazy: lazyPage(() => import('../pages/NotFoundPage')) });
-  return [{ path: '/', Component: RootLayout, HydrateFallback: RouteLoading, children }];
+  return [{ path: '/', Component: RootLayout, ErrorBoundary: RouteErrorPage, HydrateFallback: RouteLoading, children }];
 }
 
 export function createAppRouter() {

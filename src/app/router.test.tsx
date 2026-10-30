@@ -122,4 +122,31 @@ describe('app router', () => {
     const h1 = await screen.findByRole('heading', { level: 1, name: 'Late page' });
     await vi.waitFor(() => expect(document.activeElement).toBe(h1));
   });
+
+  it('a failed lazy chunk shows the styled error page with a reload button', async () => {
+    const [root] = buildRouteObjects(manifest);
+    if (!root) throw new Error('missing root route');
+    const routes: RouteObject[] = [
+      {
+        path: '/',
+        Component: root.Component,
+        ErrorBoundary: root.ErrorBoundary,
+        children: [
+          { path: 'broken', lazy: () => Promise.reject(new Error('Failed to fetch dynamically imported module')) },
+          ...(root.children ?? []),
+        ],
+      },
+    ];
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      renderAt('/broken', routes);
+      const h1 = await screen.findByRole('heading', { level: 1, name: 'Something went wrong' });
+      expect(h1.id).toBe('page-title');
+      expect(h1.getAttribute('tabindex')).toBe('-1');
+      expect(screen.getByRole('button', { name: 'Reload page' })).toBeTruthy();
+      expect(screen.queryByText(/Unexpected Application Error/)).toBeNull();
+    } finally {
+      consoleError.mockRestore();
+    }
+  });
 });

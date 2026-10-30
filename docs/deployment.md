@@ -97,6 +97,10 @@ Before each deploy, keep the previous build next to the live folder:
 
 Keep one previous version at least. Because assets have hashed names and HTML is `no-cache`, a swap takes effect immediately.
 
+When you upload a new release, leave the previous release's `assets/` files in place for one more release (delete them on the release after that). Tabs that are already open still load old page chunks by their old hashed names; if those files are gone, the visitor sees the "Something went wrong" page with a reload button instead.
+
 ## Limits
 
 A static frontend cannot prevent DDoS attacks or server-level defacement. Those depend on UCN's hosting: network protection, patching, account security and monitoring. This site reduces what an attacker can do through the page itself (strict CSP, restricted embeds, no HTML rendering, validated links), but it does not replace server hardening.
+
+Add area and recommendation content files only when they are ready to publish. A pending file still gets an HTML copy in the build (HTTP 200 showing the in-app 404 page) and so reveals its slug in the URL space.
