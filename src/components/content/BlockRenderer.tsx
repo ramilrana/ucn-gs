@@ -25,7 +25,9 @@ export function BlockRenderer({ block, label }: BlockRendererProps) {
       return <VideoEmbed resource={block.resource} />;
     default: {
       const unhandled: never = block;
-      return unhandled;
+      // Unreachable by type; bad runtime data renders nothing instead of throwing.
+      void unhandled;
+      return null;
     }
   }
 }

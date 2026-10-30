@@ -1,11 +1,12 @@
 import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { EvidenceGroup as EvidenceGroupData, Resource } from '../../types/content';
+import type { EvidenceBlock, EvidenceGroup as EvidenceGroupData, Resource } from '../../types/content';
+import { BlockRenderer } from './BlockRenderer';
 import { EvidenceGroup } from './EvidenceGroup';
 import { ResourceList } from './ResourceList';
 import { ResourceRow } from './ResourceRow';
-import { hasVisibleContent } from './visibility';
+import { blockHasVisibleContent, hasVisibleContent } from './visibility';
 
 const FILE_ID = '1AbCdEfGhIjKlMnOpQrStUvWx';
 
@@ -174,5 +175,18 @@ describe('content components', () => {
     expect(hasVisibleContent([], [])).toBe(false);
     expect(hasVisibleContent([group()], [])).toBe(true);
     expect(hasVisibleContent([], [pdf('r', 'Pub')])).toBe(true);
+  });
+});
+
+describe('unknown block type', () => {
+  const bogus = { type: 'nope' } as unknown as EvidenceBlock;
+
+  it('BlockRenderer renders nothing and does not throw', () => {
+    const { container } = renderUi(<BlockRenderer block={bogus} />);
+    expect(container.innerHTML).toBe('');
+  });
+
+  it('blockHasVisibleContent returns false and does not throw', () => {
+    expect(blockHasVisibleContent(bogus)).toBe(false);
   });
 });

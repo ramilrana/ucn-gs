@@ -18,7 +18,9 @@ export function blockHasVisibleContent(block: EvidenceBlock): boolean {
       return block.images.length > 0;
     default: {
       const unhandled: never = block;
-      return unhandled;
+      // Unreachable by type; bad runtime data counts as nothing to show.
+      void unhandled;
+      return false;
     }
   }
 }
