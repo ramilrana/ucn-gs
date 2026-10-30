@@ -59,6 +59,11 @@
     outline-color: var(--color-gold-500);
   }
 
+  /* A white panel inside a maroon band: gold focus rings are not allowed on white (D9). */
+  .on-maroon .on-light :focus-visible {
+    outline-color: var(--color-maroon-800);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
