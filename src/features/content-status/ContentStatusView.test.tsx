@@ -17,6 +17,14 @@ it('renders a table with Page, Item and Link to page columns and a total', () =>
   expect(within(table).getByRole('link', { name: '/about' }).getAttribute('href')).toBe('/about');
 });
 
+it('keeps the page links at least 24px tall and the path column readable at narrow widths', () => {
+  render(<MemoryRouter><ContentStatusView entries={entries} /></MemoryRouter>);
+  const link = within(screen.getByRole('table')).getByRole('link', { name: '/about' });
+  const cell = link.closest('td');
+  expect(cell?.className).toContain('[&>a]:min-h-6');
+  expect(cell?.className).toMatch(/min-w-/);
+});
+
 it('says so when nothing is pending', () => {
   render(<MemoryRouter><ContentStatusView entries={[]} /></MemoryRouter>);
   expect(screen.queryByRole('table')).toBeNull();

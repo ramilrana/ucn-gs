@@ -25,10 +25,11 @@ export function Slideshow({ label, slides }: SlideshowProps) {
   // Content could shrink between renders; never point past the last slide.
   const current = Math.min(index, count - 1);
   const multiple = count > 1;
+  const currentAlt = slides[current]?.alt;
   const go = (next: number) => setIndex(((next % count) + count) % count);
 
   const onKeyDown = (event: KeyboardEvent<HTMLElement>) => {
-    if (!multiple) return;
+    if (!multiple || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     if (event.key === 'ArrowRight') {
       event.preventDefault();
       go(current + 1);
@@ -80,7 +81,7 @@ export function Slideshow({ label, slides }: SlideshowProps) {
                 loading={i === 0 ? 'eager' : 'lazy'}
                 draggable={false}
                 onError={() => setFailed((prev) => new Set(prev).add(i))}
-                className="mx-auto h-auto max-h-[70vh] w-full rounded border border-line object-contain"
+                className="mx-auto h-auto max-h-[70vh] w-auto max-w-full rounded border border-line object-contain"
               />
               {slide.caption && <p className="mt-2 text-sm text-ink-muted">{slide.caption}</p>}
             </div>
@@ -120,7 +121,7 @@ export function Slideshow({ label, slides }: SlideshowProps) {
 
       {multiple && (
         <p aria-live="polite" className="sr-only">
-          {`Slide ${current + 1} of ${count}`}
+          {`Slide ${current + 1} of ${count}${currentAlt ? `: ${currentAlt}` : ''}`}
         </p>
       )}
     </section>

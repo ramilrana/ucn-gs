@@ -69,7 +69,7 @@ export function ImageGallery({ label, images }: ImageGalleryProps) {
   };
 
   const onDialogKeyDown = (event: KeyboardEvent<HTMLDialogElement>) => {
-    if (!multiple) return;
+    if (!multiple || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     if (event.key === 'ArrowRight') {
       event.preventDefault();
       step(1);
@@ -138,7 +138,8 @@ export function ImageGallery({ label, images }: ImageGalleryProps) {
           <div className="flex flex-col gap-3 p-3 sm:p-4">
             <div className="flex items-center justify-between gap-3">
               <p aria-live="polite" className="font-medium text-ink">
-                {`${currentIndex + 1} of ${count}`}
+                {`Image ${currentIndex + 1} of ${count}`}
+                {current.alt && <span className="sr-only">{`: ${current.alt}`}</span>}
               </p>
               <button
                 type="button"

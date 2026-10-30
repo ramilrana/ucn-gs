@@ -58,18 +58,43 @@ describe('ImageGallery', () => {
     const d = dialog();
     expect(within(d).getByRole('img', { name: 'Photo 1' })).toBeTruthy();
     expect(within(d).getByText('Caption one')).toBeTruthy();
-    expect(within(d).getByText('1 of 3')).toBeTruthy();
+    expect(within(d).getByText('Image 1 of 3')).toBeTruthy();
     expect(within(d).getByRole('button', { name: 'Previous image' })).toBeTruthy();
     expect(within(d).getByRole('button', { name: 'Next image' })).toBeTruthy();
     expect(within(d).getByRole('button', { name: 'Close' })).toBeTruthy();
     expect(within(d).getByRole('img', { name: 'Photo 1' }).className).toContain('object-contain');
   });
 
+  it('announces the position and the image description in the live region', async () => {
+    const user = userEvent.setup();
+    render(<ImageGallery label="Gallery" images={images} />);
+    await user.click(thumb(0));
+    const live = dialog().querySelector('[aria-live="polite"]');
+    expect(live?.textContent).toBe('Image 1 of 3: Photo 1');
+    await user.keyboard('{ArrowRight}');
+    expect(live?.textContent).toBe('Image 2 of 3: Photo 2');
+    // Image 3 has an empty alt: no colon part.
+    await user.keyboard('{ArrowRight}');
+    expect(live?.textContent).toBe('Image 3 of 3');
+  });
+
+  it('ignores arrow keys held with a modifier', async () => {
+    const user = userEvent.setup();
+    render(<ImageGallery label="Gallery" images={images} />);
+    await user.click(thumb(0));
+    for (const modifier of ['Alt', 'Control', 'Meta', 'Shift']) {
+      await user.keyboard(`{${modifier}>}{ArrowRight}{/${modifier}}`);
+      expect(within(dialog()).getByText('Image 1 of 3'), modifier).toBeTruthy();
+    }
+    await user.keyboard('{ArrowRight}');
+    expect(within(dialog()).getByText('Image 2 of 3')).toBeTruthy();
+  });
+
   it('opens on the second image when it is clicked', async () => {
     const user = userEvent.setup();
     render(<ImageGallery label="Gallery" images={images} />);
     await user.click(thumb(1));
-    expect(within(dialog()).getByText('2 of 3')).toBeTruthy();
+    expect(within(dialog()).getByText('Image 2 of 3')).toBeTruthy();
   });
 
   it('ArrowRight shows the next image; Next and ArrowLeft wrap', async () => {
@@ -78,13 +103,13 @@ describe('ImageGallery', () => {
     await user.click(thumb(0));
     await user.keyboard('{ArrowRight}');
     expect(within(dialog()).getByRole('img', { name: 'Photo 2' })).toBeTruthy();
-    expect(within(dialog()).getByText('2 of 3')).toBeTruthy();
+    expect(within(dialog()).getByText('Image 2 of 3')).toBeTruthy();
     await user.click(within(dialog()).getByRole('button', { name: 'Next image' }));
-    expect(within(dialog()).getByText('3 of 3')).toBeTruthy();
+    expect(within(dialog()).getByText('Image 3 of 3')).toBeTruthy();
     await user.click(within(dialog()).getByRole('button', { name: 'Next image' }));
-    expect(within(dialog()).getByText('1 of 3')).toBeTruthy();
+    expect(within(dialog()).getByText('Image 1 of 3')).toBeTruthy();
     await user.keyboard('{ArrowLeft}');
-    expect(within(dialog()).getByText('3 of 3')).toBeTruthy();
+    expect(within(dialog()).getByText('Image 3 of 3')).toBeTruthy();
   });
 
   it('close returns focus to the opener', async () => {

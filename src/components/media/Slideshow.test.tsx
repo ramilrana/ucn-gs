@@ -75,9 +75,36 @@ describe('Slideshow', () => {
     const user = userEvent.setup();
     render(<Slideshow label="Campus" slides={slides} />);
     const live = carousel().querySelector('[aria-live="polite"]');
-    expect(live?.textContent).toBe('Slide 1 of 3');
+    expect(live?.textContent).toBe('Slide 1 of 3: Slide image 1');
     await user.click(screen.getByRole('button', { name: 'Next slide' }));
-    expect(live?.textContent).toBe('Slide 2 of 3');
+    expect(live?.textContent).toBe('Slide 2 of 3: Slide image 2');
+  });
+
+  it('omits the colon part of the announcement when the slide has no alt text', () => {
+    render(<Slideshow label="Campus" slides={[slide(1, { alt: '' }), slide(2)]} />);
+    const live = carousel().querySelector('[aria-live="polite"]');
+    expect(live?.textContent).toBe('Slide 1 of 2');
+  });
+
+  it('ignores arrow keys held with a modifier so browser and screen reader shortcuts keep working', async () => {
+    const user = userEvent.setup();
+    render(<Slideshow label="Campus" slides={slides} />);
+    screen.getByRole('button', { name: 'Next slide' }).focus();
+    for (const modifier of ['Alt', 'Control', 'Meta', 'Shift']) {
+      await user.keyboard(`{${modifier}>}{ArrowRight}{/${modifier}}`);
+      expect(visibleAlts(), modifier).toEqual(['Slide image 1']);
+    }
+    await user.keyboard('{ArrowRight}');
+    expect(visibleAlts()).toEqual(['Slide image 2']);
+  });
+
+  it('lets the image shrink to its own width so narrow images have no empty bars inside the border', () => {
+    render(<Slideshow label="Campus" slides={slides} />);
+    const cls = screen.getByRole('img', { name: 'Slide image 1' }).className;
+    expect(cls).toContain('w-auto');
+    expect(cls).toContain('max-w-full');
+    expect(cls).not.toMatch(/(^|\s)w-full(\s|$)/);
+    expect(cls).toContain('border');
   });
 
   it('dot click jumps and sets aria-current', async () => {

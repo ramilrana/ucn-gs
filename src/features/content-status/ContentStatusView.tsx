@@ -29,7 +29,7 @@ export function ContentStatusView({ entries }: { entries: readonly PendingEntry[
                 <tr key={`${entry.path}|${entry.label}|${i}`} className="border-b border-line align-top">
                   <td className="px-3 py-2 break-words">{entry.page}</td>
                   <td className="px-3 py-2 break-words">{entry.label}</td>
-                  <td className="px-3 py-2 break-all">
+                  <td className="min-w-56 px-3 py-2 break-all [&>a]:min-h-6">
                     <ActionLink href={entry.path}>{entry.path}</ActionLink>
                   </td>
                 </tr>
