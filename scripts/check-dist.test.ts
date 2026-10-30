@@ -9,6 +9,7 @@ import { checkDist } from './check-dist.mjs';
 import { listRoutePaths } from './route-paths.mjs';
 
 const roots: string[] = [];
+const PDF_BYTES = '%PDF-1.4\n%%EOF\n';
 
 function write(file: string, content: string): void {
   mkdirSync(dirname(file), { recursive: true });
@@ -68,6 +69,23 @@ describe('checkDist', () => {
     const dist = makeDist('/gs/');
     write(join(dist, 'assets', 'chunk-b.js'), 'const x = "DEV-SAMPLE";');
     expect(checkDist(dist).some((e) => e.includes('DEV-SAMPLE'))).toBe(true);
+  });
+
+  it('flags the dev sample PDF anywhere under dist', () => {
+    const dist = makeDist('/gs/');
+    write(join(dist, 'assets', 'sample-abc123.pdf'), PDF_BYTES);
+    const errors = checkDist(dist);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain('assets/sample-abc123.pdf');
+    const nested = makeDist('/gs/');
+    write(join(nested, 'files', 'Sample.PDF'), PDF_BYTES);
+    expect(checkDist(nested).some((e) => e.includes('files/Sample.PDF'))).toBe(true);
+  });
+
+  it('does not flag other PDFs', () => {
+    const dist = makeDist('/gs/');
+    write(join(dist, 'files', 'narrative-report.pdf'), PDF_BYTES);
+    expect(checkDist(dist)).toEqual([]);
   });
 
   it('flags first-load JS over 120 kB gzip', () => {

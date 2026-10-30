@@ -106,6 +106,14 @@ export function checkDist(distDir) {
     errors.push(`First-load JavaScript is ${gzipTotal} bytes gzip, over the ${MAX_FIRST_LOAD_GZIP_BYTES} byte (120 kB) limit.`);
   }
 
+  // Rule 7: the dev sample PDF has no DEV-SAMPLE text, so rule 5 cannot see it.
+  for (const file of walk(distDir)) {
+    const name = file.slice(distDir.length + 1).replaceAll('\\', '/');
+    if (/^sample[^/]*\.pdf$/i.test(name.split('/').pop() ?? '')) {
+      errors.push(`Dev sample PDF found at ${name}; sample files must not ship.`);
+    }
+  }
+
   return errors;
 }
 
