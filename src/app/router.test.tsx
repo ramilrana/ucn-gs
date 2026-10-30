@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, configure, render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Link, RouterProvider, createMemoryRouter, type RouteObject } from 'react-router-dom';
 import type { Area, Recommendation, Resource } from '../types/content';
@@ -65,10 +65,6 @@ function LatePage() {
 beforeAll(async () => {
   await Promise.all(Object.values(import.meta.glob('../pages/*Page.tsx')).map((load) => load()));
 }, 60_000);
-
-// Under full-suite load on the OneDrive-hosted repo, the first lazy route can need more than the default
-// 1 s findBy* budget. This only raises the ceiling for this file; tests still resolve as soon as they can.
-configure({ asyncUtilTimeout: 5000 });
 
 beforeEach(() => {
   window.scrollTo = vi.fn();
