@@ -1,9 +1,10 @@
 import { useRouteEntry } from '../app/useRouteEntry';
-import { PageShell } from '../components/layout/PageShell';
+import { certificate } from '../content';
+import { CertificateView } from '../features/documents/CertificateView';
 import NotFoundPage from './NotFoundPage';
 
 export default function CertificatePage() {
   const entry = useRouteEntry();
   if (!entry) return <NotFoundPage />;
-  return <PageShell title={entry.title} hasContent={false} />;
+  return <CertificateView certificate={certificate} />;
 }

@@ -1,9 +1,10 @@
 import { useRouteEntry } from '../app/useRouteEntry';
-import { PageShell } from '../components/layout/PageShell';
+import { additionalFiles } from '../content';
+import { AdditionalFilesView } from '../features/documents/AdditionalFilesView';
 import NotFoundPage from './NotFoundPage';
 
 export default function AdditionalFilesPage() {
   const entry = useRouteEntry();
   if (!entry) return <NotFoundPage />;
-  return <PageShell title={entry.title} hasContent={false} />;
+  return <AdditionalFilesView groups={additionalFiles} />;
 }
