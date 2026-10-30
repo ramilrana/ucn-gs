@@ -14,14 +14,14 @@ function cspMetaOnBuild(): Plugin {
   return {
     name: 'csp-meta-on-build',
     apply: 'build',
-    transformIndexHtml() {
-      return [
-        {
-          tag: 'meta',
-          attrs: { 'http-equiv': 'Content-Security-Policy', content: CSP_META },
-          injectTo: 'head-prepend',
-        },
-      ];
+    transformIndexHtml(html) {
+      // Insert right after <meta charset> so the charset stays first in <head> (it must be
+      // within the first 1024 bytes) and the CSP still precedes every script and stylesheet.
+      const meta = `<meta http-equiv="Content-Security-Policy" content="${CSP_META.replaceAll('"', '&quot;')}" />`;
+      const charset = /<meta\s+charset=[^>]*>/i.exec(html);
+      if (!charset) throw new Error('index.html needs a <meta charset> tag as the first element of <head>.');
+      const end = charset.index + charset[0].length;
+      return `${html.slice(0, end)}\n    ${meta}${html.slice(end)}`;
     },
   };
 }
