@@ -1,9 +1,10 @@
 import { useRouteEntry } from '../app/useRouteEntry';
-import { PageShell } from '../components/layout/PageShell';
+import { compliance, recommendations } from '../content';
+import { ComplianceIndexView } from '../features/compliance/ComplianceIndexView';
 import NotFoundPage from './NotFoundPage';
 
 export default function ComplianceIndexPage() {
   const entry = useRouteEntry();
   if (!entry) return <NotFoundPage />;
-  return <PageShell title={entry.title} hasContent={false} />;
+  return <ComplianceIndexView overview={compliance.overview} recommendations={recommendations} />;
 }

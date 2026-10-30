@@ -1,9 +1,16 @@
 import { useRouteEntry } from '../app/useRouteEntry';
-import { PageShell } from '../components/layout/PageShell';
+import { recommendations } from '../content';
+import { routeManifest } from '../content/routes';
+import { RecommendationView } from '../features/compliance/RecommendationView';
 import NotFoundPage from './NotFoundPage';
+
+const siblings = routeManifest
+  .filter((route) => route.kind === 'recommendation')
+  .map(({ title, path }) => ({ title, path }));
 
 export default function RecommendationPage() {
   const entry = useRouteEntry();
-  if (!entry) return <NotFoundPage />;
-  return <PageShell title={entry.title} hasContent={false} />;
+  const rec = entry?.number === undefined ? undefined : recommendations.find((r) => r.number === entry.number);
+  if (!entry || !rec) return <NotFoundPage />;
+  return <RecommendationView rec={rec} siblings={siblings} />;
 }
