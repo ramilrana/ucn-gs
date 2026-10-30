@@ -35,6 +35,7 @@ Existing stack (from `package.json`): React 19, TypeScript 5.8, Vite 7, Ant Desi
   - **D7:** refactor in place, typed TS content.
   - **D8:** no slideshow autoplay.
   - **D9:** no gold text or state indicators on white.
+- **R19 (2026-10-30, checkpoint B): local files are never framed.** Reason: spec §7 ("Local PDFs open in a titled iframe") conflicts with the exact §8 CSP (no `frame-src 'self'`; `frame-ancestors 'none'` on every response) and Chrome disables its PDF viewer in sandboxed frames. Local PDFs show an Open / Download card; local video shows an Open link; Drive and YouTube embeds are unchanged. Consistent with D3 (documents meant for inline viewing go on Drive). Alternative, not taken without user approval because it loosens §8: add `frame-src 'self'`, set `frame-ancestors 'self'` on PDF responses, and drop `sandbox` on same-origin frames.
 
 ## Reference and content status
 
@@ -66,7 +67,11 @@ The target architecture is in spec §6.
 - Tasks 1–12 complete and task-reviewed (per-task Sonnet reviewer, fix rounds where needed). Commits 7f10675..2c006d0. First-load JS 109.04 kB gzip (budget 120 kB).
 - Tasks 13–18 (Phase 4: Slideshow, ImageGallery, DocumentViewer, VideoEmbed/MapEmbed, evidence components, dev samples + /content-status) complete and task-reviewed, commits `64df2f9..3f5d48f`. 267 tests; first-load JS 109.17 kB gzip. check:dist now also fails if the dev sample PDF ships (rule 7). Open browser check for Task 26: Chrome may block its PDF viewer inside the sandboxed iframe for local PDFs.
 - Tasks 19–25 (Phase 5: areas, compliance, AVP, certificate/additional files, about/people/faculty, FAQs/location, Home) complete and task-reviewed, commits `940878f..f232dfb`. 340 tests; first-load JS 110.04 kB gzip. Task 25 integration walk (dev server, playwright-cli): 14 routes × 375/1280px, correct active nav and breadcrumbs, 0 console errors, no horizontal overflow.
-- **Checkpoint B (Tasks 13–25): in progress** (started 2026-10-30; inputs `checkpoint-B.diff`, `checkpoint-B-criteria.md`, `checkpoint-B-open-minors.md` in the ledger folder). No verdict yet.
+- **Checkpoint B (Tasks 13–25), 2026-10-30.** Reviewer: `ucn-opus-reviewer` definition run as a general-purpose Opus agent.
+  - Review 1: "Verdict: PASS WITH ISSUES. There is one High finding." High: local PDFs (and local video) were framed same-origin, which the exact §8 CSP forbids (`frame-src` has no `'self'`, `frame-ancestors 'none'` on every response) and Chrome blocks in sandboxed frames. Three Lows, plus two minors triaged as fix-now.
+  - Fixes `f6cf9c2..f3731ef`: all addressed (ruling R19, below).
+  - Re-review: "Verdict: PASS WITH ISSUES. All six findings are fixed and no Critical, High or Medium findings remain." Two new Lows carried to Task 26.
+  - **Checkpoint B cleared.**
 - **Checkpoint A (Tasks 3–12), 2026-10-30.** Reviewer: `ucn-opus-reviewer` definition run as a general-purpose Opus agent (the project agent is not registered in this session).
   - Review 1: "Verdict: PASS WITH ISSUES". One High (ActionLink sent local file URLs through the router: double base prefix under `/gs/`), one Medium (no route error boundary for failed lazy chunks), four Lows.
   - Fixes `f8c44ab..2aa8639`: all six addressed; the soft-404-for-pending-area-files Low is accepted and documented in `docs/deployment.md`.
@@ -101,7 +106,7 @@ Baseline on `feat/accreditation-site` before refactor (2026-10-29, Task 1):
 | Unit/E2E tests | None before Task 3 |
 | Reviewer | Config smoke test only (PASS). No code review has run yet. |
 
-Latest (checkpoint A re-review, reviewer-run at `2aa8639`, 2026-10-30): lint, typecheck, `npm test` (189/189), build, check:dist, audit:prod (0 vulnerabilities) all pass; first-load JS 109.12 kB gzip; CSP meta follows `<meta charset>`. `/gs/` and `/ucn-assets/` subpath builds passed check:dist in Task 5. Checkpoints B and C have not run yet.
+Latest (checkpoint B re-review, reviewer-run at `f3731ef`, 2026-10-30): lint, typecheck, build, check:dist, audit:prod (0 vulnerabilities) pass; `npm test` 350/350 on re-run (first run had 5 timeouts while the machine was under heavy load); first-load JS 110.04 kB gzip. `/gs/` and `/ucn-assets/` subpath builds passed check:dist in Task 5. Checkpoint C has not run yet.
 
 ## Known issues and blockers
 
@@ -114,8 +119,9 @@ Latest (checkpoint A re-review, reviewer-run at `2aa8639`, 2026-10-30): lint, ty
 
 ## Next actions
 
-1. Finish checkpoint B (fix Critical/High, re-review if needed), then Tasks 26–28 and checkpoint C. Follow the CLAUDE.md workflow.
-2. Collect the answers to the spec §14 open questions and the UCN materials (spec §13).
-3. Merge or open a PR for `chore/claude-model-routing` so the workflow config reaches `main`.
-4. The repo lives in OneDrive, which causes intermittent vitest file-open failures (`UNKNOWN open`, `lstat`); moving it to a non-synced folder (for example `C:/dev/ucn-gs`) would remove them.
-5. Two stale `npm run dev` Vite servers (started 10:25 and 15:47) still run from this folder. Stop them yourself; the session was not permitted to.
+1. Continue with Task 26 (security pass and link checker; includes the checkpoint B carry-forwards in the ledger), then Tasks 27–28 and checkpoint C. Follow the CLAUDE.md workflow.
+2. Decide whether local PDFs should display inline (needs the §8 CSP deviation described under R19); otherwise host such documents on Google Drive.
+3. Collect the answers to the spec §14 open questions and the UCN materials (spec §13).
+4. Merge or open a PR for `chore/claude-model-routing` so the workflow config reaches `main`.
+5. The repo lives in OneDrive, which causes intermittent vitest file-open failures (`UNKNOWN open`, `lstat`); moving it to a non-synced folder (for example `C:/dev/ucn-gs`) would remove them.
+6. Two stale `npm run dev` Vite servers (started 10:25 and 15:47) still run from this folder. Stop them yourself; the session was not permitted to.
