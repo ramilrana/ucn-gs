@@ -1,9 +1,10 @@
 import { useRouteEntry } from '../app/useRouteEntry';
-import { PageShell } from '../components/layout/PageShell';
+import { faqs, site } from '../content';
+import { FaqsLocationView } from '../features/about/FaqsLocationView';
 import NotFoundPage from './NotFoundPage';
 
 export default function FaqsLocationPage() {
   const entry = useRouteEntry();
   if (!entry) return <NotFoundPage />;
-  return <PageShell title={entry.title} hasContent={false} />;
+  return <FaqsLocationView faqs={faqs} site={site} />;
 }
