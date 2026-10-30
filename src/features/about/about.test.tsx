@@ -128,6 +128,12 @@ describe('AboutView', () => {
     const nav = screen.getByRole('navigation', { name: 'On this page' });
     const hrefs = Array.from(nav.querySelectorAll('a')).map((a) => a.getAttribute('href'));
     expect(hrefs).toEqual(['#mission-and-vision', '#goals-and-objectives', '#history']);
+    // Navigation landmarks get 44px targets (ruling R11).
+    for (const a of Array.from(nav.querySelectorAll('a'))) {
+      expect(a.className).toContain('min-h-11');
+      expect(a.className).toContain('inline-flex');
+      expect(a.className).toContain('items-center');
+    }
     expect(screen.getByText('Mission text.')).toBeTruthy();
     expect(screen.getByRole('img', { name: 'The campus' })).toBeTruthy();
   });

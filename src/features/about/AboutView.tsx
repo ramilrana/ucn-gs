@@ -60,7 +60,7 @@ export function AboutView({ about }: { about: AboutContent }) {
                 <li key={section.id}>
                   <a
                     href={`#${section.id}`}
-                    className="inline-flex min-h-6 items-center text-maroon-800 underline underline-offset-4"
+                    className="inline-flex min-h-11 items-center text-maroon-800 underline underline-offset-4"
                   >
                     {section.title}
                   </a>
