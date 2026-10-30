@@ -25,7 +25,7 @@ function formatContentDate(iso: string): string {
   return date.toLocaleDateString('en-PH', { dateStyle: 'long', timeZone: 'UTC' });
 }
 
-const footerLink = 'inline-flex min-h-6 items-center rounded';
+const footerLink = 'inline-flex min-h-11 items-center rounded';
 
 export function SiteFooter({ manifest = routeManifest, contact = site.contact }: SiteFooterProps) {
   const items = useMemo(() => buildNavModel(manifest, site.areasLabel), [manifest]);

@@ -23,7 +23,7 @@ export function Breadcrumbs({ manifest = routeManifest }: BreadcrumbsProps) {
             {crumb.path !== undefined ? (
               <Link
                 to={crumb.path}
-                className="inline-flex min-h-6 items-center rounded text-maroon-800 underline underline-offset-2 hover:text-maroon-900"
+                className="inline-flex min-h-11 items-center rounded text-maroon-800 underline underline-offset-2 hover:text-maroon-900"
               >
                 {crumb.label}
               </Link>

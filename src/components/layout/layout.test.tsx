@@ -97,6 +97,16 @@ describe('Breadcrumbs', () => {
   });
 });
 
+describe('Breadcrumb targets', () => {
+  it('breadcrumb links are 44px targets', () => {
+    renderPage('/compliance-report/recommendation-1', <Breadcrumbs manifest={manifest} />);
+    const nav = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    const links = within(nav).getAllByRole('link');
+    expect(links.length).toBeGreaterThan(0);
+    for (const link of links) expect(link.className).toContain('min-h-11');
+  });
+});
+
 describe('PageShell', () => {
   it('PageShell shows the preparing note when hasContent is false', () => {
     renderPage(
@@ -201,6 +211,12 @@ describe('SiteFooter', () => {
     expect(within(footer).getByRole('link', { name: '+63 000 000 0000' }).getAttribute('href')).toBe(
       'tel:+630000000000',
     );
+  });
+
+  it('footer nav links are 44px targets', () => {
+    renderPlain(<SiteFooter manifest={manifest} />);
+    const nav = screen.getByRole('navigation', { name: 'Footer' });
+    for (const link of within(nav).getAllByRole('link')) expect(link.className).toContain('min-h-11');
   });
 
   it('footer formats contentUpdated', () => {
