@@ -93,11 +93,12 @@ Before each deploy, keep the previous build next to the live folder:
 
 1. Rename or copy the live folder to `dist-previous/` (outside the web root, or in a path that is not served).
 2. Upload the new `dist/`, including dotfiles.
-3. If something is wrong, swap `dist-previous/` back into place.
+3. Copy the files from `dist-previous/assets/` into the new live `assets/` folder **without overwriting** existing files (for example `cp -n dist-previous/assets/* <live>/assets/`, or the "skip existing" option in your FTP client). Open tabs can then still load the old hashed chunks. On the next release, upload `dist/` fresh and do not copy these older files again, which removes them.
+4. If something is wrong, swap `dist-previous/` back into place.
 
 Keep one previous version at least. Because assets have hashed names and HTML is `no-cache`, a swap takes effect immediately.
 
-When you upload a new release, leave the previous release's `assets/` files in place for one more release (delete them on the release after that). Tabs that are already open still load old page chunks by their old hashed names; if those files are gone, the visitor sees the "Something went wrong" page with a reload button instead.
+When you upload a new release, keep the previous release's `assets/` files in place for one more release (step 3 above; they go away on the release after that). Tabs that are already open still load old page chunks by their old hashed names; if those files are gone, the visitor sees the "Something went wrong" page with a reload button instead.
 
 ## Limits
 
