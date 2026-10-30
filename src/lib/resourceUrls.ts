@@ -17,15 +17,15 @@ export function localFileUrl(path: string, base: string = import.meta.env.BASE_U
   return `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
 }
 
-/** Iframe URL for a source, or null when it cannot be embedded. Built only from validated IDs. */
+/** Iframe URL for a source, or null when it cannot be embedded. Built only from validated IDs; always https on an allowed frame host. */
 export function embedUrl(source: ResourceSource): string | null {
   switch (source.kind) {
     case 'drive':
       return isDriveId(source.fileId) ? `https://drive.google.com/file/d/${source.fileId}/preview` : null;
     case 'youtube':
       return isYouTubeId(source.videoId) ? `https://www.youtube-nocookie.com/embed/${source.videoId}` : null;
+    // Local files are never framed (ruling R19): the spec section 8 CSP has no frame-src 'self'.
     case 'local':
-      return localFileUrl(source.path);
     case 'drive-folder':
     case 'external':
       return null;

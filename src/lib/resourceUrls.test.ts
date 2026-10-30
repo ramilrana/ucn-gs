@@ -15,12 +15,20 @@ const external: ResourceSource = { kind: 'external', url: 'https://example.org/p
 
 describe('resourceUrls', () => {
   it('every embed URL uses an allowed frame host', () => {
-    for (const s of [drive, youtube, local]) {
+    for (const s of [drive, youtube]) {
       const url = embedUrl(s);
       expect(url).not.toBeNull();
-      if (url?.startsWith('/')) continue;
-      expect(FRAME_HOSTS).toContain(new URL(url ?? '', 'https://x').hostname);
+      expect(new URL(url ?? '').protocol).toBe('https:');
+      expect(FRAME_HOSTS).toContain(new URL(url ?? '').hostname);
     }
+  });
+
+  it('never embeds a local source, so same-origin framing has one stopping point', () => {
+    expect(embedUrl(local)).toBeNull();
+    expect(embedUrl({ kind: 'local', path: '/files/b.mp4' })).toBeNull();
+    // The open and download links still work for local files.
+    expect(viewUrl(local)).toBe('/files/a.pdf');
+    expect(downloadUrl(local)).toBe('/files/a.pdf');
   });
 
   it('builds the expected embed URLs', () => {
