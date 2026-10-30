@@ -1,9 +1,14 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { localFileUrl } from '../../lib/resourceUrls';
 import { ActionLink } from './ActionLink';
 
 describe('ActionLink', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it('external link opens in new tab with rel and sr text', () => {
     render(<ActionLink href="https://example.org/a">Open</ActionLink>);
     const link = screen.getByRole('link', { name: /Open/ });
@@ -37,6 +42,48 @@ describe('ActionLink', () => {
     // The router applies the basename itself; ActionLink must not add it twice.
     expect(link.getAttribute('href')).toBe('/gs/accreditation-areas');
     expect(link.hasAttribute('target')).toBe(false);
+  });
+
+  it.each([
+    ['/gs/', '/gs'],
+    ['/', '/'],
+  ])('local file URL under base %s is a plain anchor, not a router link', (base, basename) => {
+    vi.stubEnv('BASE_URL', base);
+    const href = localFileUrl('/files/a.pdf', base);
+    render(
+      <MemoryRouter basename={basename} initialEntries={[basename === '/' ? '/' : `${basename}/`]}>
+        <ActionLink href={href}>File</ActionLink>
+      </MemoryRouter>,
+    );
+    const link = screen.getByRole('link', { name: 'File' });
+    // A router Link would prepend the basename again (/gs/gs/files/a.pdf).
+    expect(link.getAttribute('href')).toBe(base === '/' ? '/files/a.pdf' : '/gs/files/a.pdf');
+  });
+
+  it('local file URL with newTab still opens in a new tab as a plain anchor', () => {
+    vi.stubEnv('BASE_URL', '/gs/');
+    render(
+      <MemoryRouter basename="/gs" initialEntries={['/gs/']}>
+        <ActionLink href={localFileUrl('/files/a.pdf', '/gs/')} newTab>File</ActionLink>
+      </MemoryRouter>,
+    );
+    const link = screen.getByRole('link', { name: /File/ });
+    expect(link.getAttribute('href')).toBe('/gs/files/a.pdf');
+    expect(link.getAttribute('target')).toBe('_blank');
+    expect(link.getAttribute('rel')).toBe('noopener noreferrer');
+  });
+
+  it('an app route still uses a router link under a subpath base', () => {
+    vi.stubEnv('BASE_URL', '/gs/');
+    render(
+      <MemoryRouter basename="/gs" initialEntries={['/gs/']}>
+        <ActionLink href="/accreditation-areas">Areas</ActionLink>
+      </MemoryRouter>,
+    );
+    const link = screen.getByRole('link', { name: 'Areas' });
+    expect(link.getAttribute('href')).toBe('/gs/accreditation-areas');
+    // Router Link intercepts plain left clicks, so the default is prevented.
+    expect(fireEvent.click(link)).toBe(false);
   });
 
   it('download link has download attribute and no target', () => {

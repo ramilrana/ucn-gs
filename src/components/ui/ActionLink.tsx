@@ -1,6 +1,7 @@
 import { ExternalLink } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { localFileUrl } from '../../lib/resourceUrls';
 import { safeHref } from '../../lib/safeUrl';
 
 export interface ActionLinkProps {
@@ -22,9 +23,11 @@ const variants = {
 
 /**
  * A link that is safe by construction. The href goes through safeHref; a rejected
- * URL renders as plain text. It never adds the site base path: root-relative hrefs
- * go to the router (which applies its basename), and callers pass localFileUrl()
- * output, which already includes the base, for downloads.
+ * URL renders as plain text. It never adds the site base path. Root-relative app
+ * routes go to the router (which applies its basename). File URLs, which start with
+ * the site base plus `files/` (what localFileUrl, viewUrl and downloadUrl return for
+ * local sources), are plain anchors: they already include the base and are not routes,
+ * so a router Link would double the base or land on the 404 route.
  */
 export function ActionLink({ href, children, variant = 'link', download = false, newTab }: ActionLinkProps) {
   const safe = safeHref(href);
@@ -46,7 +49,8 @@ export function ActionLink({ href, children, variant = 'link', download = false,
   );
   const newTabProps = opensNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {};
 
-  if (safe.startsWith('/') && !download) {
+  const isFileUrl = safe.startsWith(localFileUrl('/files/'));
+  if (safe.startsWith('/') && !download && !isFileUrl) {
     return (
       <Link to={safe} className={className} {...newTabProps}>
         {content}
