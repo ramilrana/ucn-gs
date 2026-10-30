@@ -54,6 +54,9 @@ export default defineConfig(({ mode }) => {
       setupFiles: ['src/test/setup.ts'],
       include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.ts', 'config/**/*.test.ts'],
       exclude: ['**/*.live.test.ts', '**/node_modules/**'],
+      // Suites have timed out at the 5000 ms default on a loaded OneDrive-hosted machine. 15 s is still short
+      // enough that a real hang fails the run.
+      testTimeout: 15000,
     },
     build: {
       sourcemap: false,
