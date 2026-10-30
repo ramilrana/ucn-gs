@@ -10,15 +10,25 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
-/** Visits every object reachable from `root` once, so shared objects and cycles are safe. */
-function walk(root: unknown, visit: (node: Record<string, unknown>) => void): void {
+/**
+ * Visits every object reachable from `root` once, so shared objects and cycles are safe.
+ * When `skip` returns true for an object, that object is not visited and its subtree is not entered.
+ */
+function walk(
+  root: unknown,
+  visit: (node: Record<string, unknown>) => void,
+  skip?: (node: Record<string, unknown>) => boolean,
+): void {
   const seen = new Set<object>();
   const stack: unknown[] = [root];
   while (stack.length > 0) {
     const node = stack.pop();
     if (!isRecord(node) || seen.has(node)) continue;
     seen.add(node);
-    if (!Array.isArray(node)) visit(node);
+    if (!Array.isArray(node)) {
+      if (skip?.(node)) continue;
+      visit(node);
+    }
     stack.push(...Object.values(node));
   }
 }
@@ -38,6 +48,22 @@ export function collectResources(root: unknown): Resource[] {
   walk(root, (node) => {
     if (isResource(node)) found.push(node as unknown as Resource);
   });
+  return found;
+}
+
+/**
+ * Published resources that have a source, skipping every pending subtree: a pending area, evidence
+ * group, person, slot or resource hides everything inside it, including resources marked published.
+ */
+export function collectPublishedResources(root: unknown): Resource[] {
+  const found: Resource[] = [];
+  walk(
+    root,
+    (node) => {
+      if (isResource(node) && node.status === 'published' && node.source) found.push(node as unknown as Resource);
+    },
+    (node) => node.status === 'pending',
+  );
   return found;
 }
 

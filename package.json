@@ -11,6 +11,7 @@
     "build": "tsc -b && vite build && node scripts/write-route-pages.mjs",
     "build:preview": "tsc -b && vite build --mode preview-content && node scripts/write-route-pages.mjs",
     "check:dist": "node scripts/check-dist.mjs",
+    "check:links": "vitest run --config vitest.links.config.ts",
     "preview": "vite preview",
     "lint": "eslint .",
     "typecheck": "tsc -b",
