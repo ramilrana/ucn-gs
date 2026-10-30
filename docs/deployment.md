@@ -71,6 +71,31 @@ HTML files should be revalidated on every visit: add `add_header Cache-Control "
 
 Nginx drops inherited `add_header` lines in any location that declares its own, so repeat the security headers wherever you add `Cache-Control`. Keep the CSP string identical to `config/csp.mjs` (`CSP_HEADER`).
 
+## Post-deploy verification
+
+Run these against the real host after every deploy. Replace `<host>` with the domain and `<base>` with the site folder (empty for a root deployment).
+
+1. Check the headers on the home page and on a deep route:
+
+   ```
+   curl -I https://<host>/<base>/
+   curl -I https://<host>/<base>/about/
+   ```
+
+   Each response must include `Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` and `Cross-Origin-Opener-Policy`, plus `Cache-Control: no-cache`.
+
+2. Check one hashed asset (pick any file name from `dist/assets/`):
+
+   ```
+   curl -I https://<host>/<base>/assets/<file>
+   ```
+
+   It must return `Cache-Control: public, max-age=31536000, immutable`.
+
+3. If the security headers are missing, `mod_headers` is not enabled. The generated `.htaccess` wraps the headers in `<IfModule mod_headers.c>`, so Apache drops them **silently** instead of reporting an error. Ask the host to enable `mod_headers` (and check `AllowOverride`, see Apache above), then repeat steps 1 and 2.
+
+4. Open one `public/files/*.pdf` directly in Chrome, Firefox and Safari on the real host. If a browser's PDF viewer is blocked by the Content-Security-Policy header on the PDF response, report it so a PDF-only header override can be considered (checkpoint C finding 3, deferred to Task 29).
+
 ## Documents and inline viewing
 
 Documents meant for inline viewing should be hosted on Google Drive (spec D3). Local PDFs under `public/files/` open in a new tab, because the security policy forbids framing them.
