@@ -67,6 +67,29 @@ describe('VideoEmbed', () => {
     expect(screen.queryByRole('button')).toBeNull();
   });
 
+  it('invalid drive id renders the title as plain text with no link and no frame', () => {
+    const { container } = renderVideo(<VideoEmbed resource={video({ kind: 'drive', fileId: 'short' })} />);
+    expect(container.textContent).toBe('Campus Tour');
+    expect(container.querySelector('iframe')).toBeNull();
+    expect(screen.queryByRole('link')).toBeNull();
+    expect(screen.queryByRole('button')).toBeNull();
+  });
+
+  it('invalid youtube id also keeps the title as plain text', () => {
+    const { container } = renderVideo(<VideoEmbed resource={video({ kind: 'youtube', videoId: 'bad' })} />);
+    expect(container.textContent).toBe('Campus Tour');
+    expect(screen.queryByRole('link')).toBeNull();
+  });
+
+  it('unsafe external url renders the title as plain text with no link and no frame', () => {
+    const { container } = renderVideo(
+      <VideoEmbed resource={video({ kind: 'external', url: 'javascript:alert(1)' })} />,
+    );
+    expect(container.textContent).toBe('Campus Tour');
+    expect(container.querySelector('iframe')).toBeNull();
+    expect(screen.queryByRole('link')).toBeNull();
+  });
+
   it('facebook external renders a link, never an iframe', () => {
     const { container } = renderVideo(
       <VideoEmbed resource={video({ kind: 'external', url: 'https://www.facebook.com/watch/?v=123' })} />,

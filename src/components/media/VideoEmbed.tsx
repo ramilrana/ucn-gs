@@ -64,6 +64,9 @@ export function VideoEmbed({ resource, poster }: VideoEmbedProps) {
   const posterSrc =
     poster?.src ?? (source.kind === 'youtube' && isYouTubeId(source.videoId) ? youtubePosterUrl(source.videoId) : null);
 
+  // Neither a frame nor a link is possible (invalid id): keep the title as plain text.
+  if (frameSrc === null && openHref === null) return <span>{resource.title}</span>;
+
   return (
     <div className="space-y-3">
       {frameSrc !== null &&
