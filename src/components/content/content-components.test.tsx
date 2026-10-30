@@ -131,8 +131,20 @@ describe('content components', () => {
         <ResourceRow resource={pdf('r', 'Dl', { downloadable: true })} />
       </ul>,
     );
-    expect(screen.getByRole('link', { name: 'Download' }).getAttribute('href')).toContain('export=download');
+    // Label in name: the visible text comes first, the title follows (jsdom drops the sr-only span's leading space).
+    const download = screen.getByRole('link', { name: /^Download\s*Dl$/ });
+    expect(download.getAttribute('href')).toContain('export=download');
     unmount();
+    // Two rows with a download link stay distinguishable by name (SC 2.4.4).
+    const two = renderUi(
+      <ul>
+        <ResourceRow resource={pdf('a', 'Report A', { downloadable: true })} />
+        <ResourceRow resource={pdf('b', 'Report B', { downloadable: true })} />
+      </ul>,
+    );
+    expect(screen.getByRole('link', { name: /^Download\s*Report A$/ })).toBeTruthy();
+    expect(screen.getByRole('link', { name: /^Download\s*Report B$/ })).toBeTruthy();
+    two.unmount();
     renderUi(
       <ul>
         <ResourceRow resource={pending('p', 'Not yet')} />

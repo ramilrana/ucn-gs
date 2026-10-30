@@ -36,6 +36,7 @@ export function ResourceRow({ resource }: { resource: Resource }) {
         {downloadHref && (
           <ActionLink href={downloadHref} download>
             Download
+            <span className="sr-only"> {resource.title}</span>
           </ActionLink>
         )}
       </div>
