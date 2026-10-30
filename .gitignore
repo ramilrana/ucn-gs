@@ -6,3 +6,5 @@ dist
 !.env.preview-content
 *.local
 .DS_Store
+
+.playwright-cli/
