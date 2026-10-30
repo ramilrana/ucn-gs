@@ -47,8 +47,18 @@ const settle = (ms = 50) =>
     await new Promise((resolve) => setTimeout(resolve, ms));
   });
 
+/** jsdom has no scrollIntoView: define a spy and remove it again in afterEach. */
+const stubScroll = () => {
+  const spy = vi.fn();
+  Object.defineProperty(Element.prototype, 'scrollIntoView', { value: spy, configurable: true, writable: true });
+  return spy;
+};
+
 describe('AvpView', () => {
-  afterEach(() => vi.unstubAllEnvs());
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    Reflect.deleteProperty(Element.prototype, 'scrollIntoView');
+  });
 
   it('one section per area with avp, using avpTitle when present', () => {
     production();
@@ -91,8 +101,7 @@ describe('AvpView', () => {
 
   it('scrolls to and focuses the h2 named by the hash', async () => {
     production();
-    const scroll = vi.fn();
-    Element.prototype.scrollIntoView = scroll;
+    const scroll = stubScroll();
     renderUi(<AvpView areas={areas} />, '/avp#research');
     const h2 = screen.getByRole('heading', { level: 2, name: 'Research in Action' });
     expect(h2.getAttribute('tabindex')).toBe('-1');
@@ -104,8 +113,7 @@ describe('AvpView', () => {
     production();
     const original = window.matchMedia;
     window.matchMedia = ((query: string) => ({ ...original(query), matches: true })) as typeof window.matchMedia;
-    const scroll = vi.fn();
-    Element.prototype.scrollIntoView = scroll;
+    const scroll = stubScroll();
     try {
       renderUi(<AvpView areas={areas} />, '/avp#governance');
       await waitFor(() => expect(scroll).toHaveBeenCalled());
@@ -117,16 +125,43 @@ describe('AvpView', () => {
 
   it('does nothing for an unknown hash', async () => {
     production();
-    const scroll = vi.fn();
-    Element.prototype.scrollIntoView = scroll;
+    const scroll = stubScroll();
     renderUi(<AvpView areas={areas} />, '/avp#nope');
     await settle(20);
     expect(scroll).not.toHaveBeenCalled();
   });
 
+  it('a malformed hash renders the page normally with no error page', async () => {
+    production();
+    const { container } = renderUi(<AvpView areas={areas} />, '/avp#%');
+    await settle(20);
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Audio Visual Presentations');
+    expect(container.querySelectorAll('section')).toHaveLength(2);
+    renderUi(<AvpView areas={areas} />, '/avp#%E0%A4%A');
+    await settle(20);
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(2);
+  });
+
+  it('a hash naming a non-AVP element focuses no AVP heading', async () => {
+    production();
+    const scroll = stubScroll();
+    renderUi(
+      <>
+        <div id="main">
+          <h2>Decoy heading</h2>
+        </div>
+        <AvpView areas={areas} />
+      </>,
+      '/avp#main',
+    );
+    await settle(20);
+    expect(scroll).not.toHaveBeenCalled();
+    expect(document.activeElement?.tagName).toBe('BODY');
+  });
+
   it('the hash target wins over the layout focus on #page-title after navigation', async () => {
     production();
-    Element.prototype.scrollIntoView = vi.fn();
+    stubScroll();
     const router = createMemoryRouter(
       [
         {

@@ -21,10 +21,18 @@ const headingId = (slug: string) => `${slug}-avp-title`;
  * effect (children first), or in a MutationObserver callback when the page loads lazily.
  * Either way a timer queued from here fires later, so the hash target wins.
  */
-function useFocusHashTarget(hash: string, entryCount: number): void {
+function useFocusHashTarget(hash: string, slugs: readonly string[]): void {
+  const slugKey = JSON.stringify(slugs);
   useEffect(() => {
     if (hash.length < 2) return;
-    const slug = decodeURIComponent(hash.slice(1));
+    let slug: string;
+    try {
+      slug = decodeURIComponent(hash.slice(1));
+    } catch {
+      return; // A malformed escape such as "#%" is simply "no target".
+    }
+    // Only AVP entries are targets; other ids on the page (such as #main) are ignored.
+    if (!(JSON.parse(slugKey) as string[]).includes(slug)) return;
     const timer = window.setTimeout(() => {
       const heading = document.getElementById(slug)?.querySelector('h2');
       if (!heading) return;
@@ -35,7 +43,7 @@ function useFocusHashTarget(hash: string, entryCount: number): void {
       }
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [hash, entryCount]);
+  }, [hash, slugKey]);
 }
 
 /** Audio visual presentations, one section per area, each reachable by its area slug. */
@@ -44,7 +52,10 @@ export function AvpView({ areas }: AvpViewProps) {
   const entries = areas.flatMap((area) =>
     isVisible(area) && area.avp !== undefined && isVisible(area.avp) ? [{ area, avp: area.avp }] : [],
   );
-  useFocusHashTarget(hash, entries.length);
+  useFocusHashTarget(
+    hash,
+    entries.map(({ area }) => area.slug),
+  );
 
   return (
     <PageShell title={TITLE} hasContent={entries.length > 0}>
