@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { collectIds, collectResources } from '../content/validate';
-import { sampleAreas, sampleRecommendations } from './samples';
+import { devLocalSource, sampleAreas, sampleRecommendations } from './samples';
 
 function only<T>(items: readonly T[]): T {
   const [first] = items;
@@ -43,8 +43,28 @@ describe('dev samples', () => {
     expect(blocks.some((b) => b.type === 'resources')).toBe(true);
   });
 
-  it('local sample resources use a path under the site base', () => {
-    const local = collectResources(all).filter((r) => r.source?.kind === 'local');
+  it('local sample resources point at the sample PDF with a root-relative path', () => {
+    const local = collectResources(all).flatMap((r) => (r.source?.kind === 'local' ? [r.source.path] : []));
     expect(local.length).toBeGreaterThan(0);
+    for (const path of local) {
+      expect(path.startsWith('/')).toBe(true);
+      expect(path).toContain('sample');
+      // Dev URLs keep Vite's query string, for example sample.pdf?no-inline.
+      expect(path).toMatch(/sample[^/]*\.pdf(\?.*)?$/);
+    }
+  });
+});
+
+describe('devLocalSource', () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it('strips a subpath base so localFileUrl can add it back', () => {
+    vi.stubEnv('BASE_URL', '/gs/');
+    expect(devLocalSource('/gs/assets/x.pdf')).toEqual({ kind: 'local', path: '/assets/x.pdf' });
+  });
+
+  it('strips the root base', () => {
+    vi.stubEnv('BASE_URL', '/');
+    expect(devLocalSource('/src/dev/sample.pdf')).toEqual({ kind: 'local', path: '/src/dev/sample.pdf' });
   });
 });
