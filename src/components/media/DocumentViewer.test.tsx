@@ -56,6 +56,9 @@ describe('DocumentViewer', () => {
     const user = userEvent.setup();
     renderViewer(<DocumentViewer resource={drivePdf()} mode="on-demand" />);
     expect(screen.queryByTitle(/PDF/)).toBeNull();
+    // The Open link must exist before Preview, in case the Drive file is not shared publicly (Review Focus 1).
+    const open = screen.getByRole('link', { name: /Open in new tab/ });
+    expect(open.getAttribute('href')).toBe(`https://drive.google.com/file/d/${FILE_ID}/view`);
     const button = screen.getByRole('button', { name: 'Preview Narrative Report' });
     expect(button.getAttribute('aria-expanded')).toBe('false');
     await user.click(button);
