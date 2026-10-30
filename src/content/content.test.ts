@@ -1,6 +1,10 @@
 // @vitest-environment node
-import { existsSync, readdirSync } from 'node:fs';
-import { describe, expect, it } from 'vitest';
+import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { afterEach, describe, expect, it } from 'vitest';
+import { existsCaseExact } from '../test/publicFiles';
 import type { Area, EvidenceBlock, EvidenceGroup, Faq, ImageAsset, Person, Recommendation, Resource, ResourceGroup } from '../types/content';
 import * as content from './index';
 import {
@@ -23,7 +27,8 @@ const recModules = import.meta.glob<Recommendation>(['./recommendations/rec-*.ts
   import: 'default',
 });
 
-const publicFileExists = (path: string) => existsSync(new URL(`../../public${path}`, import.meta.url));
+// Case-exact: Windows and macOS match /files/Report.pdf to report.pdf, Linux Apache does not.
+const publicFileExists = (path: string) => existsCaseExact(fileURLToPath(new URL('../../public/', import.meta.url)), path);
 
 const DRIVE_ID = 'A'.repeat(33);
 const published = (over: Partial<Resource> & { source?: Resource['source'] }): Resource =>
@@ -86,6 +91,50 @@ describe('content (real data)', () => {
     expect(content.home.accreditationHeading).toBe('LEVEL IV AACCUP ACCREDITATION');
     expect(Array.isArray(content.areas)).toBe(true);
     expect(Array.isArray(content.recommendations)).toBe(true);
+  });
+});
+
+describe('case-exact local file check', () => {
+  const roots: string[] = [];
+  afterEach(() => {
+    for (const r of roots.splice(0)) rmSync(r, { recursive: true, force: true });
+  });
+  function makePublic(): string {
+    const root = mkdtempSync(join(tmpdir(), 'ucn-public-'));
+    roots.push(root);
+    mkdirSync(join(root, 'files', 'sub'), { recursive: true });
+    writeFileSync(join(root, 'files', 'report.pdf'), '%PDF-1.4');
+    writeFileSync(join(root, 'files', 'sub', 'a.pdf'), '%PDF-1.4');
+    return root;
+  }
+
+  it('accepts a path whose every segment matches exactly', () => {
+    const root = makePublic();
+    expect(existsCaseExact(root, '/files/report.pdf')).toBe(true);
+    expect(existsCaseExact(root, '/files/sub/a.pdf')).toBe(true);
+  });
+  it('rejects a path that differs only in case, in the file name or in a folder', () => {
+    const root = makePublic();
+    expect(existsCaseExact(root, '/files/Report.pdf')).toBe(false);
+    expect(existsCaseExact(root, '/files/report.PDF')).toBe(false);
+    expect(existsCaseExact(root, '/Files/report.pdf')).toBe(false);
+    expect(existsCaseExact(root, '/files/SUB/a.pdf')).toBe(false);
+  });
+  it('rejects missing files, directories, empty paths and traversal', () => {
+    const root = makePublic();
+    expect(existsCaseExact(root, '/files/missing.pdf')).toBe(false);
+    expect(existsCaseExact(root, '/files/sub')).toBe(false);
+    expect(existsCaseExact(root, '/files/')).toBe(false);
+    expect(existsCaseExact(root, '')).toBe(false);
+    expect(existsCaseExact(root, '/files/../files/report.pdf')).toBe(false);
+  });
+  it('checkResources reports a wrong-case local path as a missing file', () => {
+    const root = makePublic();
+    const exists = (p: string) => existsCaseExact(root, p);
+    const wrongCase = published({ id: 'case', source: { kind: 'local', path: '/files/Report.pdf' } });
+    const right = published({ id: 'ok', source: { kind: 'local', path: '/files/report.pdf' } });
+    expect(checkResources([wrongCase], exists).join()).toContain('local file public/files/Report.pdf does not exist');
+    expect(checkResources([right], exists)).toEqual([]);
   });
 });
 
