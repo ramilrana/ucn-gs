@@ -1,5 +1,5 @@
 import { Component, type ReactNode } from 'react';
-import { Result } from 'antd';
+import { ErrorPage } from './ErrorPage';
 
 interface Props {
   children: ReactNode;
@@ -18,9 +18,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
-      return (
-        <Result status="error" title="Something went wrong" subTitle="Please refresh the page." />
-      );
+      return <ErrorPage />;
     }
     return this.props.children;
   }

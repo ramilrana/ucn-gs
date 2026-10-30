@@ -1,0 +1,258 @@
+import { describe, expect, it } from 'vitest';
+import { act, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { RouterProvider, createMemoryRouter } from 'react-router-dom';
+import { buildRouteObjects } from '../../app/router';
+import { buildRouteManifest } from '../../content/routes';
+import type { Area, Recommendation, Resource } from '../../types/content';
+import { SiteHeader } from './SiteHeader';
+
+const doc: Resource = { id: 'doc', title: 'Doc', format: 'pdf', status: 'pending' };
+const area: Area = {
+  slug: 'research',
+  order: 1,
+  title: 'Research',
+  status: 'published',
+  gallery: { label: 'Gallery', status: 'pending' },
+  narrativeReport: doc,
+  groups: [],
+  additionalFiles: [],
+};
+const rec = (number: number): Recommendation => ({
+  number,
+  title: `Rec ${number}`,
+  status: 'published',
+  document: doc,
+  evidence: [],
+  additionalFiles: [],
+});
+const manifest = buildRouteManifest({ areas: [area], recommendations: [rec(1), rec(2)], includePending: false });
+
+function renderHeader(path = '/compliance-report/recommendation-1') {
+  const router = createMemoryRouter([{ path: '*', element: <SiteHeader manifest={manifest} /> }], {
+    initialEntries: [path],
+  });
+  render(<RouterProvider router={router} />);
+  return router;
+}
+
+const desktopNav = () => screen.getByRole('navigation', { name: 'Main' });
+
+function getDialog(): HTMLDialogElement {
+  const dialog = document.querySelector('dialog');
+  if (!dialog) throw new Error('missing dialog');
+  return dialog;
+}
+
+describe('SiteHeader', () => {
+  it('marks Compliance Report as current ancestor', () => {
+    renderHeader();
+    const nav = within(desktopNav());
+    expect(nav.getByRole('link', { name: 'Compliance Report' }).getAttribute('aria-current')).toBe('true');
+    expect(nav.getByRole('link', { name: 'Recommendation 1', hidden: true }).getAttribute('aria-current')).toBe('page');
+    expect(nav.getByRole('link', { name: 'Home' }).hasAttribute('aria-current')).toBe(false);
+    expect(nav.getByRole('link', { name: 'AVP' }).hasAttribute('aria-current')).toBe(false);
+  });
+
+  it('marks an exact match as the current page', () => {
+    renderHeader('/avp');
+    expect(within(desktopNav()).getByRole('link', { name: 'AVP' }).getAttribute('aria-current')).toBe('page');
+  });
+
+  it('dropdown button toggles aria-expanded and Esc returns focus', async () => {
+    const user = userEvent.setup();
+    renderHeader();
+    const button = within(desktopNav()).getByRole('button', { name: /Compliance Report/ });
+    const panelId = button.getAttribute('aria-controls') ?? '';
+    expect(panelId).not.toBe('');
+    expect(button.getAttribute('aria-expanded')).toBe('false');
+    expect(document.getElementById(panelId)?.hasAttribute('hidden')).toBe(true);
+
+    await user.click(button);
+    expect(button.getAttribute('aria-expanded')).toBe('true');
+    expect(document.getElementById(panelId)?.hasAttribute('hidden')).toBe(false);
+
+    await user.tab(); // into the first dropdown link
+    expect(document.activeElement).not.toBe(button);
+    await user.keyboard('{Escape}');
+    expect(button.getAttribute('aria-expanded')).toBe('false');
+    expect(document.activeElement).toBe(button);
+  });
+
+  it('closes on outside click and when focus leaves the item', async () => {
+    const user = userEvent.setup();
+    renderHeader();
+    const button = within(desktopNav()).getByRole('button', { name: /Compliance Report/ });
+    await user.click(button);
+    await user.click(document.body);
+    expect(button.getAttribute('aria-expanded')).toBe('false');
+
+    await user.click(button);
+    expect(button.getAttribute('aria-expanded')).toBe('true');
+    // Tab through the dropdown links and out to the next nav item.
+    const panel = document.getElementById(button.getAttribute('aria-controls') ?? '');
+    const count = panel?.querySelectorAll('a').length ?? 0;
+    for (let i = 0; i <= count; i += 1) await user.tab();
+    expect(button.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('opening one dropdown closes the other', async () => {
+    const user = userEvent.setup();
+    renderHeader();
+    const nav = within(desktopNav());
+    const compliance = nav.getByRole('button', { name: /Compliance Report/ });
+    const about = nav.getByRole('button', { name: /About/ });
+    await user.click(compliance);
+    expect(compliance.getAttribute('aria-expanded')).toBe('true');
+    await user.click(about);
+    expect(about.getAttribute('aria-expanded')).toBe('true');
+    expect(compliance.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('anchors trailing dropdown panels to the right edge and leading ones to the left', () => {
+    renderHeader();
+    const nav = within(desktopNav());
+    const panelFor = (name: RegExp) =>
+      document.getElementById(nav.getByRole('button', { name }).getAttribute('aria-controls') ?? '');
+    const first = panelFor(/Accreditation Areas/);
+    const last = panelFor(/About/);
+    expect(first?.classList.contains('left-0')).toBe(true);
+    expect(first?.classList.contains('right-0')).toBe(false);
+    expect(last?.classList.contains('right-0')).toBe(true);
+    expect(last?.classList.contains('left-0')).toBe(false);
+  });
+
+  it('mobile menu opens a dialog and closes on link click', async () => {
+    const user = userEvent.setup();
+    renderHeader('/');
+    const dialog = getDialog();
+    expect(dialog.hasAttribute('open')).toBe(false);
+
+    await user.click(screen.getByRole('button', { name: 'Menu' }));
+    expect(dialog.hasAttribute('open')).toBe(true);
+
+    await user.click(within(dialog).getByRole('button', { name: /Close/ }));
+    expect(dialog.hasAttribute('open')).toBe(false);
+
+    await user.click(screen.getByRole('button', { name: 'Menu' }));
+    await user.click(within(dialog).getByRole('link', { name: 'AVP' }));
+    expect(dialog.hasAttribute('open')).toBe(false);
+  });
+
+  it('mobile dialog stays open for a click on blank space and closes for a backdrop click', async () => {
+    const user = userEvent.setup();
+    renderHeader('/');
+    const dialog = getDialog();
+    await user.click(screen.getByRole('button', { name: 'Menu' }));
+    // The backdrop is the dialog element itself, so the content must fill it in a wrapper that takes
+    // clicks on its own blank space (the full-height dialog has more room than the menu needs).
+    const wrapper = dialog.firstElementChild;
+    expect(wrapper?.className).toContain('min-h-full');
+    if (!wrapper) throw new Error('missing wrapper');
+    await user.click(wrapper);
+    expect(dialog.hasAttribute('open')).toBe(true);
+    await user.click(within(dialog).getByRole('navigation', { name: 'Mobile' }));
+    expect(dialog.hasAttribute('open')).toBe(true);
+    await user.click(dialog);
+    expect(dialog.hasAttribute('open')).toBe(false);
+  });
+
+  it('mobile groups keep a link to the index page', async () => {
+    const user = userEvent.setup();
+    renderHeader('/');
+    await user.click(screen.getByRole('button', { name: 'Menu' }));
+    const links = within(getDialog())
+      .getAllByRole('link', { hidden: true })
+      .map((l) => l.getAttribute('href'));
+    expect(links).toContain('/compliance-report');
+    expect(links).toContain('/compliance-report/recommendation-2');
+    expect(links).toContain('/about');
+  });
+
+  it('mobile group containing the current page opens after client navigation', async () => {
+    const user = userEvent.setup();
+    const router = renderHeader('/compliance-report/recommendation-1');
+    const groupOpen = (label: string) => {
+      const summary = Array.from(getDialog().querySelectorAll('summary')).find((s) => s.textContent === label);
+      return summary?.parentElement?.hasAttribute('open');
+    };
+    expect(groupOpen('Compliance Report')).toBe(true);
+    expect(groupOpen('Accreditation Areas')).toBe(false);
+
+    await act(async () => {
+      await router.navigate('/accreditation-areas/research');
+    });
+    await user.click(screen.getByRole('button', { name: 'Menu' }));
+    expect(groupOpen('Accreditation Areas')).toBe(true);
+  });
+
+  it('mobile group is reopened after navigation even if the visitor collapsed it earlier', async () => {
+    const user = userEvent.setup();
+    const router = renderHeader('/compliance-report/recommendation-1');
+    const summary = Array.from(getDialog().querySelectorAll('summary')).find((s) => s.textContent === 'Compliance Report');
+    const details = summary?.parentElement;
+    if (!summary || !details) throw new Error('missing group');
+    expect(details.hasAttribute('open')).toBe(true);
+
+    await user.click(screen.getByRole('button', { name: 'Menu' }));
+    await user.click(summary); // the visitor collapses the group that holds the current page
+    expect(details.hasAttribute('open')).toBe(false);
+
+    await act(async () => {
+      await router.navigate('/compliance-report/recommendation-2');
+    });
+    const after = Array.from(getDialog().querySelectorAll('summary')).find((s) => s.textContent === 'Compliance Report');
+    expect(after?.parentElement?.hasAttribute('open')).toBe(true);
+  });
+
+  it('the Menu button never shrinks and drops its visible text below sm, keeping the name Menu (200% text)', () => {
+    renderHeader('/');
+    const button = screen.getByRole('button', { name: 'Menu' });
+    expect(button.getAttribute('aria-label')).toBe('Menu');
+    expect(button.className).toContain('shrink-0');
+    const text = Array.from(button.querySelectorAll('span')).find((span) => span.textContent === 'Menu');
+    expect(text?.className).toContain('hidden');
+    expect(text?.className).toContain('sm:inline');
+    expect(button.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('the brand link can shrink so the Menu button stays on screen', () => {
+    renderHeader('/');
+    const brand = screen.getByAltText('University of Camarines Norte seal').closest('a');
+    expect(brand?.className).toContain('min-w-0');
+    expect(brand?.querySelector('img')?.className).toContain('shrink-0');
+  });
+
+  it('keeps the brand on two lines and the nav on one row at 1024px by tightening only at lg', () => {
+    renderHeader('/');
+    const row = screen.getByRole('banner').firstElementChild;
+    expect(row?.className).toContain('lg:px-4');
+    expect(row?.className).toContain('xl:px-6');
+    // Top-level desktop links are 14px at lg and return to 16px from xl.
+    const link = within(desktopNav()).getByRole('link', { name: 'Home' });
+    expect(link.className).toContain('text-sm');
+    expect(link.className).toContain('xl:text-base');
+  });
+
+  it('logo has alt text and links home', () => {
+    renderHeader();
+    const logo = screen.getByAltText('University of Camarines Norte seal');
+    expect(logo.closest('a')?.getAttribute('href')).toBe('/');
+    expect(logo.getAttribute('height')).toBe('48');
+    expect(screen.getByText('Graduate School')).toBeTruthy();
+  });
+});
+
+describe('RootLayout skip link', () => {
+  it('skip link targets #main', async () => {
+    const router = createMemoryRouter(buildRouteObjects(manifest), { initialEntries: ['/about'] });
+    render(<RouterProvider router={router} />);
+    const skip = await screen.findByRole('link', { name: 'Skip to main content' });
+    expect(skip.getAttribute('href')).toBe('#main');
+    expect(document.getElementById('main')?.tagName).toBe('MAIN');
+    await screen.findByRole('heading', { level: 1 });
+    // The skip link is the first focusable element on the page.
+    await userEvent.setup().tab();
+    expect(document.activeElement).toBe(skip);
+  });
+});

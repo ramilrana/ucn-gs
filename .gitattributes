@@ -1,0 +1,2 @@
+# Keep PDFs byte-exact: CRLF conversion would break the xref offsets of src/dev/sample.pdf.
+*.pdf binary

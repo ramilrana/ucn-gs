@@ -3,5 +3,8 @@ dist
 .env
 .env.*
 !.env.example
+!.env.preview-content
 *.local
 .DS_Store
+
+.playwright-cli/
