@@ -86,6 +86,48 @@ describe('ActionLink', () => {
     expect(fireEvent.click(link)).toBe(false);
   });
 
+  it('a root-relative path with a file extension is a plain anchor (dev sample PDF)', () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <ActionLink href="/src/dev/sample.pdf?no-inline">Sample</ActionLink>
+      </MemoryRouter>,
+    );
+    const link = screen.getByRole('link', { name: 'Sample' });
+    expect(link.getAttribute('href')).toBe('/src/dev/sample.pdf?no-inline');
+    expect(fireEvent.click(link)).toBe(true);
+  });
+
+  it('a built asset path under a subpath base is not given the basename twice', () => {
+    render(
+      <MemoryRouter basename="/gs" initialEntries={['/gs/']}>
+        <ActionLink href="/gs/assets/sample-abc.pdf">Sample</ActionLink>
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole('link', { name: 'Sample' }).getAttribute('href')).toBe('/gs/assets/sample-abc.pdf');
+  });
+
+  it('a dot in the query or hash, or in an earlier segment, does not make a route a file link', () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <ActionLink href="/about/people?ref=a.pdf">Q</ActionLink>
+        <ActionLink href="/about/people#x.pdf">H</ActionLink>
+        <ActionLink href="/v1.2/people">S</ActionLink>
+      </MemoryRouter>,
+    );
+    for (const name of ['Q', 'H', 'S']) {
+      expect(fireEvent.click(screen.getByRole('link', { name }))).toBe(false);
+    }
+  });
+
+  it('an app route is still a router link', () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <ActionLink href="/about/people">People</ActionLink>
+      </MemoryRouter>,
+    );
+    expect(fireEvent.click(screen.getByRole('link', { name: 'People' }))).toBe(false);
+  });
+
   it('download link has download attribute and no target', () => {
     render(<ActionLink href="/gs/files/a.pdf" download>Download</ActionLink>);
     const link = screen.getByRole('link', { name: 'Download' });

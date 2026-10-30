@@ -21,13 +21,21 @@ const variants = {
     'min-h-11 border border-maroon-800 px-4 py-2 text-maroon-800 hover:bg-paper hover:text-maroon-900',
 } as const;
 
+/** True when a root-relative href points at a file: its pathname's last segment contains a dot. */
+function hasFileExtension(href: string): boolean {
+  const pathname = href.split(/[?#]/, 1)[0] ?? '';
+  return (pathname.split('/').pop() ?? '').includes('.');
+}
+
 /**
  * A link that is safe by construction. The href goes through safeHref; a rejected
  * URL renders as plain text. It never adds the site base path. Root-relative app
  * routes go to the router (which applies its basename). File URLs, which start with
  * the site base plus `files/` (what localFileUrl, viewUrl and downloadUrl return for
  * local sources), are plain anchors: they already include the base and are not routes,
- * so a router Link would double the base or land on the 404 route.
+ * so a router Link would double the base or land on the 404 route. So are root-relative
+ * paths whose last segment has a file extension (a dot, ignoring `?query` and `#hash`),
+ * such as the bundled dev sample PDF under `assets/`. App routes never contain dots.
  */
 export function ActionLink({ href, children, variant = 'link', download = false, newTab }: ActionLinkProps) {
   const safe = safeHref(href);
@@ -49,7 +57,7 @@ export function ActionLink({ href, children, variant = 'link', download = false,
   );
   const newTabProps = opensNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {};
 
-  const isFileUrl = safe.startsWith(localFileUrl('/files/'));
+  const isFileUrl = safe.startsWith(localFileUrl('/files/')) || hasFileExtension(safe);
   if (safe.startsWith('/') && !download && !isFileUrl) {
     return (
       <Link to={safe} className={className} {...newTabProps}>
