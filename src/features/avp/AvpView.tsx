@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { PageShell } from '../../components/layout/PageShell';
 import { VideoEmbed } from '../../components/media/VideoEmbed';
 import { ActionLink } from '../../components/ui/ActionLink';
 import { SectionHeading } from '../../components/ui/SectionHeading';
 import { isVisible } from '../../lib/published';
+import { useFocusHashTarget } from '../../lib/useFocusHashTarget';
 import type { Area } from '../../types/content';
 
 interface AvpViewProps {
@@ -14,37 +14,6 @@ interface AvpViewProps {
 const TITLE = 'Audio Visual Presentations';
 
 const headingId = (slug: string) => `${slug}-avp-title`;
-
-/**
- * Moves focus to the h2 named by the URL hash. It waits one task so it runs after RootLayout's
- * own focus on the page h1: that focus is set in a layout effect that follows this component's
- * effect (children first), or in a MutationObserver callback when the page loads lazily.
- * Either way a timer queued from here fires later, so the hash target wins.
- */
-function useFocusHashTarget(hash: string, slugs: readonly string[]): void {
-  const slugKey = JSON.stringify(slugs);
-  useEffect(() => {
-    if (hash.length < 2) return;
-    let slug: string;
-    try {
-      slug = decodeURIComponent(hash.slice(1));
-    } catch {
-      return; // A malformed escape such as "#%" is simply "no target".
-    }
-    // Only AVP entries are targets; other ids on the page (such as #main) are ignored.
-    if (!(JSON.parse(slugKey) as string[]).includes(slug)) return;
-    const timer = window.setTimeout(() => {
-      const heading = document.getElementById(slug)?.querySelector('h2');
-      if (!heading) return;
-      heading.focus({ preventScroll: true });
-      if (typeof heading.scrollIntoView === 'function') {
-        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        heading.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
-      }
-    }, 0);
-    return () => window.clearTimeout(timer);
-  }, [hash, slugKey]);
-}
 
 /** Audio visual presentations, one section per area, each reachable by its area slug. */
 export function AvpView({ areas }: AvpViewProps) {

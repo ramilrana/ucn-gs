@@ -1,8 +1,10 @@
+import { useLocation } from 'react-router-dom';
 import { PendingNotice } from '../../components/content/PendingNotice';
 import { Prose } from '../../components/content/Prose';
 import { PageShell } from '../../components/layout/PageShell';
 import { SectionHeading } from '../../components/ui/SectionHeading';
 import { showPending, slotValue } from '../../lib/published';
+import { useFocusHashTarget } from '../../lib/useFocusHashTarget';
 import type { AboutContent, Slot } from '../../types/content';
 
 const TITLE = 'About the Graduate School';
@@ -29,12 +31,17 @@ function SlotBlock({ slot, heading }: { slot: Slot<string[]>; heading: boolean }
 
 /** Mission and Vision, Goals and Objectives, and History, each on a stable anchor. */
 export function AboutView({ about }: { about: AboutContent }) {
+  const { hash } = useLocation();
   const sections: Section[] = [
     { id: 'mission-and-vision', title: 'Mission and Vision', slots: [about.mission, about.vision] },
     { id: 'goals-and-objectives', title: 'Goals and Objectives', slots: [about.goals, about.objectives] },
     { id: 'history', title: 'History', slots: [about.history] },
   ];
   const shown = sections.filter((section) => section.slots.some(slotRenders));
+  useFocusHashTarget(
+    hash,
+    shown.map((section) => section.id),
+  );
   const photo = slotValue(about.photo);
   const photoRenders = photo !== undefined || showPending();
 
@@ -71,7 +78,7 @@ export function AboutView({ about }: { about: AboutContent }) {
         )}
         {shown.map((section) => (
           <section key={section.id} id={section.id} aria-labelledby={`${section.id}-title`} className="scroll-mt-6 space-y-6">
-            <SectionHeading level={2} id={`${section.id}-title`}>
+            <SectionHeading level={2} id={`${section.id}-title`} tabIndex={-1}>
               {section.title}
             </SectionHeading>
             {section.slots.map((slot) => (

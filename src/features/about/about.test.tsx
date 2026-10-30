@@ -1,6 +1,7 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { RootLayout } from '../../app/RootLayout';
 import type { AboutContent, ImageAsset, Person } from '../../types/content';
 import { AboutView } from './AboutView';
 import { FacultyByDepartmentView } from './FacultyByDepartmentView';
@@ -49,6 +50,36 @@ const fullAbout: AboutContent = {
   goals: { status: 'published', label: 'Goals', value: ['Goal one.', 'Goal two.'] },
   objectives: { status: 'published', label: 'Objectives', value: ['Objective one.'] },
   history: { status: 'published', label: 'History', value: ['History text.'] },
+};
+
+const settle = (ms = 50) =>
+  act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, ms));
+  });
+
+/** jsdom has no scrollIntoView: define a spy and remove it again in afterEach. */
+const stubScroll = () => {
+  const spy = vi.fn();
+  Object.defineProperty(Element.prototype, 'scrollIntoView', { value: spy, configurable: true, writable: true });
+  return spy;
+};
+
+const renderInLayout = (path: string) => {
+  const router = createMemoryRouter(
+    [
+      {
+        path: '/',
+        element: <RootLayout />,
+        children: [
+          { index: true, element: <h1 id="page-title" tabIndex={-1}>Home</h1> },
+          { path: 'about', element: <AboutView about={fullAbout} /> },
+        ],
+      },
+    ],
+    { initialEntries: [path] },
+  );
+  render(<RouterProvider router={router} />);
+  return router;
 };
 
 describe('groupByRole', () => {
@@ -110,7 +141,45 @@ describe('PersonCard', () => {
 });
 
 describe('AboutView', () => {
-  afterEach(() => vi.unstubAllEnvs());
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    Reflect.deleteProperty(Element.prototype, 'scrollIntoView');
+  });
+
+  it('focuses the section heading named by the hash after navigation, beating the layout focus on the h1', async () => {
+    production();
+    const scroll = stubScroll();
+    const router = renderInLayout('/');
+    await act(async () => {
+      await router.navigate('/about#history');
+    });
+    const heading = screen.getByRole('heading', { level: 2, name: 'History' });
+    expect(heading.getAttribute('tabindex')).toBe('-1');
+    await waitFor(() => expect(document.activeElement).toBe(heading));
+    await settle();
+    expect(document.activeElement).toBe(heading);
+    expect(scroll).toHaveBeenCalled();
+  });
+
+  it('focuses the heading when the page is loaded directly at the hash', async () => {
+    production();
+    stubScroll();
+    renderUi(<AboutView about={fullAbout} />, '/about#mission-and-vision');
+    const heading = screen.getByRole('heading', { level: 2, name: 'Mission and Vision' });
+    await waitFor(() => expect(document.activeElement).toBe(heading));
+  });
+
+  it('focuses nothing for a foreign, unknown or malformed hash', async () => {
+    production();
+    const scroll = stubScroll();
+    for (const hash of ['#main', '#nope', '#%', '#%E0%A4%A']) {
+      const { unmount } = renderUi(<AboutView about={fullAbout} />, `/about${hash}`);
+      await settle(20);
+      expect(document.activeElement?.tagName, hash).toBe('BODY');
+      unmount();
+    }
+    expect(scroll).not.toHaveBeenCalled();
+  });
 
   it('about sections have stable anchors', () => {
     production();
