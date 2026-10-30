@@ -6,7 +6,8 @@ interface SectionHeadingProps {
   children: ReactNode;
 }
 
-// The gold rule is a pseudo-element that only exists inside .on-maroon (D9: no gold on white or paper).
+// The gold rule is a pseudo-element that is only drawn inside .on-maroon. D9 forbids gold as text, focus ring or
+// state indicator on white or paper; a decorative rule on white would be allowed (spec §5), but this heading omits it there.
 const rule =
   "after:hidden after:content-[''] [.on-maroon_&]:after:block after:mt-2 after:h-0.5 after:w-12 after:bg-gold-500";
 const sizes = { 2: 'text-2xl', 3: 'text-xl' } as const;
