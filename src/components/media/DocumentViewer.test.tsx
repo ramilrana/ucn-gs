@@ -73,8 +73,8 @@ describe('DocumentViewer', () => {
     const { container } = renderViewer(<DocumentViewer resource={localPdf({ downloadable: true })} mode="embedded" />);
     expect(container.querySelector('iframe')).toBeNull();
     expect(screen.getByText('Local Report').tagName).not.toMatch(/^H[1-6]$/);
-    expect(screen.getByText('Open this PDF in a new tab or download it.')).toBeTruthy();
-    expect(screen.getByRole('link', { name: /Open PDF/ }).getAttribute('href')).toBe('/files/report.pdf');
+    expect(screen.getByText('Open this file in a new tab or download it.')).toBeTruthy();
+    expect(screen.getByRole('link', { name: /^Open file/ }).getAttribute('href')).toBe('/files/report.pdf');
     expect(screen.getAllByRole('link', { name: /Download/ })).toHaveLength(1);
     expect(screen.getByRole('link', { name: /Download/ }).getAttribute('href')).toBe('/files/report.pdf');
     expect(screen.getByText('This site')).toBeTruthy();
@@ -83,7 +83,7 @@ describe('DocumentViewer', () => {
   it('embedded local PDF that is not downloadable offers Open but no Download', () => {
     const { container } = renderViewer(<DocumentViewer resource={localPdf()} mode="embedded" />);
     expect(container.querySelector('iframe')).toBeNull();
-    expect(screen.getByRole('link', { name: /Open PDF/ }).getAttribute('href')).toBe('/files/report.pdf');
+    expect(screen.getByRole('link', { name: /^Open file/ }).getAttribute('href')).toBe('/files/report.pdf');
     expect(screen.queryByRole('link', { name: /Download/ })).toBeNull();
   });
 
@@ -91,7 +91,17 @@ describe('DocumentViewer', () => {
     const { container } = renderViewer(<DocumentViewer resource={localPdf({ downloadable: true })} mode="on-demand" />);
     expect(screen.queryByRole('button')).toBeNull();
     expect(container.querySelector('iframe')).toBeNull();
-    expect(screen.getByRole('link', { name: /Open PDF/ }).getAttribute('href')).toBe('/files/report.pdf');
+    expect(screen.getByRole('link', { name: /^Open file/ }).getAttribute('href')).toBe('/files/report.pdf');
+  });
+
+  it('local card wording stays neutral for a non-PDF file', () => {
+    const doc = localPdf({ format: 'doc', title: 'Minutes', downloadable: true, source: { kind: 'local', path: '/files/minutes.docx' } } as Partial<Resource>);
+    const { container } = renderViewer(<DocumentViewer resource={doc} mode="embedded" />);
+    expect(container.querySelector('iframe')).toBeNull();
+    expect(screen.getByText('Open this file in a new tab or download it.')).toBeTruthy();
+    expect(screen.getByRole('link', { name: /^Open file/ }).getAttribute('href')).toBe('/files/minutes.docx');
+    expect(screen.getByRole('link', { name: 'Download' }).getAttribute('href')).toBe('/files/minutes.docx');
+    expect(container.textContent).not.toMatch(/Open PDF|Download PDF|this PDF/);
   });
 
   it('local PDF never embeds regardless of pdfViewerEnabled', () => {
@@ -103,7 +113,7 @@ describe('DocumentViewer', () => {
   it('drive PDF still embeds', () => {
     renderViewer(<DocumentViewer resource={drivePdf()} mode="embedded" />);
     expect(screen.getByTitle('Narrative Report (PDF)')).toBeTruthy();
-    expect(screen.queryByText('Open this PDF in a new tab or download it.')).toBeNull();
+    expect(screen.queryByText('Open this file in a new tab or download it.')).toBeNull();
   });
 
   it('download link only when downloadable', () => {

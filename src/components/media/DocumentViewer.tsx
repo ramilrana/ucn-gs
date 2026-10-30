@@ -68,16 +68,16 @@ export function DocumentViewer({ resource, mode }: DocumentViewerProps) {
       </div>
       {localCard && (
         <div className="rounded border border-line bg-paper p-4">
-          <p className="text-ink">Open this PDF in a new tab or download it.</p>
+          <p className="text-ink">Open this file in a new tab or download it.</p>
           <div className="mt-3 flex flex-wrap gap-3">
             {openHref && (
               <ActionLink href={openHref} newTab variant="primary">
-                Open PDF
+                Open file
               </ActionLink>
             )}
             {downloadHref && (
               <ActionLink href={downloadHref} download variant="secondary">
-                Download PDF
+                Download
               </ActionLink>
             )}
           </div>
