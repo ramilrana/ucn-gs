@@ -9,10 +9,12 @@ import { RootLayout } from './RootLayout';
 import { buildRouteObjects } from './router';
 
 const pendingDoc: Resource = { id: 'doc', title: 'Doc', format: 'pdf', status: 'pending' };
+// The area and recommendation pages look their data up in the real content (which includes the dev
+// samples under test), so these fixtures use the sample slug and number.
 const area: Area = {
-  slug: 'research',
+  slug: 'sample-area',
   order: 1,
-  title: 'Research',
+  title: 'Sample area',
   status: 'published',
   gallery: { label: 'Gallery', status: 'pending' },
   narrativeReport: pendingDoc,
@@ -20,8 +22,8 @@ const area: Area = {
   additionalFiles: [],
 };
 const rec: Recommendation = {
-  number: 1,
-  title: 'Rec 1',
+  number: 99,
+  title: 'Sample recommendation',
   status: 'published',
   document: pendingDoc,
   evidence: [],
@@ -83,8 +85,8 @@ describe('app router', () => {
   );
 
   it('renders the page with a trailing slash', async () => {
-    renderAt('/accreditation-areas/research/');
-    expect(await screen.findByRole('heading', { level: 1, name: 'Research' })).toBeTruthy();
+    renderAt('/accreditation-areas/sample-area/');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Sample area' })).toBeTruthy();
   });
 
   it('unknown path renders the 404 page', async () => {
