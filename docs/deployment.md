@@ -35,6 +35,7 @@ Upload the whole `dist/` folder **including the dotfiles** `dist/.htaccess` and 
 What the generated `.htaccess` does:
 - `Options -Indexes`: no directory listings.
 - `DirectorySlash On`: `/accreditation-areas` redirects to `/accreditation-areas/`. The app handles the trailing slash.
+- `DirectoryIndex index.html`: a folder URL serves its `index.html` even if the host's default index list omits it.
 - `ErrorDocument 404 <base>404.html`.
 - Security headers (CSP, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `Cross-Origin-Opener-Policy`) with `Header always set`.
 - `Cache-Control: no-cache` for `*.html`, so a new deploy shows immediately.

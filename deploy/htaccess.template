@@ -3,6 +3,7 @@
 
 Options -Indexes
 DirectorySlash On
+DirectoryIndex index.html
 ErrorDocument 404 __BASE__404.html
 
 <IfModule mod_headers.c>
