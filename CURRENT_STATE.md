@@ -64,6 +64,7 @@ The target architecture is in spec §6.
 - Done: workflow setup; repo and reference inspection; brainstorming Q&A; design sections 1–5 approved; spec written and approved.
 - Implementation plan: approved 2026-10-29.
 - Tasks 1–12 complete and task-reviewed (per-task Sonnet reviewer, fix rounds where needed). Commits 7f10675..2c006d0. First-load JS 109.04 kB gzip (budget 120 kB).
+- Tasks 13–18 (Phase 4: Slideshow, ImageGallery, DocumentViewer, VideoEmbed/MapEmbed, evidence components, dev samples + /content-status) complete and task-reviewed, commits `64df2f9..3f5d48f`. 267 tests; first-load JS 109.17 kB gzip. check:dist now also fails if the dev sample PDF ships (rule 7). Open browser check for Task 26: Chrome may block its PDF viewer inside the sandboxed iframe for local PDFs.
 - **Checkpoint A (Tasks 3–12), 2026-10-30.** Reviewer: `ucn-opus-reviewer` definition run as a general-purpose Opus agent (the project agent is not registered in this session).
   - Review 1: "Verdict: PASS WITH ISSUES". One High (ActionLink sent local file URLs through the router: double base prefix under `/gs/`), one Medium (no route error boundary for failed lazy chunks), four Lows.
   - Fixes `f8c44ab..2aa8639`: all six addressed; the soft-404-for-pending-area-files Low is accepted and documented in `docs/deployment.md`.
@@ -111,7 +112,7 @@ Latest (checkpoint A re-review, reviewer-run at `2aa8639`, 2026-10-30): lint, ty
 
 ## Next actions
 
-1. Continue with Task 13 (Phase 4, media components), then Tasks 14–25 and checkpoint B. Follow the CLAUDE.md workflow.
+1. Continue with Task 19 (Phase 5, page families), then Tasks 20–25 and checkpoint B. Follow the CLAUDE.md workflow.
 2. Collect the answers to the spec §14 open questions and the UCN materials (spec §13).
 3. Merge or open a PR for `chore/claude-model-routing` so the workflow config reaches `main`.
 4. Two stale `npm run dev` Vite servers (started 10:25 and 15:47) still run from this folder. Stop them yourself; the session was not permitted to.
