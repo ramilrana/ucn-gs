@@ -168,4 +168,14 @@ describe('AreaView', () => {
       'Audio Visual Presentation',
     ]);
   });
+
+  it('the DEV sample area has no same-origin frame and offers a Drive Preview button', () => {
+    const sample = sampleAreas[0] as Area;
+    const { container } = renderUi(
+      <AreaView area={sample} siblings={[{ title: sample.title, path: '/accreditation-areas/sample-area' }]} />,
+      '/accreditation-areas/sample-area',
+    );
+    expect(container.querySelectorAll('iframe')).toHaveLength(0);
+    expect(screen.getByRole('button', { name: /Preview Sample Drive document/ })).toBeTruthy();
+  });
 });

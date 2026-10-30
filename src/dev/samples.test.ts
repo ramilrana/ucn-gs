@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { isDriveId } from '../lib/resourceUrls';
 import { collectIds, collectResources } from '../content/validate';
 import { devLocalSource, sampleAreas, sampleRecommendations } from './samples';
 
@@ -41,6 +42,18 @@ describe('dev samples', () => {
     const video = blocks.find((b) => b.type === 'video');
     expect(video?.type === 'video' && video.resource.source).toBeFalsy();
     expect(blocks.some((b) => b.type === 'resources')).toBe(true);
+  });
+
+  it('sample 1 includes a Drive-hosted document in on-demand mode with a fake but valid-format id', () => {
+    const blocks = only(sampleAreas).groups.flatMap((g) => g.blocks);
+    const drive = blocks.find(
+      (b) => b.type === 'document' && b.resource.source?.kind === 'drive' && !b.embed,
+    );
+    expect(drive).toBeDefined();
+    const source = drive?.type === 'document' ? drive.resource.source : undefined;
+    expect(source?.kind === 'drive' && isDriveId(source.fileId)).toBe(true);
+    expect(source?.kind === 'drive' && source.fileId.toUpperCase().startsWith('DEVSAMPLE')).toBe(true);
+    expect(drive?.type === 'document' && drive.resource.id.startsWith('DEV-SAMPLE-')).toBe(true);
   });
 
   it('local sample resources point at the sample PDF with a root-relative path', () => {

@@ -32,6 +32,14 @@ function samplePdfResource(id: string, title: string): Resource {
   return { id: `DEV-SAMPLE-${id}`, title, format: 'pdf', status: 'published', source: devLocalSource(samplePdf), downloadable: true };
 }
 
+// Obviously fake but valid-format Drive id (20+ of [A-Za-z0-9_-]); it points at no real file, so the
+// Drive frame shows an error page. It exists so the on-demand Preview button can be pressed in a browser.
+const DEV_DRIVE_ID = 'DEVSAMPLEdriveFileId000000';
+
+function sampleDriveResource(id: string, title: string): Resource {
+  return { id: `DEV-SAMPLE-${id}`, title, format: 'pdf', status: 'published', source: { kind: 'drive', fileId: DEV_DRIVE_ID } };
+}
+
 function sampleText(): string[] {
   return ['Sample text for checking the page layout. It is not accreditation evidence.'];
 }
@@ -42,7 +50,12 @@ function sampleGroups(prefix: string): EvidenceGroup[] {
       id: `DEV-SAMPLE-${prefix}-group-1`,
       title: 'Sample 1',
       status: 'published',
-      blocks: [{ type: 'document', resource: samplePdfResource(`${prefix}-doc`, 'Sample document'), embed: true }],
+      blocks: [
+        // Local PDFs are never framed (they show an Open/Download card), so this embed:true block shows the card.
+        { type: 'document', resource: samplePdfResource(`${prefix}-doc`, 'Sample document'), embed: true },
+        // A Drive-hosted document in on-demand mode: the only sample with a Preview button.
+        { type: 'document', resource: sampleDriveResource(`${prefix}-drive-doc`, 'Sample Drive document'), embed: false },
+      ],
     },
     {
       id: `DEV-SAMPLE-${prefix}-group-2`,
