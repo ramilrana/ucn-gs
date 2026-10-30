@@ -46,6 +46,8 @@
   h5,
   h6 {
     font-family: var(--font-serif);
+    /* A long word in a heading must wrap instead of widening the page (200% text, 320px). */
+    overflow-wrap: break-word;
   }
 
   :focus-visible {

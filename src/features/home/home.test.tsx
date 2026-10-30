@@ -236,5 +236,9 @@ describe('QuickAccess', () => {
     const list = screen.getByRole('navigation', { name: 'Principal accreditation resources' }).querySelector('ul');
     expect(list?.className).toContain('grid-cols-1');
     expect(screen.getAllByRole('link')).toHaveLength(4);
+    // A long word wraps inside the tile instead of pushing it past the viewport.
+    const label = screen.getByRole('link', { name: 'Accreditation Areas' }).querySelector('span');
+    expect(label?.className).toContain('min-w-0');
+    expect(label?.className).toContain('break-words');
   });
 });

@@ -17,7 +17,7 @@ export function PageHeader({ title, intro }: PageHeaderProps) {
         <h1
           id="page-title"
           tabIndex={-1}
-          className="mt-4 font-serif text-3xl font-semibold leading-tight tracking-tight text-maroon-800 outline-none sm:text-4xl lg:text-5xl"
+          className="mt-4 break-words font-serif text-3xl font-semibold leading-tight tracking-tight text-maroon-800 outline-none sm:text-4xl lg:text-5xl"
         >
           {title}
         </h1>

@@ -23,7 +23,7 @@ export function QuickAccess({ areasLabel }: QuickAccessProps) {
         {links.map((link) => (
           <li key={link.to}>
             <Link to={link.to} className={tile}>
-              {link.label}
+              <span className="min-w-0 break-words">{link.label}</span>
               <ArrowRight aria-hidden="true" className="size-5 shrink-0" />
             </Link>
           </li>
