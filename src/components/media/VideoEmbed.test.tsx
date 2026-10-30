@@ -106,10 +106,32 @@ describe('VideoEmbed', () => {
     const { container } = renderVideo(<VideoEmbed resource={video({ kind: 'local', path: '/files/tour.mp4' })} />);
     expect(container.querySelector('iframe')).toBeNull();
     expect(screen.queryByRole('button')).toBeNull();
-    expect(screen.getByText('Campus Tour').tagName).not.toMatch(/^H[1-6]$/);
+    const title = container.querySelector('span.font-semibold');
+    expect(title?.textContent).toBe('Campus Tour');
+    expect(container.querySelector('h1, h2, h3, h4, h5, h6')).toBeNull();
     const open = screen.getByRole('link', { name: /Open video in new tab/ });
     expect(open.getAttribute('href')).toBe('/files/tour.mp4');
     expect(open.getAttribute('target')).toBe('_blank');
+  });
+
+  it('link names carry the resource title, so several videos in one container stay distinguishable', () => {
+    const a = video({ kind: 'local', path: '/files/a.mp4' }, { id: 'va', title: 'Alpha Video' });
+    const b = video({ kind: 'drive', fileId: FILE_ID }, { id: 'vb', title: 'Beta Video' });
+    const c = video({ kind: 'external', url: 'https://www.facebook.com/watch/?v=123' }, { id: 'vc', title: 'Gamma Video' });
+    renderVideo(
+      <div>
+        <VideoEmbed resource={a} />
+        <VideoEmbed resource={b} />
+        <VideoEmbed resource={c} />
+      </div>,
+    );
+    // Label in name: the visible text comes first, the title follows (jsdom drops the sr-only span's leading space).
+    const links = screen.getAllByRole('link');
+    expect(links).toHaveLength(3);
+    expect(screen.getByRole('link', { name: /^Open video in new tab\s*Alpha Video/ })).toBeTruthy();
+    expect(screen.getByRole('link', { name: /^Open video in new tab\s*Beta Video/ })).toBeTruthy();
+    expect(screen.getByRole('link', { name: /^Watch on www\.facebook\.com\s*Gamma Video/ })).toBeTruthy();
+    expect(screen.getAllByRole('link', { name: /^Open video in new tab/ })).toHaveLength(2);
   });
 
   it('pending video without source shows PendingNotice in dev, nothing in prod', () => {

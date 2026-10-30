@@ -34,6 +34,7 @@ export function VideoEmbed({ resource, poster }: VideoEmbedProps) {
     return openHref ? (
       <ActionLink href={openHref} variant="primary" newTab>
         Watch on {hostLabel(source)}
+        <span className="sr-only"> {resource.title}</span>
       </ActionLink>
     ) : (
       <span>{resource.title}</span>
@@ -50,6 +51,7 @@ export function VideoEmbed({ resource, poster }: VideoEmbedProps) {
           <div>
             <ActionLink href={openHref} newTab>
               Open video in new tab
+              <span className="sr-only"> {resource.title}</span>
             </ActionLink>
           </div>
         )}
@@ -108,6 +110,7 @@ export function VideoEmbed({ resource, poster }: VideoEmbedProps) {
       {openHref && (
         <ActionLink href={openHref} newTab>
           Open video in new tab
+          <span className="sr-only"> {resource.title}</span>
         </ActionLink>
       )}
     </div>
