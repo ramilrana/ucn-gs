@@ -10,9 +10,9 @@ Stack after the refactor: React 19, TypeScript 5.8, Vite 7, React Router 7, Tail
 
 ## Phase
 
-**Tasks 1–28 complete; checkpoints A, B and C cleared (2026-10-30). Only Task 29 (UCN content entry) remains, and it is blocked on UCN materials.**
+**Tasks 1–28 complete and merged to `main`; checkpoints A, B and C cleared (2026-10-30). Only Task 29 (UCN content entry) remains, and it is blocked on UCN materials.**
 
-- Branch `feat/accreditation-site` (from `docs/accreditation-design-spec`) is pushed. **PR #1** https://github.com/ramilrana/ucn-gs/pull/1 is open against `main` (opened 2026-10-30): CI `build` job passed (lint, typecheck, test, build, check:dist, audit), mergeable, no review yet, not merged. The PR also carries the `chore/claude-model-routing` workflow commits and the spec/plan docs, so merging it brings those to `main` too.
+- **PR #1** https://github.com/ramilrana/ucn-gs/pull/1 (`feat/accreditation-site` → `main`, including the `chore/claude-model-routing` commits and the spec/plan docs) was **merged 2026-11-04** as merge commit `cfc0ea4` after CI `build` passed. No GitHub review was requested. Local `main` is fast-forwarded to `cfc0ea4`. Task 29 work branches from `main`.
 - Plan: `docs/superpowers/plans/2026-10-29-ucn-gs-accreditation-site.md` (29 tasks in 8 phases).
 - Spec: `docs/superpowers/specs/2026-10-29-ucn-gs-accreditation-site-design.md`.
 - Editor guide: `docs/content-guide.md`. Deployment guide: `docs/deployment.md`.
@@ -73,12 +73,10 @@ Latest, reviewer-run at `0e3f863` (checkpoint C re-review, 2026-10-30):
 
 ## Next actions
 
-1. Review and merge PR #1 (https://github.com/ramilrana/ucn-gs/pull/1) into `main`. After merging, Task 29 work branches from `main`. `chore/claude-model-routing` needs no separate PR.
-2. Answer the spec §14 questions and supply the spec §13 materials, then run Task 29 batch by batch (`docs/content-guide.md`; plan Task 29 steps). Each batch: add files/data with UCN's exact wording, flip to `published` only when verified, `npm test` + `npm run check:links`, render at 375/1280px, standard checks, update this file, commit `content: <batch>`.
-3. Decide whether local PDFs should display inline (needs the §8 CSP deviation described under R19); otherwise host such documents on Google Drive.
-4. Before the first deploy: confirm Apache with `mod_headers`, the domain, base path and HTTPS; then follow `docs/deployment.md`, including the post-deploy checks.
-5. Optional: move the repo out of OneDrive (for example `C:/dev/ucn-gs`); consider adding `eslint-plugin-jsx-a11y` (new dependency, needs approval); run a screen-reader pass once real content exists.
-6. Two stale `npm run dev` Vite servers (started 2026-10-29 10:25 and 15:47) were still running from this folder; stop them if they are still there.
+1. Answer the spec §14 questions and supply the spec §13 materials, then run Task 29 batch by batch (`docs/content-guide.md`; plan Task 29 steps). Each batch: add files/data with UCN's exact wording, flip to `published` only when verified, `npm test` + `npm run check:links`, render at 375/1280px, standard checks, update this file, commit `content: <batch>`.
+2. Decide whether local PDFs should display inline (needs the §8 CSP deviation described under R19); otherwise host such documents on Google Drive.
+3. Before the first deploy: confirm Apache with `mod_headers`, the domain, base path and HTTPS; then follow `docs/deployment.md`, including the post-deploy checks.
+4. Optional: move the repo out of OneDrive (for example `C:/dev/ucn-gs`); consider adding `eslint-plugin-jsx-a11y` (new dependency, needs approval); run a screen-reader pass once real content exists; delete the merged `feat/accreditation-site`, `docs/accreditation-design-spec` and `chore/claude-model-routing` branches if no longer wanted.
 
 ## How to resume in a new conversation
 
