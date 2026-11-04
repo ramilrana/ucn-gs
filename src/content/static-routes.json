@@ -1,0 +1,12 @@
+[
+  { "path": "/", "title": "Home", "kind": "home" },
+  { "path": "/accreditation-areas", "title": "Accreditation Areas", "kind": "areas-index" },
+  { "path": "/compliance-report", "title": "Compliance Report", "kind": "compliance-index" },
+  { "path": "/avp", "title": "Audio Visual Presentations", "kind": "avp" },
+  { "path": "/certificate-of-authenticity", "title": "Certificate of Authenticity", "kind": "certificate" },
+  { "path": "/additional-files", "title": "Additional Files for the Accreditors", "kind": "additional-files" },
+  { "path": "/about", "title": "About the Graduate School", "kind": "about" },
+  { "path": "/about/people", "title": "Faculty, Staff and Student Assistants", "kind": "about-people" },
+  { "path": "/about/faculty-by-department", "title": "Faculty by Department", "kind": "about-faculty" },
+  { "path": "/about/faqs-and-location", "title": "FAQs and Location", "kind": "about-faqs" }
+]

@@ -27,6 +27,38 @@ export default defineConfig([
       'no-eval': 'error',
       'no-new-func': 'error',
       'no-implied-eval': 'error',
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "JSXAttribute[name.name='dangerouslySetInnerHTML']",
+          message: 'Render plain text; HTML rendering is banned.',
+        },
+        {
+          selector: "JSXOpeningElement[name.name='iframe']",
+          message: 'Iframes live only in src/components/media.',
+        },
+      ],
+    },
+  },
+  {
+    files: ['scripts/**/*.mjs', 'config/**/*.mjs'],
+    extends: [js.configs.recommended],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: globals.node,
+    },
+  },
+  {
+    files: ['src/components/media/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "JSXAttribute[name.name='dangerouslySetInnerHTML']",
+          message: 'Render plain text; HTML rendering is banned.',
+        },
+      ],
     },
   },
 ]);
