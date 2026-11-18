@@ -1,3 +1,4 @@
+import { recommendationPath, recommendationTitle } from '../../content/routes';
 import type * as ContentModule from '../../content';
 import type { Area, EvidenceGroup, Recommendation, Resource, Slot, Status } from '../../types/content';
 
@@ -52,9 +53,14 @@ function collectArea(area: Area, out: PendingEntry[]): void {
   if (area.avp) c.resource(area.avp);
 }
 
-function collectRecommendation(rec: Recommendation, out: PendingEntry[]): void {
+function collectRecommendation(rec: Recommendation, areas: readonly Area[], out: PendingEntry[]): void {
   if (isSample(rec.document.id)) return;
-  const c = createCollector(`Recommendation ${rec.number}`, `${COMPLIANCE_PATH}/recommendation-${rec.number}`, out);
+  const areaTitle = areas.find((a) => a.slug === rec.areaSlug)?.title ?? rec.areaSlug;
+  const c = createCollector(
+    recommendationTitle(areaTitle, rec.number),
+    recommendationPath(rec.areaSlug, rec.number),
+    out,
+  );
   if (rec.status === 'pending') c.add('Recommendation page (not yet published)');
   c.resource(rec.document);
   rec.evidence.forEach(c.group);
@@ -118,14 +124,23 @@ export function collectPending(content: Content): PendingEntry[] {
   createCollector('Compliance Report', COMPLIANCE_PATH, out).slot(content.compliance.overview);
 
   const realAreas = content.contentAreas.filter((area) => !isSample(area.narrativeReport.id));
-  if (realAreas.length === 0) out.push({ page: 'Accreditation Areas', path: AREAS_PATH, label: 'Area list not supplied' });
+  if (realAreas.length === 0)
+    out.push({
+      page: 'Accreditation Areas',
+      path: AREAS_PATH,
+      label: 'Area list not supplied',
+    });
   realAreas.forEach((area) => collectArea(area, out));
 
   const realRecs = content.contentRecommendations.filter((rec) => !isSample(rec.document.id));
   if (realRecs.length === 0) {
-    out.push({ page: 'Compliance Report', path: COMPLIANCE_PATH, label: 'Recommendation list not supplied' });
+    out.push({
+      page: 'Compliance Report',
+      path: COMPLIANCE_PATH,
+      label: 'Recommendation list not supplied',
+    });
   }
-  realRecs.forEach((rec) => collectRecommendation(rec, out));
+  realRecs.forEach((rec) => collectRecommendation(rec, content.contentAreas, out));
 
   return out;
 }

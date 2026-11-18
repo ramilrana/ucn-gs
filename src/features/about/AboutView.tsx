@@ -31,7 +31,7 @@ function SlotBlock({ slot, heading }: { slot: Slot<string[]>; heading: boolean }
 
 /** Mission and Vision, Goals and Objectives, and History, each on a stable anchor. */
 export function AboutView({ about }: { about: AboutContent }) {
-  const { hash } = useLocation();
+  const { hash, key } = useLocation();
   const sections: Section[] = [
     { id: 'mission-and-vision', title: 'Mission and Vision', slots: [about.mission, about.vision] },
     { id: 'goals-and-objectives', title: 'Goals and Objectives', slots: [about.goals, about.objectives] },
@@ -41,6 +41,7 @@ export function AboutView({ about }: { about: AboutContent }) {
   useFocusHashTarget(
     hash,
     shown.map((section) => section.id),
+    key,
   );
   const photo = slotValue(about.photo);
   const photoRenders = photo !== undefined || showPending();
@@ -77,8 +78,8 @@ export function AboutView({ about }: { about: AboutContent }) {
           </nav>
         )}
         {shown.map((section) => (
-          <section key={section.id} id={section.id} aria-labelledby={`${section.id}-title`} className="scroll-mt-6 space-y-6">
-            <SectionHeading level={2} id={`${section.id}-title`} tabIndex={-1}>
+          <section key={section.id} id={section.id} aria-labelledby={`${section.id}-title`} className="space-y-6">
+            <SectionHeading level={2} id={`${section.id}-title`} tabIndex={-1} className="scroll-mt-6">
               {section.title}
             </SectionHeading>
             {section.slots.map((slot) => (

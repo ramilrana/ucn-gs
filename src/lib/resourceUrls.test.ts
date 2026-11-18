@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { FRAME_HOSTS } from '../../config/csp.mjs';
-import type { ResourceSource } from '../types/content';
+import type { Resource, ResourceSource } from '../types/content';
 import {
   downloadUrl, embedUrl, hostLabel, isDriveId, isYouTubeId, localFileUrl,
   mapEmbedUrl, mapLinkUrl, viewUrl, youtubePosterUrl,
@@ -12,33 +12,47 @@ const youtube: ResourceSource = { kind: 'youtube', videoId: 'dQw4w9WgXcQ' };
 const local: ResourceSource = { kind: 'local', path: '/files/a.pdf' };
 const folder: ResourceSource = { kind: 'drive-folder', folderId: DRIVE_ID };
 const external: ResourceSource = { kind: 'external', url: 'https://example.org/page' };
+const res = (source: ResourceSource, extra: Partial<Resource> = {}): Resource =>
+  ({ id: 'r', title: 'R', format: 'pdf', status: 'published', source, ...extra }) as Resource;
 
 describe('resourceUrls', () => {
   it('every embed URL uses an allowed frame host', () => {
     for (const s of [drive, youtube]) {
-      const url = embedUrl(s);
+      const url = embedUrl(res(s));
       expect(url).not.toBeNull();
       expect(new URL(url ?? '').protocol).toBe('https:');
       expect(FRAME_HOSTS).toContain(new URL(url ?? '').hostname);
     }
   });
 
-  it('never embeds a local source, so same-origin framing has one stopping point', () => {
-    expect(embedUrl(local)).toBeNull();
-    expect(embedUrl({ kind: 'local', path: '/files/b.mp4' })).toBeNull();
+  it('frames a local source only when it is an opted-in PDF (same-origin exception)', () => {
+    expect(embedUrl(res(local))).toBeNull();
+    expect(embedUrl(res(local, { inline: true }))).toBe('/files/a.pdf');
+    expect(embedUrl(res({ kind: 'local', path: '/files/A.PDF' }, { inline: true }))).toBe('/files/A.PDF');
+    expect(embedUrl(res({ kind: 'local', path: '/files/b.mp4' }, { format: 'video', inline: true }))).toBeNull();
+    expect(embedUrl(res({ kind: 'local', path: '/files/c.docx' }, { format: 'doc', inline: true }))).toBeNull();
+    expect(embedUrl(res({ kind: 'local', path: '/files/c.html' }, { inline: true }))).toBeNull();
+    expect(embedUrl(res({ kind: 'local', path: '/files/c.pdf' }, { format: 'doc', inline: true }))).toBeNull();
+    for (const path of ['/files/x.html?.pdf', '/files/x.html#.pdf', '/files/x%2ehtml.pdf', '/files/dir/x]y.pdf', '/assets/x.pdf', '/files/../anything.pdf', '/files/a/../../x.pdf', '/files/..\\x.pdf', '/files//a.pdf', '/files/./a.pdf', '/files/.hidden.pdf', '/files/a/.pdf', '/files/\t../x.pdf', '/files/\n../\n../x.pdf', '/files/a/\r..\t/x.pdf', '/files/a\0.pdf', '/files/a\x7f.pdf', '/files/a\t.pdf', '/files/a(1).pdf', '/files/caf\u00e9.pdf', '/files/a\\b.pdf']) {
+      expect(embedUrl(res({ kind: 'local', path: path as `/files/${string}` }, { inline: true }))).toBeNull();
+    }
+    expect(embedUrl(res({ kind: 'local', path: '/files/Report.PDF' }, { inline: true }))).toBe('/files/Report.PDF');
+    expect(embedUrl(res({ kind: 'local', path: '/files/sub/Report.PDF' }, { inline: true }))).toBe('/files/sub/Report.PDF');
+    expect(embedUrl(res(folder, { inline: true }))).toBeNull();
+    expect(embedUrl(res(external, { inline: true }))).toBeNull();
     // The open and download links still work for local files.
     expect(viewUrl(local)).toBe('/files/a.pdf');
     expect(downloadUrl(local)).toBe('/files/a.pdf');
   });
 
   it('builds the expected embed URLs', () => {
-    expect(embedUrl(drive)).toBe(`https://drive.google.com/file/d/${DRIVE_ID}/preview`);
-    expect(embedUrl(youtube)).toBe('https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ');
+    expect(embedUrl(res(drive))).toBe(`https://drive.google.com/file/d/${DRIVE_ID}/preview`);
+    expect(embedUrl(res(youtube))).toBe('https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ');
   });
 
   it('rejects malformed IDs', () => {
-    expect(embedUrl({ kind: 'drive', fileId: '../../x' })).toBeNull();
-    expect(embedUrl({ kind: 'youtube', videoId: 'abc' })).toBeNull();
+    expect(embedUrl(res({ kind: 'drive', fileId: '../../x' }))).toBeNull();
+    expect(embedUrl(res({ kind: 'youtube', videoId: 'abc' }))).toBeNull();
     expect(viewUrl({ kind: 'drive', fileId: '../../x' })).toBeNull();
     expect(viewUrl({ kind: 'drive-folder', folderId: 'a/b' })).toBeNull();
     expect(viewUrl({ kind: 'youtube', videoId: 'abc' })).toBeNull();
@@ -53,8 +67,8 @@ describe('resourceUrls', () => {
   });
 
   it('never embeds external or folder sources', () => {
-    expect(embedUrl(external)).toBeNull();
-    expect(embedUrl(folder)).toBeNull();
+    expect(embedUrl(res(external))).toBeNull();
+    expect(embedUrl(res(folder))).toBeNull();
   });
 
   it('localFileUrl respects base /gs/', () => {

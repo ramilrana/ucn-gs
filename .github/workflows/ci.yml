@@ -20,3 +20,23 @@ jobs:
       - run: npm run build
       - run: npm run check:dist
       - run: npm audit --omit=dev --audit-level=high
+      # Informational: the dev tree (build tooling) can carry advisories with no production reach. Never fails the job.
+      - name: Audit (all deps, informational)
+        run: npm audit --audit-level=high || true
+
+  nginx-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # The preview build keeps the sample PDF (a production build drops it). Paths are those seen inside the container.
+      - run: npm run build:preview
+        env:
+          UCN_DOCROOT: /usr/share/nginx/html/
+          UCN_NGINX_INCLUDE_DIR: /etc/nginx/ucn-gs/
+      # Runs nginx:1.27-alpine on dist/ and dist-nginx/, then nginx -t and curl checks on status, CSP and cache headers.
+      - run: bash scripts/nginx-smoke.sh

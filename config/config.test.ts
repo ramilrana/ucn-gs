@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import { baseFromIndexHtml, normalizeBase } from './base.mjs';
-import { CSP_HEADER, CSP_META, FRAME_HOSTS, SECURITY_HEADERS } from './csp.mjs';
+import { CSP_HEADER, CSP_HEADER_PDF, CSP_META, FRAME_HOSTS, SECURITY_HEADERS } from './csp.mjs';
 
 describe('normalizeBase', () => {
   it.each([
@@ -34,12 +34,18 @@ describe('baseFromIndexHtml', () => {
 describe('csp', () => {
   it('CSP header is the spec string', () =>
     expect(CSP_HEADER).toBe(
-      "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://i.ytimg.com; frame-src https://drive.google.com https://docs.google.com https://www.youtube-nocookie.com https://www.google.com; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests",
+      "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://i.ytimg.com; frame-src 'self' https://drive.google.com https://docs.google.com https://www.youtube-nocookie.com https://www.google.com; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests",
     ));
 
   it('meta CSP drops header-only directives', () => {
     expect(CSP_META).not.toMatch(/frame-ancestors|upgrade-insecure-requests/);
-    expect(CSP_META).toContain('frame-src https://drive.google.com');
+    expect(CSP_META).toContain("frame-src 'self' https://drive.google.com");
+  });
+
+  it('PDF header differs from the site header only in frame-ancestors', () => {
+    expect(CSP_HEADER_PDF).toContain("frame-ancestors 'self'");
+    expect(CSP_HEADER_PDF).not.toContain("frame-ancestors 'none'");
+    expect(CSP_HEADER_PDF.replace("frame-ancestors 'self'", "frame-ancestors 'none'")).toBe(CSP_HEADER);
   });
 
   it('lists exactly the four frame hosts', () => {

@@ -5,6 +5,8 @@ interface SectionHeadingProps {
   id?: string;
   /** Pass -1 to make the heading a programmatic focus target (not in the tab order). */
   tabIndex?: -1;
+  /** Extra classes, e.g. a scroll margin for a heading that is scrolled into view. */
+  className?: string;
   children: ReactNode;
 }
 
@@ -14,13 +16,13 @@ const rule =
   "after:hidden after:content-[''] on-maroon:after:block after:mt-2 after:h-0.5 after:w-12 after:bg-gold-500";
 const sizes = { 2: 'text-2xl', 3: 'text-xl' } as const;
 
-export function SectionHeading({ level, id, tabIndex, children }: SectionHeadingProps) {
+export function SectionHeading({ level, id, tabIndex, className, children }: SectionHeadingProps) {
   const Tag = level === 2 ? 'h2' : 'h3';
   return (
     <Tag
       id={id}
       tabIndex={tabIndex}
-      className={`font-serif font-semibold text-maroon-800 on-maroon:text-white ${sizes[level]} ${rule}`}
+      className={`font-serif font-semibold text-maroon-800 on-maroon:text-white ${sizes[level]} ${rule}${className ? ` ${className}` : ''}`}
     >
       {children}
     </Tag>

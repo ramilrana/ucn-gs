@@ -1,1 +1,1 @@
-export function checkDist(distDir: string): string[];
+export function checkDist(distDir: string, nginxDir?: string): string[];

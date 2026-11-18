@@ -17,7 +17,8 @@ function listFiles(dir, pattern) {
 }
 
 /**
- * Static paths from static-routes.json, then one path per area file and per recommendation file.
+ * Static paths from static-routes.json, then one path per area file and per recommendation file
+ * (recommendations/<area-slug>/rec-NN.ts, with the number counted within the area).
  * `*.test.ts` files and `.gitkeep` are ignored.
  *
  * @param {string} contentDir path to src/content
@@ -32,11 +33,18 @@ export function listRoutePaths(contentDir) {
     paths.push(`/accreditation-areas/${file.replace(/\.ts$/, '')}`);
   }
 
-  const recommendations = listFiles(join(contentDir, 'recommendations'), /^rec-\d+\.ts$/)
-    .map((file) => Number(/^rec-(\d+)\.ts$/.exec(file)?.[1]))
-    .sort((a, b) => a - b);
-  for (const n of recommendations) {
-    paths.push(`/compliance-report/recommendation-${n}`);
+  const recDir = join(contentDir, 'recommendations');
+  const areaFolders = existsSync(recDir)
+    ? readdirSync(recDir, { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => entry.name)
+        .sort()
+    : [];
+  for (const folder of areaFolders) {
+    const numbers = listFiles(join(recDir, folder), /^rec-\d+\.ts$/)
+      .map((file) => Number(/^rec-(\d+)\.ts$/.exec(file)?.[1]))
+      .sort((a, b) => a - b);
+    for (const n of numbers) paths.push(`/compliance-report/${folder}/recommendation-${n}`);
   }
 
   return paths;

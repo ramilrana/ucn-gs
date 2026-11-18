@@ -1,9 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { buildRouteManifest, type RouteEntry } from '../../content/routes';
+import { buildRouteManifest } from '../../content/routes';
 import type { Area, Recommendation, Resource } from '../../types/content';
 import { buildNavModel, isActive, type NavItem } from './navModel';
 
-const doc: Resource = { id: 'doc', title: 'Doc', format: 'pdf', status: 'pending' };
+const doc: Resource = {
+  id: 'doc',
+  title: 'Doc',
+  format: 'pdf',
+  status: 'pending',
+};
 const makeArea = (slug: string, order: number): Area => ({
   slug,
   order,
@@ -14,7 +19,8 @@ const makeArea = (slug: string, order: number): Area => ({
   groups: [],
   additionalFiles: [],
 });
-const makeRec = (number: number): Recommendation => ({
+const makeRec = (number: number, areaSlug = 'research'): Recommendation => ({
+  areaSlug,
   number,
   title: `Rec ${number}`,
   status: 'published',
@@ -25,10 +31,14 @@ const makeRec = (number: number): Recommendation => ({
 
 const full = buildRouteManifest({
   areas: [makeArea('research', 1), makeArea('extension', 2)],
-  recommendations: [makeRec(1), makeRec(2)],
+  recommendations: [makeRec(1), makeRec(2), makeRec(1, 'extension')],
   includePending: true,
 });
-const empty = buildRouteManifest({ areas: [], recommendations: [], includePending: false });
+const empty = buildRouteManifest({
+  areas: [],
+  recommendations: [],
+  includePending: false,
+});
 
 function item(items: NavItem[], label: string): NavItem {
   const found = items.find((i) => i.label === label);
@@ -80,20 +90,28 @@ describe('buildNavModel', () => {
     expect(nav.some((i) => i.children?.length === 0)).toBe(false);
   });
 
-  it('lists recommendations in number order', () => {
-    const shuffled: RouteEntry[] = [3, 1, 2].map((n) => ({
-      path: `/compliance-report/recommendation-${n}`,
-      title: `Recommendation ${n}`,
-      kind: 'recommendation',
-      parentPath: '/compliance-report',
-      number: n,
-    }));
-    const nav = buildNavModel([...empty, ...shuffled], 'Accreditation Areas');
-    expect(item(nav, 'Compliance Report').children?.map((c) => c.label)).toEqual([
-      'Recommendation 1',
-      'Recommendation 2',
-      'Recommendation 3',
+  it('lists one anchor per area that has recommendations, in manifest order', () => {
+    const nav = buildNavModel(full, 'Accreditation Areas');
+    expect(item(nav, 'Compliance Report').children).toEqual([
+      { label: 'Area research', path: '/compliance-report#research', srSuffix: 'recommendations' },
+      { label: 'Area extension', path: '/compliance-report#extension', srSuffix: 'recommendations' },
     ]);
+  });
+
+  it('omits areas without recommendations and keeps the index link when none have any', () => {
+    const manifest = buildRouteManifest({
+      areas: [makeArea('research', 1), makeArea('extension', 2)],
+      recommendations: [makeRec(1, 'extension')],
+      includePending: false,
+    });
+    const compliance = item(buildNavModel(manifest, 'Accreditation Areas'), 'Compliance Report');
+    expect(compliance.children?.map((c) => c.label)).toEqual(['Area extension']);
+    const noRecs = buildRouteManifest({
+      areas: [makeArea('research', 1)],
+      recommendations: [],
+      includePending: false,
+    });
+    expect('children' in item(buildNavModel(noRecs, 'Accreditation Areas'), 'Compliance Report')).toBe(false);
   });
 
   it('does not put the dev-only content status page in the nav', () => {
@@ -116,7 +134,7 @@ describe('isActive', () => {
 
     const compliance = item(nav, 'Compliance Report');
     expect(isActive(compliance, '/compliance-report')).toBe(true);
-    expect(isActive(compliance, '/compliance-report/recommendation-1')).toBe(true);
+    expect(isActive(compliance, '/compliance-report/research/recommendation-1')).toBe(true);
     expect(isActive(compliance, '/compliance-reports')).toBe(false);
     expect(isActive(compliance, '/about')).toBe(false);
 

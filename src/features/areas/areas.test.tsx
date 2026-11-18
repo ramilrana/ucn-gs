@@ -169,13 +169,15 @@ describe('AreaView', () => {
     ]);
   });
 
-  it('the DEV sample area has no same-origin frame and offers a Drive Preview button', () => {
+  it('the DEV sample area frames only the inline sample PDF and offers a Drive Preview button', () => {
     const sample = sampleAreas[0] as Area;
     const { container } = renderUi(
       <AreaView area={sample} siblings={[{ title: sample.title, path: '/accreditation-areas/sample-area' }]} />,
       '/accreditation-areas/sample-area',
     );
-    expect(container.querySelectorAll('iframe')).toHaveLength(0);
+    const frames = [...container.querySelectorAll('iframe')];
+    expect(frames.length).toBeGreaterThan(0);
+    for (const frame of frames) expect(frame.getAttribute('src')).toContain('/files/dev-sample.pdf');
     expect(screen.getByRole('button', { name: /Preview Sample Drive document/ })).toBeTruthy();
   });
 });

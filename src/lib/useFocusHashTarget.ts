@@ -9,8 +9,11 @@ import { useEffect } from 'react';
  * layout effect that follows this component's effect (children first), or in a MutationObserver
  * callback when the page loads lazily. Either way a timer queued from here fires later, so the
  * hash target wins.
+ *
+ * `navKey` (the router's `location.key`) re-runs the effect when the same hash is navigated to again:
+ * the URL is unchanged, but the menu that held focus has closed, so focus must be moved back.
  */
-export function useFocusHashTarget(hash: string, allowedIds: readonly string[]): void {
+export function useFocusHashTarget(hash: string, allowedIds: readonly string[], navKey?: string): void {
   const idKey = JSON.stringify(allowedIds);
   useEffect(() => {
     if (hash.length < 2) return;
@@ -31,5 +34,5 @@ export function useFocusHashTarget(hash: string, allowedIds: readonly string[]):
       }
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [hash, idKey]);
+  }, [hash, idKey, navKey]);
 }

@@ -50,12 +50,13 @@
 | D1 | Reference = structure only; all content from UCN materials. | The reference belongs to another university. |
 | D2 | Tailwind CSS v4; remove `antd` and `@ant-design/icons`. | Master prompt requires Tailwind. Removes the 719 kB chunk and the stock look. |
 | D3 | Mixed hosting: small files local in `/public`, large PDFs and videos on Google Drive or YouTube. | Accreditation scans can exceed repo and hosting limits. |
-| D4 | One program. | User's answer. |
+| D4 | One program: the Master in Public Administration (MPA), AACCUP Level IV Phase 2 accreditation, 2026. Shown in the home hero as "AACCUP Level IV Phase 2 Accreditation of the Master in Public Administration (MPA) Program, 2026". `accreditationHeading` stays "LEVEL IV AACCUP ACCREDITATION". | User's answer. Changed 2026-11-18: named the program, level, phase and year — reason: user's answer to §14. |
 | D5 | Each item has a `published` or `pending` status. Pending items show in dev and preview builds, are hidden in production, and are listed on a dev-only `/content-status` page. | Accreditors never see empty or fake slots. |
-| D6 | Deploy to UCN's own server (Apache or Nginx, still to be confirmed). Write a per-route `index.html` after build; ship Apache `.htaccess` and document Nginx. Remove `vercel.json`, `public/_headers` and `public/_redirects`. | Configure only the platform in use. Routes work without rewrites. |
+| D6 | Deploy to UCN's own local server running Nginx. Write a per-route `index.html` after build and generate the Nginx config from `deploy/nginx.conf.template`. Remove `vercel.json`, `public/_headers` and `public/_redirects`. | Configure only the platform in use. Routes work without rewrites. Changed 2026-11-18: Nginx, Apache files removed — reason: user's answer to §14. |
 | D7 | Refactor in place (approach A). Content lives in typed TS modules plus a content validation test. | Preserves working CI, security setup and conventions. |
 | D8 | No slideshow autoplay. | Avoids distracting motion and the pause-control requirement. |
 | D9 | Gold is never used as text, focus ring or state indicator on white. | Gold on white is about 2.1:1, below the 3:1 minimum. |
+| R19 | Local PDFs may display inline only when the resource sets `inline: true` (rules in §7, headers in §8). Other local files show an Open / Download card and local video an Open link. | R19 (checkpoint B, 2026-10-30) said local files are never framed, because §8 forbade `frame-src 'self'`. Changed 2026-11-18: partly reversed — reason: user's answer to §14, PDF display is chosen per document. |
 
 ## 4. Sitemap, routes and navigation
 
@@ -64,8 +65,8 @@
 | `/` | Home |
 | `/accreditation-areas` | Areas index (count from data) |
 | `/accreditation-areas/:slug` | Area page (one template) |
-| `/compliance-report` | Compliance Report index: optional overview, list of Recommendations 1–N |
-| `/compliance-report/recommendation-:n` | Recommendation page (one template) |
+| `/compliance-report` | Compliance Report index: optional overview, then recommendations grouped under an anchored heading per area (`/compliance-report#<area-slug>`) |
+| `/compliance-report/:areaSlug/recommendation-:n` | Recommendation page (one template); `n` counts within the area |
 | `/avp` | All AVPs, one entry per area, anchors such as `/avp#research` |
 | `/certificate-of-authenticity` | Certificate PDF and image |
 | `/additional-files` | Additional Files for the Accreditors (grouped when the data provides groups) |
@@ -89,14 +90,16 @@
 
 **Header navigation:**
 - **Desktop:** Home · Accreditation Areas ▾ · Compliance Report ▾ · AVP · Documents ▾ (Certificate of Authenticity, Additional Files) · About ▾
-- **Dropdowns:** list the child pages. The parent label links to its index page.
+- **Dropdowns:** list the child pages. The parent label links to its index page. The Compliance Report dropdown lists the areas that have visible recommendations, each linking to `/compliance-report#<area-slug>`, not the individual recommendations.
+- Recommendation pages mark Compliance Report as the active parent.
 - **Mobile:** a native `<dialog>` panel with collapsible groups.
 - **Active page:** `aria-current` plus a maroon underline.
 - **Label:** "Accreditation Areas" lives in `content/site.ts`, so switching to "Accreditation Scope" is a one-line change.
 
 **Wayfinding:**
 - Breadcrumbs on every page except Home.
-- Previous/next links on area and recommendation pages.
+- Previous/next links on area and recommendation pages. Recommendation links run across all areas in area order, then number.
+- Recommendation title and H1: "<Area title>: Recommendation <n>". Breadcrumb: Home › Compliance Report › that title. There is no page per area under `/compliance-report`.
 - Footer: logo, address and contact (once supplied), main links, and a "Content last updated" date from the data.
 
 ## 5. Visual identity
@@ -213,7 +216,11 @@ interface Person {
 ## 7. PDF, media and link handling
 
 **DocumentViewer:**
-- **Local PDFs** open in a titled `<iframe>` using the browser's viewer. If `navigator.pdfViewerEnabled === false`, a fallback card shows Open PDF and Download.
+- **Local PDFs** display inline only when the resource sets `inline: true`; otherwise they show the Open / Download card. Changed 2026-11-18 (partly reverses R19) — reason: user's answer to §14.
+  - Validation allows `inline` only for `kind: 'local'`, `format: 'pdf'` and a path that starts with `/files/`, ends in `.pdf` and has every segment matching `^[A-Za-z0-9_~-][A-Za-z0-9._~ -]*$`. Names with parentheses, commas, `& + ' @ %` or non-ASCII letters must be renamed to display inline; otherwise they show the card.
+  - The frame is a titled, lazy-loading `<iframe>` with no `sandbox` (Chrome disables its PDF viewer inside sandboxed frames), plus Open in new tab and, if `downloadable`, Download.
+  - If `navigator.pdfViewerEnabled === false`, the card shows instead.
+  - Other local files (not PDF, or not opted in) stay as the card; local video stays an Open link. Documents that should display without these rules go on Drive.
 - **Drive PDFs** use `https://drive.google.com/file/d/{id}/preview`.
 - **Size:** height `min(85vh, 960px)`, minimum 480px, full width.
 - **Actions:** Open in new tab is always shown. Download is shown only when `downloadable` is set.
@@ -247,12 +254,12 @@ interface Person {
 
 ## 8. Frontend security
 
-**Allowed embeds:** frames can only come from `drive.google.com`, `docs.google.com`, `www.youtube-nocookie.com` and `www.google.com`, built from IDs.
+**Allowed embeds:** frames can only come from this site (`'self'`, used only for opted-in local PDFs), `drive.google.com`, `docs.google.com`, `www.youtube-nocookie.com` and `www.google.com`. Remote frames are built from IDs.
 
 **Link validation:** links must be `https:` URLs. `javascript:`, `data:` and `http:` are rejected by `safeUrl` at render time and by the content test at build time.
 
 **iframes:**
-- `sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"`
+- `sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"` on Drive and YouTube frames. Exception: the frame for an opted-in local PDF has no `sandbox`, because Chrome disables its PDF viewer in sandboxed frames.
 - `referrerpolicy="strict-origin-when-cross-origin"`
 - a minimal `allow` list
 - `loading="lazy"`
@@ -263,10 +270,14 @@ interface Person {
 
 ```
 default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://i.ytimg.com;
-frame-src https://drive.google.com https://docs.google.com https://www.youtube-nocookie.com https://www.google.com;
+frame-src 'self' https://drive.google.com https://docs.google.com https://www.youtube-nocookie.com https://www.google.com;
 media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none';
 frame-ancestors 'none'; upgrade-insecure-requests
 ```
+
+Changed 2026-11-18: `frame-src` gained `'self'`, and responses for `.pdf` files get `frame-ancestors 'self'` instead of `'none'` — reason: user's answer to §14 (inline local PDFs). Every other response, including all site pages, keeps `frame-ancestors 'none'`. The meta-tag fallback cannot carry `frame-ancestors`.
+
+`check:dist` keeps a same-origin frame safe: it fails if any `.html`, `.htm`, `.svg`, `.xml`, `.xhtml`, `.js` or `.mjs` file sits under `dist/files/`, or a directory there is named `*.pdf`. A same-origin frame can then only hold a PDF.
 
 `style-src` without `'unsafe-inline'` must be verified once the site is built. If something genuinely needs it, the reason is recorded.
 
@@ -275,8 +286,10 @@ frame-ancestors 'none'; upgrade-insecure-requests
 - HSTS only if UCN serves the domain over HTTPS.
 
 **Delivery:**
-- `public/.htaccess` (mod_headers, long caching for hashed `/assets/*`, `ErrorDocument 404`).
-- The Nginx equivalent goes in `docs/deployment.md`.
+- The build generates Nginx includes in `dist-nginx/` (git-ignored, outside the web root): `ucn-gs.conf` (location blocks), `security-headers.conf` and `pdf-headers.conf`. The header values come from `config/csp.mjs`; no header text is typed in the template.
+- Each location includes a headers file itself, because Nginx drops inherited `add_header` lines in any location that declares its own.
+- The config sends `no-cache` on HTML, immutable caching under `<base>assets/`, the PDF headers on any `.pdf`, denies dotfiles, and sets `error_page 404 <base>404.html`.
+- `docs/deployment.md` says how to install it. CI job `nginx-smoke` runs `scripts/nginx-smoke.sh` against real Nginx.
 
 **Deployment doc:** covers HTTPS, restricted deploy access, multi-factor authentication, branch protection, and rollback by keeping the previous `dist/`. It states that a static frontend cannot prevent DDoS or server-level defacement.
 
@@ -285,10 +298,13 @@ frame-ancestors 'none'; upgrade-insecure-requests
 | Change | Packages |
 |---|---|
 | Removed | `antd`, `@ant-design/icons` |
-| Added (runtime) | `tailwindcss`, `@tailwindcss/vite`, `lucide-react` |
+| Added (runtime) | `lucide-react` |
+| Added (dev, build-time) | `tailwindcss`, `@tailwindcss/vite` (nothing from them reaches `dist/`; see the 2026-11-18 note below) |
 | Added (dev) | `vite-imagetools`, `vitest`, `@testing-library/react`, `@testing-library/user-event`, `jsdom` |
 
 Each package is checked for maintenance and compatibility before install. `npm audit --omit=dev` runs after every change, and findings are reported.
+
+*Note, 2026-11-18:* `tailwindcss` and `@tailwindcss/vite` are build-time only, so they live in `devDependencies`. This keeps the Vite/picomatch ReDoS advisory (GHSA-fc5q-39xc-vjpf, no patched version yet) out of the production audit, which now reports 0 vulnerabilities. The advisory remains in the dev tree and is tracked by the informational CI step `npm audit --audit-level=high || true`; bump the toolchain once a patched picomatch is available.
 
 ## 9. Accessibility and performance
 
@@ -340,7 +356,7 @@ Each package is checked for maintenance and compatibility before install. `npm a
 
 **Base path:** `VITE_BASE_PATH` (default `/`) sets Vite's `base` and the router's `basename`, for hosting at the domain root or under a subpath.
 
-**Shipped files:** `dist/` includes `.htaccess`. Nginx users apply the config in `docs/deployment.md`.
+**Shipped files:** `dist/` holds the site and no server config. The Nginx config is generated beside it into `dist-nginx/` (`ucn-gs.conf`, `security-headers.conf`, `pdf-headers.conf`), using env `UCN_DOCROOT` (default `/var/www/ucn-gs/`) and `UCN_NGINX_INCLUDE_DIR` (default `/etc/nginx/ucn-gs/`). Apache `.htaccess` files are no longer written. Changed 2026-11-18 — reason: user's answer to §14 (Nginx). Install steps are in `docs/deployment.md`.
 
 ## 12. Skills and agents for later phases
 
@@ -366,8 +382,8 @@ Each package is checked for maintenance and compatibility before install. `npm a
 | Home | Home | Missing: leadership photos, accreditation slides 1–2, second gallery, GS video, Dean's and Program Chair's photos and messages, Mission and Vision, Goals and Objectives, History |
 | Additional Files | Additional Files for the Accreditors (9 links) | Missing: UCN file list |
 | Certificate of Authenticity | placeholder | Missing: certificate PDF and image |
-| Compliance Report and Recommendations | Rec 1–8 (3–5 evidence items each) | Missing: number and titles of UCN recommendations, documents, evidence |
-| Accreditation Areas | 5 areas (Research, Teaching and Learning, Extension, International Linkages, Planning Process) | Missing: UCN area list, narrative reports, galleries, evidence |
+| Compliance Report and Recommendations | Rec 1–8 (3–5 evidence items each) | Known (2026-11-18): 14 recommendations by area — Research 2, Performance of Graduates 1, Community Service 5, International Linkages & Consortia 5, Planning Process 1. Missing: titles, documents, evidence |
+| Accreditation Areas | 5 areas (Research, Teaching and Learning, Extension, International Linkages, Planning Process) | Known (2026-11-18): Research; Performance of Graduates; Community Service; International Linkages & Consortia; Planning Process, each with its own AVP. Missing: narrative reports, galleries, evidence |
 | AVP | 5 Drive videos | Missing: UCN AVPs |
 | About and People | Officials and Staff, Faculty | Missing: names, positions, departments, photos, student assistants |
 | FAQs and Location | Location only (no FAQs) | Missing: FAQ text, campus address and map query, contact details |
@@ -376,12 +392,18 @@ Each package is checked for maintenance and compatibility before install. `npm a
 
 ## 14. Open questions
 
-1. Program name, plus the accreditation year or date to show.
-2. The UCN area list (names, order, count). The reference's five are not assumed.
-3. The number of recommendations and their titles. Eight is not assumed.
-4. Apache or Nginx; domain and base path; whether HTTPS is available (HSTS depends on it).
-5. Download permission for each document. The default is view-only for Drive and downloadable for local files.
-6. Whether Filipino-language text will appear (it would be marked `lang="fil"`).
+Answered by the user on 2026-11-18 (the decisions above carry the changes):
+1. Program and year: MPA, AACCUP Level IV Phase 2, 2026 (D4).
+2. Area list: five, in the order given in §13.
+3. Recommendations: 14, counted per area as in §13 (§4 routes).
+4. Server: Nginx on a local UCN server (D6). HSTS still depends on HTTPS.
+5. PDF display: chosen per document: inline local, Open / Download card, or Drive (§7).
+6. Language: English only; no `lang="fil"`.
+
+Still open:
+- The 14 recommendation titles.
+- The Nginx server's domain or IP, the base path and whether HTTPS is available.
+- Per document: inline, card or Drive, and download permission (default: view-only for Drive, downloadable for local files).
 
 ## 15. Risks
 

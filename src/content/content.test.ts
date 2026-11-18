@@ -8,10 +8,12 @@ import { existsCaseExact } from '../test/publicFiles';
 import type { Area, EvidenceBlock, EvidenceGroup, Faq, ImageAsset, Person, Recommendation, Resource, ResourceGroup } from '../types/content';
 import * as content from './index';
 import {
+  checkAreaOrders,
   checkFilenames,
   checkIds,
   checkImages,
   checkPeople,
+  checkRecommendations,
   checkResources,
   checkSlugs,
   collectIds,
@@ -22,12 +24,12 @@ import {
 
 // Filenames are checked against the raw glob keys, independent of index.ts.
 const areaModules = import.meta.glob<Area>(['./areas/*.ts', '!./areas/*.test.ts'], { eager: true, import: 'default' });
-const recModules = import.meta.glob<Recommendation>(['./recommendations/rec-*.ts', '!./recommendations/*.test.ts'], {
+const recModules = import.meta.glob<Recommendation>(['./recommendations/*/rec-*.ts', '!./recommendations/**/*.test.ts'], {
   eager: true,
   import: 'default',
 });
 
-// Case-exact: Windows and macOS match /files/Report.pdf to report.pdf, Linux Apache does not.
+// Case-exact: Windows and macOS match /files/Report.pdf to report.pdf, Linux servers do not.
 const publicFileExists = (path: string) => existsCaseExact(fileURLToPath(new URL('../../public/', import.meta.url)), path);
 
 const DRIVE_ID = 'A'.repeat(33);
@@ -73,18 +75,44 @@ describe('content (real data)', () => {
   it('area and recommendation filenames match their slug and number', () => {
     expect(checkFilenames(areaModules, recModules)).toEqual([]);
   });
+  it('recommendations reference real areas, number 1..k per area, and published ones sit under published areas', () => {
+    expect(checkRecommendations(content.contentAreas, content.contentRecommendations)).toEqual([]);
+    expect(checkAreaOrders(content.contentAreas)).toEqual([]);
+  });
   it('area slugs are lowercase kebab-case', () => {
     expect(checkSlugs(Object.values(areaModules).map((a) => a.slug))).toEqual([]);
   });
   it('the glob sees every area and recommendation file on disk', () => {
     // Guards against a stale module-transform cache hiding a newly added file.
+    const walkDir = (dir: URL, prefix: string): string[] =>
+      readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
+        e.isDirectory() ? walkDir(new URL(`${e.name}/`, dir), `${prefix}${e.name}/`) : [`${prefix}${e.name}`],
+      );
     const onDisk = (dir: string, re: RegExp) =>
-      readdirSync(new URL(`./${dir}/`, import.meta.url)).filter((n) => re.test(n)).map((n) => `./${dir}/${n}`).sort();
+      walkDir(new URL(`./${dir}/`, import.meta.url), `./${dir}/`).filter((n) => re.test(n)).sort();
     expect(Object.keys(areaModules).sort()).toEqual(onDisk('areas', /^(?!.*\.test\.ts$).+\.ts$/));
-    expect(Object.keys(recModules).sort()).toEqual(onDisk('recommendations', /^rec-.*\.ts$/));
+    expect(Object.keys(recModules).sort()).toEqual(onDisk('recommendations', /\/rec-[^/]*\.ts$/));
   });
   it('real content exports never contain samples', () => {
     expect(collectIds({ a: content.contentAreas, r: content.contentRecommendations }).filter((id) => !isReal(id))).toEqual([]);
+  });
+  it('has the five accreditation areas in order, with 2/1/5/5/1 recommendations', () => {
+    expect(content.contentAreas.map((a) => [a.slug, a.order, a.title])).toEqual([
+      ['research', 1, 'Research'],
+      ['performance-of-graduates', 2, 'Performance of Graduates'],
+      ['community-service', 3, 'Community Service'],
+      ['international-linkages-and-consortia', 4, 'International Linkages & Consortia'],
+      ['planning-process', 5, 'Planning Process'],
+    ]);
+    const counts = content.contentAreas.map((a) => content.contentRecommendations.filter((r) => r.areaSlug === a.slug).length);
+    expect(counts).toEqual([2, 1, 5, 5, 1]);
+    expect(content.contentRecommendations).toHaveLength(14);
+  });
+  it('publishes the program name', () => {
+    expect(content.site.programName).toMatchObject({
+      status: 'published',
+      value: 'AACCUP Level IV Phase 2 Accreditation of the Master in Public Administration (MPA) Program, 2026',
+    });
   });
   it('exports the documented shape', () => {
     expect(content.site.universityName).toBe('University of Camarines Norte');
@@ -148,6 +176,42 @@ describe('rejects a bad fixture', () => {
     expect(checkResources([bad], () => false).join()).toContain('local file');
     expect(checkResources([bad], () => true)).toEqual([]);
   });
+  it('inline is valid only on a local pdf whose path ends in .pdf', () => {
+    const local = (path: `/files/${string}`, over: { format?: Resource['format']; inline?: boolean } = {}) =>
+      published({ id: 'i', source: { kind: 'local', path }, inline: true, ...over });
+    expect(checkResources([local('/files/a.pdf')], () => true)).toEqual([]);
+    expect(checkResources([local('/files/a.PDF')], () => true)).toEqual([]);
+    expect(checkResources([local('/files/Report.PDF')], () => true)).toEqual([]);
+    expect(checkResources([local('/files/sub/Report.PDF')], () => true)).toEqual([]);
+    expect(checkResources([local('/files/dev-sample.pdf')], () => true)).toEqual([]);
+    expect(checkResources([local('/files/Annual Report_2026-v2~final.pdf')], () => true)).toEqual([]);
+    for (const bad of [
+      local('/files/a.docx', { format: 'doc' }),
+      local('/files/a.mp4', { format: 'video' }),
+      local('/files/a.html'),
+      local('/files/x.html?.pdf'),
+      local('/files/../anything.pdf'),
+      local('/files/a/../../x.pdf'),
+      local('/files/..\\x.pdf'),
+      local('/files//a.pdf'),
+      local('/files/./a.pdf'),
+      local('/files/.hidden.pdf'),
+      local('/files/\t../x.pdf'),
+      local('/files/\n../\n../x.pdf'),
+      local('/files/a/\r..\t/x.pdf'),
+      local('/files/a\0.pdf'),
+      local('/files/a\x7f.pdf'),
+      local('/files/a(1).pdf'),
+      local('/files/x.html#.pdf'),
+      local('/files/x%2ehtml.pdf'),
+      local('/files/a.pdf', { format: 'doc' }),
+      published({ id: 'd', inline: true, source: { kind: 'drive', fileId: DRIVE_ID } }),
+      published({ id: 'e', inline: true }),
+    ]) {
+      expect(checkResources([bad], () => true).join()).toContain('inline');
+    }
+    expect(checkResources([local('/files/a.pdf', { inline: false })], () => true)).toEqual([]);
+  });
   it('bad drive and youtube ids', () => {
     const d = published({ id: 'd', source: { kind: 'drive', fileId: 'short' } });
     const f = published({ id: 'f', source: { kind: 'drive-folder', folderId: 'short' } });
@@ -180,15 +244,48 @@ describe('rejects a bad fixture', () => {
   it('mismatched filenames', () => {
     expect(checkFilenames({ './areas/research.ts': { slug: 'teaching' } }, {})).toHaveLength(1);
     expect(checkFilenames({ './areas/research.ts': { slug: 'research' } }, {})).toEqual([]);
-    expect(checkFilenames({}, { './recommendations/rec-03.ts': { number: 4 } })).toHaveLength(1);
-    expect(checkFilenames({}, { './recommendations/rec-03.ts': { number: 3 } })).toEqual([]);
-    expect(checkFilenames({}, { './recommendations/rec-x.ts': { number: 3 } })).toHaveLength(1);
+    const k = './recommendations/research/rec-03.ts';
+    expect(checkFilenames({}, { [k]: { areaSlug: 'research', number: 4 } })).toHaveLength(1);
+    expect(checkFilenames({}, { [k]: { areaSlug: 'research', number: 3 } })).toEqual([]);
+    expect(checkFilenames({}, { './recommendations/research/rec-x.ts': { areaSlug: 'research', number: 3 } })).toHaveLength(1);
+  });
+  it('recommendation areaSlug must equal its folder name', () => {
+    expect(checkFilenames({}, { [`./recommendations/research/rec-03.ts`]: { areaSlug: 'teaching', number: 3 } })).toHaveLength(1);
+  });
+  it('recommendation files must sit in an area folder', () => {
+    expect(checkFilenames({}, { './recommendations/rec-03.ts': { areaSlug: 'research', number: 3 } })).toHaveLength(1);
   });
   it('bad area slugs', () => {
     for (const s of ['Research', 'a_b', '-a', 'a-', 'a--b', 'a b', '']) {
       expect(checkSlugs([s]), s).toHaveLength(1);
     }
     expect(checkSlugs(['research', 'teaching-and-learning', 'area-2'])).toEqual([]);
+  });
+});
+
+describe('checkRecommendations', () => {
+  const a = (slug: string, status: 'published' | 'pending' = 'published') => ({ slug, status });
+  const r = (areaSlug: string, number: number, status: 'published' | 'pending' = 'pending') => ({ areaSlug, number, status });
+  it('accepts numbers 1..k per area, in any order', () => {
+    expect(checkRecommendations([a('x'), a('y')], [r('x', 2), r('x', 1), r('y', 1)])).toEqual([]);
+  });
+  it('rejects an areaSlug with no area file', () => {
+    expect(checkRecommendations([a('x')], [r('nope', 1)])).toHaveLength(1);
+  });
+  it('rejects a duplicate (areaSlug, number)', () => {
+    expect(checkRecommendations([a('x')], [r('x', 1), r('x', 1)]).some((m) => m.includes('duplicate'))).toBe(true);
+  });
+  it('rejects numbers that skip or do not start at 1', () => {
+    expect(checkRecommendations([a('x')], [r('x', 1), r('x', 3)])).toHaveLength(1);
+    expect(checkRecommendations([a('x')], [r('x', 2)])).toHaveLength(1);
+  });
+  it('rejects a published recommendation under a pending area', () => {
+    expect(checkRecommendations([a('x', 'pending')], [r('x', 1, 'published')])).toHaveLength(1);
+    expect(checkRecommendations([a('x', 'pending')], [r('x', 1, 'pending')])).toEqual([]);
+  });
+  it('rejects duplicate area order values', () => {
+    expect(checkAreaOrders([{ slug: 'a', order: 1 }, { slug: 'b', order: 1 }])).toHaveLength(1);
+    expect(checkAreaOrders([{ slug: 'a', order: 1 }, { slug: 'b', order: 2 }])).toEqual([]);
   });
 });
 
@@ -219,7 +316,7 @@ describe('collectors traverse nested content', () => {
     narrativeReport: res('pa-narrative'), groups: [], additionalFiles: [], avp: undefined,
   };
   const rec: Recommendation = {
-    number: 1, title: 'R1', status: 'published',
+    areaSlug: 'sample-area', number: 1, title: 'R1', status: 'published',
     document: res('rec-doc'),
     evidence: [group('rec-ev', 'published', [{ type: 'resources', items: [res('rec-ev-item')] }, { type: 'gallery', images: [img('/rec-pub.jpg')] }])],
     additionalFiles: [res('rec-extra')],

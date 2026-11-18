@@ -107,10 +107,75 @@ describe('DocumentViewer', () => {
     expect(container.textContent).not.toMatch(/Open PDF|Download PDF|this PDF/);
   });
 
-  it('local PDF never embeds regardless of pdfViewerEnabled', () => {
+  it('local PDF that has not opted in never embeds regardless of pdfViewerEnabled', () => {
     Object.defineProperty(navigator, 'pdfViewerEnabled', { value: true, configurable: true, writable: true });
     const { container } = renderViewer(<DocumentViewer resource={localPdf()} mode="embedded" />);
     expect(container.querySelector('iframe')).toBeNull();
+  });
+
+  it('opted-in local PDF frames same-origin with no sandbox and the actions row', () => {
+    renderViewer(<DocumentViewer resource={localPdf({ inline: true, downloadable: true })} mode="embedded" />);
+    const frame = screen.getByTitle('Local Report (PDF)');
+    expect(frame.tagName).toBe('IFRAME');
+    expect(frame.getAttribute('src')).toBe('/files/report.pdf');
+    expect(frame.hasAttribute('sandbox')).toBe(false);
+    expect(frame.getAttribute('loading')).toBe('lazy');
+    expect(frame.getAttribute('referrerpolicy')).toBe('strict-origin-when-cross-origin');
+    expect(frame.getAttribute('allow')).toBe('fullscreen');
+    const open = screen.getByRole('link', { name: /^Open in new tab\s*Local Report/ });
+    expect(open.getAttribute('href')).toBe('/files/report.pdf');
+    expect(open.getAttribute('target')).toBe('_blank');
+    expect(screen.getByRole('link', { name: /^Download\s*Local Report/ }).getAttribute('href')).toBe('/files/report.pdf');
+    expect(screen.queryByText('Open this file in a new tab or download it.')).toBeNull();
+    expect(screen.getByText('This site')).toBeTruthy();
+  });
+
+  it('opted-in local PDF offers no Download unless downloadable', () => {
+    renderViewer(<DocumentViewer resource={localPdf({ inline: true })} mode="embedded" />);
+    expect(screen.getByRole('link', { name: /Open in new tab/ })).toBeTruthy();
+    expect(screen.queryByRole('link', { name: /Download/ })).toBeNull();
+  });
+
+  it('on-demand opted-in local PDF mounts the unsandboxed frame only after Preview', async () => {
+    const user = userEvent.setup();
+    renderViewer(<DocumentViewer resource={localPdf({ inline: true })} mode="on-demand" />);
+    expect(screen.queryByTitle(/PDF/)).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Preview Local Report' }));
+    const frame = screen.getByTitle('Local Report (PDF)');
+    expect(frame.getAttribute('src')).toBe('/files/report.pdf');
+    expect(frame.hasAttribute('sandbox')).toBe(false);
+  });
+
+  it('falls back to the card when the browser has no PDF viewer', () => {
+    Object.defineProperty(navigator, 'pdfViewerEnabled', { value: false, configurable: true, writable: true });
+    const { container } = renderViewer(<DocumentViewer resource={localPdf({ inline: true, downloadable: true })} mode="embedded" />);
+    expect(container.querySelector('iframe')).toBeNull();
+    expect(screen.getByText('Open this file in a new tab or download it.')).toBeTruthy();
+    expect(screen.getByRole('link', { name: /^Open file/ }).getAttribute('href')).toBe('/files/report.pdf');
+    expect(screen.getByRole('link', { name: /Download/ })).toBeTruthy();
+    expect(screen.queryByRole('link', { name: /Open in new tab/ })).toBeNull();
+  });
+
+  it('on-demand opted-in PDF with no PDF viewer shows the card and no Preview button', () => {
+    Object.defineProperty(navigator, 'pdfViewerEnabled', { value: false, configurable: true, writable: true });
+    renderViewer(<DocumentViewer resource={localPdf({ inline: true })} mode="on-demand" />);
+    expect(screen.queryByRole('button')).toBeNull();
+    expect(screen.getByText('Open this file in a new tab or download it.')).toBeTruthy();
+  });
+
+  it('a Drive frame keeps its sandbox even when pdfViewerEnabled is false', () => {
+    Object.defineProperty(navigator, 'pdfViewerEnabled', { value: false, configurable: true, writable: true });
+    renderViewer(<DocumentViewer resource={drivePdf()} mode="embedded" />);
+    expect(screen.getByTitle('Narrative Report (PDF)').getAttribute('sandbox')).toBe(
+      'allow-scripts allow-same-origin allow-popups allow-presentation',
+    );
+  });
+
+  it('a non-PDF local file that sets inline stays a card', () => {
+    const doc = localPdf({ format: 'doc', inline: true, source: { kind: 'local', path: '/files/minutes.docx' } } as Partial<Resource>);
+    const { container } = renderViewer(<DocumentViewer resource={doc} mode="embedded" />);
+    expect(container.querySelector('iframe')).toBeNull();
+    expect(screen.getByText('Open this file in a new tab or download it.')).toBeTruthy();
   });
 
   it('drive PDF still embeds', () => {

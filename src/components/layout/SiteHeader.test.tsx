@@ -7,7 +7,12 @@ import { buildRouteManifest } from '../../content/routes';
 import type { Area, Recommendation, Resource } from '../../types/content';
 import { SiteHeader } from './SiteHeader';
 
-const doc: Resource = { id: 'doc', title: 'Doc', format: 'pdf', status: 'pending' };
+const doc: Resource = {
+  id: 'doc',
+  title: 'Doc',
+  format: 'pdf',
+  status: 'pending',
+};
 const area: Area = {
   slug: 'research',
   order: 1,
@@ -19,6 +24,7 @@ const area: Area = {
   additionalFiles: [],
 };
 const rec = (number: number): Recommendation => ({
+  areaSlug: 'research',
   number,
   title: `Rec ${number}`,
   status: 'published',
@@ -26,9 +32,13 @@ const rec = (number: number): Recommendation => ({
   evidence: [],
   additionalFiles: [],
 });
-const manifest = buildRouteManifest({ areas: [area], recommendations: [rec(1), rec(2)], includePending: false });
+const manifest = buildRouteManifest({
+  areas: [area],
+  recommendations: [rec(1), rec(2)],
+  includePending: false,
+});
 
-function renderHeader(path = '/compliance-report/recommendation-1') {
+function renderHeader(path = '/compliance-report/research/recommendation-1') {
   const router = createMemoryRouter([{ path: '*', element: <SiteHeader manifest={manifest} /> }], {
     initialEntries: [path],
   });
@@ -49,9 +59,26 @@ describe('SiteHeader', () => {
     renderHeader();
     const nav = within(desktopNav());
     expect(nav.getByRole('link', { name: 'Compliance Report' }).getAttribute('aria-current')).toBe('true');
-    expect(nav.getByRole('link', { name: 'Recommendation 1', hidden: true }).getAttribute('aria-current')).toBe('page');
+    // Area anchors share the index page, so no child link is marked current.
+    const anchor = nav.getByRole('link', { name: 'Research recommendations', hidden: true });
+    expect(anchor.getAttribute('href')).toBe('/compliance-report#research');
+    expect(anchor.hasAttribute('aria-current')).toBe(false);
     expect(nav.getByRole('link', { name: 'Home' }).hasAttribute('aria-current')).toBe(false);
     expect(nav.getByRole('link', { name: 'AVP' }).hasAttribute('aria-current')).toBe(false);
+  });
+
+  it('gives area anchors a different accessible name from the area pages, on desktop and mobile', () => {
+    renderHeader();
+    const desktop = within(desktopNav());
+    expect(desktop.getByRole('link', { name: 'Research', hidden: true }).getAttribute('href')).toBe('/accreditation-areas/research');
+    expect(desktop.getByRole('link', { name: 'Research recommendations', hidden: true }).getAttribute('href')).toBe(
+      '/compliance-report#research',
+    );
+    const mobile = within(getDialog());
+    expect(mobile.getByRole('link', { name: 'Research recommendations', hidden: true }).getAttribute('href')).toBe(
+      '/compliance-report#research',
+    );
+    expect(mobile.getByRole('link', { name: 'Research', hidden: true }).getAttribute('href')).toBe('/accreditation-areas/research');
   });
 
   it('marks an exact match as the current page', () => {
@@ -62,7 +89,9 @@ describe('SiteHeader', () => {
   it('dropdown button toggles aria-expanded and Esc returns focus', async () => {
     const user = userEvent.setup();
     renderHeader();
-    const button = within(desktopNav()).getByRole('button', { name: /Compliance Report/ });
+    const button = within(desktopNav()).getByRole('button', {
+      name: /Compliance Report/,
+    });
     const panelId = button.getAttribute('aria-controls') ?? '';
     expect(panelId).not.toBe('');
     expect(button.getAttribute('aria-expanded')).toBe('false');
@@ -82,7 +111,9 @@ describe('SiteHeader', () => {
   it('closes on outside click and when focus leaves the item', async () => {
     const user = userEvent.setup();
     renderHeader();
-    const button = within(desktopNav()).getByRole('button', { name: /Compliance Report/ });
+    const button = within(desktopNav()).getByRole('button', {
+      name: /Compliance Report/,
+    });
     await user.click(button);
     await user.click(document.body);
     expect(button.getAttribute('aria-expanded')).toBe('false');
@@ -165,13 +196,14 @@ describe('SiteHeader', () => {
       .getAllByRole('link', { hidden: true })
       .map((l) => l.getAttribute('href'));
     expect(links).toContain('/compliance-report');
-    expect(links).toContain('/compliance-report/recommendation-2');
+    expect(links).toContain('/compliance-report#research');
+    expect(links).not.toContain('/compliance-report/research/recommendation-2');
     expect(links).toContain('/about');
   });
 
   it('mobile group containing the current page opens after client navigation', async () => {
     const user = userEvent.setup();
-    const router = renderHeader('/compliance-report/recommendation-1');
+    const router = renderHeader('/compliance-report/research/recommendation-1');
     const groupOpen = (label: string) => {
       const summary = Array.from(getDialog().querySelectorAll('summary')).find((s) => s.textContent === label);
       return summary?.parentElement?.hasAttribute('open');
@@ -188,8 +220,10 @@ describe('SiteHeader', () => {
 
   it('mobile group is reopened after navigation even if the visitor collapsed it earlier', async () => {
     const user = userEvent.setup();
-    const router = renderHeader('/compliance-report/recommendation-1');
-    const summary = Array.from(getDialog().querySelectorAll('summary')).find((s) => s.textContent === 'Compliance Report');
+    const router = renderHeader('/compliance-report/research/recommendation-1');
+    const summary = Array.from(getDialog().querySelectorAll('summary')).find(
+      (s) => s.textContent === 'Compliance Report',
+    );
     const details = summary?.parentElement;
     if (!summary || !details) throw new Error('missing group');
     expect(details.hasAttribute('open')).toBe(true);
@@ -199,9 +233,11 @@ describe('SiteHeader', () => {
     expect(details.hasAttribute('open')).toBe(false);
 
     await act(async () => {
-      await router.navigate('/compliance-report/recommendation-2');
+      await router.navigate('/compliance-report/research/recommendation-2');
     });
-    const after = Array.from(getDialog().querySelectorAll('summary')).find((s) => s.textContent === 'Compliance Report');
+    const after = Array.from(getDialog().querySelectorAll('summary')).find(
+      (s) => s.textContent === 'Compliance Report',
+    );
     expect(after?.parentElement?.hasAttribute('open')).toBe(true);
   });
 
@@ -245,9 +281,13 @@ describe('SiteHeader', () => {
 
 describe('RootLayout skip link', () => {
   it('skip link targets #main', async () => {
-    const router = createMemoryRouter(buildRouteObjects(manifest), { initialEntries: ['/about'] });
+    const router = createMemoryRouter(buildRouteObjects(manifest), {
+      initialEntries: ['/about'],
+    });
     render(<RouterProvider router={router} />);
-    const skip = await screen.findByRole('link', { name: 'Skip to main content' });
+    const skip = await screen.findByRole('link', {
+      name: 'Skip to main content',
+    });
     expect(skip.getAttribute('href')).toBe('#main');
     expect(document.getElementById('main')?.tagName).toBe('MAIN');
     await screen.findByRole('heading', { level: 1 });

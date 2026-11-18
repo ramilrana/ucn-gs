@@ -21,9 +21,9 @@ All content is in `src/content/`. You only edit these files; the page code is no
 | Compliance Report overview | `src/content/compliance.ts` |
 | Certificate of Authenticity, Additional Files for the Accreditors | `src/content/documents.ts` |
 | One accreditation area | `src/content/areas/<slug>.ts` (one file per area) |
-| One recommendation | `src/content/recommendations/rec-NN.ts` (one file per recommendation) |
+| One recommendation | `src/content/recommendations/<area-slug>/rec-NN.ts` (one file per recommendation, in its area's folder) |
 
-The folders `areas/` and `recommendations/` start empty. The site finds new files in them by itself, so you do not register them anywhere.
+The five areas (Research; Performance of Graduates; Community Service; International Linkages & Consortia; Planning Process) and their 14 recommendations already exist as `pending` stubs: 2, 1, 5, 5 and 1 recommendations, in that order. Fill the stubs in place. The site finds files in these folders by itself, so you do not register anything.
 
 ## 2. Status: pending and published
 
@@ -63,7 +63,9 @@ Text values are lists of paragraphs, one string per paragraph.
 5. Add the narrative report, gallery and evidence groups as the materials become ready (sections 5, 6 and 7).
 6. Keep `status: 'pending'` until everything in the area is verified, then change it to `'published'`.
 
-**Add area and recommendation files only when they are ready to publish.** The site build creates an HTML copy for every area and recommendation file it finds, pending or not. A pending file's address then shows the site's "not found" page (HTTP 200, not 404) instead of a real server error, and that tells anyone who guesses the address that the slug exists. If the material is not ready, do not create the file yet.
+The five area files exist already, so normally you fill one in rather than add one. Fill in a stub by replacing its pending slots, as in sections 5 to 7, and keep its `slug` and file name.
+
+The site build creates an HTML copy for every area and recommendation file it finds, pending or not. A pending file's address shows the site's "not found" page (HTTP 200, not 404), which tells anyone who guesses the address that the slug exists. The stubs are already in place; do not add further files until their material is ready.
 
 ### 3.1 Area template
 
@@ -94,28 +96,32 @@ const area: Area = {
 export default area;
 ```
 
-`id` values must be unique across the whole site (the content test checks). Start every id with the slug.
+`id` values must be unique across the whole site (the content test checks). Start every id with `area-<slug>-`. In the template above, `REPLACE-slug-narrative-report` becomes `area-<slug>-narrative`, as in the stubs.
 
-## 4. Add a recommendation
+## 4. Fill in or add a recommendation
 
-1. Copy the recommendation template (section 4.1) into `src/content/recommendations/rec-NN.ts`. `NN` is the recommendation number with a leading zero if you like (`rec-01.ts`, `rec-12.ts`).
-2. Set `number` to the same number as in the file name. `rec-03.ts` must contain `number: 3`.
-3. Fill in `title`, the main `document`, and `evidence` groups (sections 5 to 7).
-4. Publish only when ready, and create the file only when ready (see the note in section 3).
+The 14 recommendation stubs exist, each titled "Recommendation n" until UCN supplies the real title. Open the file, replace the title and document, and publish when verified. To add one more, follow the same rules:
+
+1. Put the file in the folder of its area: `src/content/recommendations/<area-slug>/rec-NN.ts`, for example `src/content/recommendations/community-service/rec-03.ts`. `<area-slug>` is the area file's name without `.ts`.
+2. Numbers count **within the area** and run 1, 2, 3 … without gaps. `rec-03.ts` contains `number: 3` and is the third of its area. The page address is `/compliance-report/<area-slug>/recommendation-<n>`, and its title is "<Area title>: Recommendation <n>".
+3. Set `areaSlug` to the folder name. It must match an existing area file; the content test fails otherwise.
+4. Fill in `title`, the main `document`, and `evidence` groups (sections 5 to 7).
+5. A `published` recommendation needs its area to be `published` too, or the content test fails.
 
 ### 4.1 Recommendation template
 
 ```ts
-import type { Recommendation } from '../../types/content';
+import type { Recommendation } from '../../../types/content';
 
-// File name must match the number: this file is src/content/recommendations/rec-01.ts
+// This file is src/content/recommendations/REPLACE-area-slug/rec-01.ts
 const recommendation: Recommendation = {
+  areaSlug: 'REPLACE-area-slug',
   number: 1,
   title: 'REPLACE: recommendation title exactly as UCN words it',
   status: 'pending',
   // statement: ['REPLACE: optional statement of the recommendation, one string per paragraph'],
   document: {
-    id: 'rec-01-document',
+    id: 'rec-REPLACE-area-slug-01-document',
     title: 'REPLACE: document title',
     format: 'pdf',
     status: 'pending',
@@ -126,6 +132,8 @@ const recommendation: Recommendation = {
 
 export default recommendation;
 ```
+
+Id convention: recommendation resources start with `rec-<area-slug>-NN-` (`rec-research-01-document`); area resources start with `area-<slug>-` (`area-research-narrative`, `area-research-avp`). Ids must be unique across the whole site.
 
 ## 5. Add documents and files
 
@@ -159,16 +167,42 @@ For a Drive folder use `{ kind: 'drive-folder', folderId: '…' }`, which gives 
 
 A Drive file that is not shared as "Anyone with the link" shows visitors a Google sign-in page inside the frame. The page still offers an "Open in new tab" link, but fix the sharing (section 9).
 
-### 5.2 A file on this site (never shown inline)
+### 5.2 A file on this site
 
-1. Put the file under `public/files/`, for example `public/files/area-3/narrative-report.pdf`. Use simple lowercase names without spaces.
+1. Put the file under `public/files/`, for example `public/files/area-3/narrative-report.pdf`. Use simple lowercase names without spaces (spaces are allowed for the Open / Download card but make awkward addresses).
 2. Point to it with a path that starts with `/files/`:
 
 ```ts
 source: { kind: 'local', path: '/files/area-3/narrative-report.pdf' },
 ```
 
-**Local files are never shown inline.** The site's security policy forbids framing its own files, so a local file always appears as an "Open file / Download" card. If a document should display inside the page, put it on Google Drive (5.1) instead.
+A local file appears as an "Open file / Download" card unless you opt it in to display inline (5.2.1). If a document should display inside the page and does not meet the inline rules, put it on Google Drive (5.1).
+
+**Allowed file types.** `npm run check:dist` fails if any `.html`, `.htm`, `.svg`, `.xml`, `.xhtml`, `.js` or `.mjs` file is under `public/files/`, or a folder there is named `*.pdf`. Convert such material to PDF, or host it elsewhere.
+
+### 5.2.1 Showing a local PDF inline
+
+Add `inline: true` to the resource:
+
+```ts
+{
+  id: 'rec-research-01-document',
+  title: '…',
+  format: 'pdf',
+  status: 'published',
+  inline: true,
+  source: { kind: 'local', path: '/files/research/rec-01.pdf' },
+},
+```
+
+The content test rejects `inline: true` unless all of these hold:
+- the source is `kind: 'local'` and `format` is `'pdf'`;
+- the path starts with `/files/` and ends in `.pdf`;
+- every folder and file name in the path starts with a letter, digit, `_`, `~` or `-`, and continues with letters, digits, `.`, `_`, `~`, `-` or spaces only.
+
+Rename files with parentheses, commas, `& + ' @ %` or non-ASCII letters (accents, for example) before using `inline: true`. Without the flag they still work, as the Open / Download card.
+
+A browser with no built-in PDF viewer also falls back to the card, and Open in new tab is always there. Inline frames for local PDFs have no sandbox, and the server allows them only for `.pdf` files (see deployment.md). Pick per document: inline local, card, or Drive.
 
 **File names are case-sensitive on the server.** `Report.pdf` and `report.pdf` are different files on the live server, even though Windows and macOS treat them as the same. The content test checks the exact case against `public/files/`, so a mismatch fails the test.
 
@@ -278,12 +312,12 @@ Then run the two commands above. Delete the file when you build for the domain r
 
 **Do not set `VITE_BASE_PATH` on the command line in Git Bash** (`VITE_BASE_PATH=/gs/ npm run build`). Git Bash rewrites `/gs/` into a Windows path and the build breaks silently. Use `.env.production.local`.
 
-Upload the contents of `dist/`, including the hidden files `dist/.htaccess` and `dist/assets/.htaccess`. Server requirements, Nginx settings, rollback and security notes are in [deployment.md](./deployment.md).
+Copy the contents of `dist/` to the server's web folder. The Nginx config the build generates in `dist-nginx/` is installed once by the server admin and again whenever the base path or server paths change. There are no `.htaccess` files to upload. Server paths, post-deploy checks, rollback and security notes are in [deployment.md](./deployment.md).
 
 ## Quick checklist for publishing an item
 
 1. The material is UCN's own and the wording is exact.
-2. Files are on Drive ("Anyone with the link", ID only) or in `public/files/` (exact letter case).
+2. Files are on Drive ("Anyone with the link", ID only) or in `public/files/` (exact letter case; PDFs with `inline: true` have simple file names).
 3. Photos are in `src/assets/` with real alt text.
 4. `status` is `'published'` on the item and on every group and area containing it.
 5. `npm run dev` shows it correctly, and `/content-status` no longer lists it.

@@ -3,6 +3,8 @@ import type { RouteEntry, RouteKind } from '../../content/routes';
 export interface NavChild {
   label: string;
   path: string;
+  /** Visually hidden word(s), added after a space, appended to the link's accessible name, to tell it apart from a same-named link. */
+  srSuffix?: string;
 }
 
 export interface NavItem {
@@ -11,7 +13,12 @@ export interface NavItem {
   children?: NavChild[];
 }
 
-const toChild = (entry: RouteEntry): NavChild => ({ label: entry.title, path: entry.path });
+const COMPLIANCE_PATH = '/compliance-report';
+
+const toChild = (entry: RouteEntry): NavChild => ({
+  label: entry.title,
+  path: entry.path,
+});
 
 /** A group keeps its own link; `children` is present only when there is something to list. */
 function group(label: string, path: string, children: NavChild[]): NavItem {
@@ -27,19 +34,37 @@ export function buildNavModel(manifest: readonly RouteEntry[], areasLabel: strin
   const ofKind = (...kinds: RouteKind[]) => manifest.filter((entry) => kinds.includes(entry.kind));
   const pathOf = (kind: RouteKind, fallback: string) => ofKind(kind)[0]?.path ?? fallback;
 
-  const recommendations = ofKind('recommendation').sort((a, b) => (a.number ?? 0) - (b.number ?? 0));
+  // One anchor per area that has recommendations, in manifest (area) order. The index page owns the
+  // `#<slug>` sections, so these links stay on that page and never match a pathname.
+  const areaTitles = new Map(ofKind('area').map((entry) => [entry.slug, entry.title]));
+  const complianceAreas = [...new Set(ofKind('recommendation').map((entry) => entry.slug))].flatMap(
+    (slug): NavChild[] =>
+      slug === undefined
+        ? []
+        : [
+            {
+              label: areaTitles.get(slug) ?? slug,
+              path: `${COMPLIANCE_PATH}#${slug}`,
+              srSuffix: 'recommendations',
+            },
+          ],
+  );
 
   return [
     group('Home', pathOf('home', '/'), []),
     group(areasLabel, pathOf('areas-index', '/accreditation-areas'), ofKind('area').map(toChild)),
-    group('Compliance Report', pathOf('compliance-index', '/compliance-report'), recommendations.map(toChild)),
+    group('Compliance Report', pathOf('compliance-index', '/compliance-report'), complianceAreas),
     group('AVP', pathOf('avp', '/avp'), []),
     group(
       'Documents',
       pathOf('certificate', '/certificate-of-authenticity'),
       ofKind('certificate', 'additional-files').map(toChild),
     ),
-    group('About', pathOf('about', '/about'), ofKind('about', 'about-people', 'about-faculty', 'about-faqs').map(toChild)),
+    group(
+      'About',
+      pathOf('about', '/about'),
+      ofKind('about', 'about-people', 'about-faculty', 'about-faqs').map(toChild),
+    ),
   ];
 }
 

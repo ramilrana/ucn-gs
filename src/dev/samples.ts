@@ -4,21 +4,14 @@
 //
 // Keep this module free of side effects so Rollup can drop it: only declarations at the top level,
 // and every top-level call carries a PURE annotation.
-import type { Area, EvidenceGroup, ImageAsset, Recommendation, Resource, ResourceFormat, ResourceSource } from '../types/content';
-// `no-inline` keeps the 600-byte PDF out of Vite's 4 kB data-URI inlining, which would break devLocalSource.
-import samplePdf from './sample.pdf?url&no-inline';
+import type { Area, EvidenceGroup, ImageAsset, Recommendation, Resource, ResourceFormat } from '../types/content';
 import { svgPlaceholder } from './svgPlaceholder';
 
 /**
- * Wraps the bundler URL of the sample PDF as a local source: strips the site base path from the
- * start (localFileUrl adds it back) and casts the rest to the `/files/` template type.
- * The cast is dev-only: the sample PDF lives in src/dev/, not in public/files/.
+ * The sample PDF is served at this real /files/ URL by the devSamplePdf plugin in vite.config.ts: by the dev
+ * server, and copied into preview-content builds. It never reaches a production build (check:dist fails if it does).
  */
-export function devLocalSource(url: string): ResourceSource {
-  const base = import.meta.env.BASE_URL;
-  const rest = url.startsWith(base) ? url.slice(base.length) : url.replace(/^\/+/, '');
-  return { kind: 'local', path: `/${rest}` as `/files/${string}` };
-}
+const SAMPLE_PDF_PATH = '/files/dev-sample.pdf' as const;
 
 function sampleImage(n: number): ImageAsset {
   return { src: svgPlaceholder(`Sample image ${n}`, 800, 600), width: 800, height: 600, alt: `Sample image ${n}` };
@@ -29,7 +22,7 @@ function pendingResource(id: string, title: string, format: ResourceFormat): Res
 }
 
 function samplePdfResource(id: string, title: string): Resource {
-  return { id: `DEV-SAMPLE-${id}`, title, format: 'pdf', status: 'published', source: devLocalSource(samplePdf), downloadable: true };
+  return { id: `DEV-SAMPLE-${id}`, title, format: 'pdf', status: 'published', source: { kind: 'local', path: SAMPLE_PDF_PATH }, downloadable: true, inline: true };
 }
 
 // Obviously fake but valid-format Drive id (20+ of [A-Za-z0-9_-]); it points at no real file, so the
@@ -51,7 +44,7 @@ function sampleGroups(prefix: string): EvidenceGroup[] {
       title: 'Sample 1',
       status: 'published',
       blocks: [
-        // Local PDFs are never framed (they show an Open/Download card), so this embed:true block shows the card.
+        // The sample local PDF opts in to inline display, so this embed:true block shows the inline frame.
         { type: 'document', resource: samplePdfResource(`${prefix}-doc`, 'Sample document'), embed: true },
         // A Drive-hosted document in on-demand mode: the only sample with a Preview button.
         { type: 'document', resource: sampleDriveResource(`${prefix}-drive-doc`, 'Sample Drive document'), embed: false },
@@ -106,7 +99,8 @@ export const sampleAreas: Area[] = [
 
 export const sampleRecommendations: Recommendation[] = [
   {
-    number: 99,
+    areaSlug: 'sample-area',
+    number: 1,
     title: 'Sample recommendation',
     status: 'pending',
     statement: /* @__PURE__ */ sampleText(),
