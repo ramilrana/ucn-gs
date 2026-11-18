@@ -1,10 +1,10 @@
 // Verifies a built dist/ before it is uploaded. Run: npm run check:dist
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { gzipSync } from 'node:zlib';
 import { baseFromIndexHtml } from '../config/base.mjs';
-import { CSP_HEADER } from '../config/csp.mjs';
+import { CSP_HEADER, CSP_HEADER_PDF, SECURITY_HEADERS } from '../config/csp.mjs';
 import { listRoutePaths } from './route-paths.mjs';
 
 const MAX_FIRST_LOAD_GZIP_BYTES = 122_880; // 120 kB
@@ -36,11 +36,80 @@ function modulePreloads(html) {
   return hrefs;
 }
 
+const ACTIVE_EXTENSIONS = /\.(?:html?|svg|xml|xhtml|m?js)$/i;
+
+/**
+ * @param {string} dir
+ * @returns {{ path: string, directory: boolean }[]} every file and folder below dir
+ */
+function walkEntries(dir) {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const full = join(dir, entry.name);
+    return entry.isDirectory() ? [{ path: full, directory: true }, ...walkEntries(full)] : [{ path: full, directory: false }];
+  });
+}
+
+/** @param {string} distDir @param {string} file */
+const relName = (distDir, file) => `dist/${file.slice(distDir.length + 1).replaceAll('\\', '/')}`;
+
+/**
+ * @param {string} nginxDir
+ * @param {string} base
+ * @returns {string[]} one message per failed check of dist-nginx/
+ */
+function checkNginx(nginxDir, base) {
+  /** @type {string[]} */
+  const errors = [];
+  /** @param {string} name @returns {string | null} */
+  const read = (name) => {
+    const file = join(nginxDir, name);
+    if (existsSync(file)) return readFileSync(file, 'utf8');
+    errors.push(`dist-nginx/${name} is missing. Run the build.`);
+    return null;
+  };
+
+  /** @param {string} name @param {string | null} text @param {string} csp */
+  const checkHeaders = (name, text, csp) => {
+    if (text === null) return;
+    for (const [header, value] of Object.entries({ ...SECURITY_HEADERS, 'Content-Security-Policy': csp })) {
+      const line = `add_header ${header} "${value}" always;`;
+      if (!text.split('\n').includes(line)) errors.push(`dist-nginx/${name} does not contain ${header} exactly as config/csp.mjs defines it.`);
+    }
+  };
+  checkHeaders('security-headers.conf', read('security-headers.conf'), CSP_HEADER);
+  checkHeaders('pdf-headers.conf', read('pdf-headers.conf'), CSP_HEADER_PDF);
+
+  const conf = read('ucn-gs.conf');
+  if (conf === null) return errors;
+  const errorPage = `error_page 404 ${base}404.html;`;
+  if (!conf.includes(errorPage)) errors.push(`dist-nginx/ucn-gs.conf does not contain "${errorPage}".`);
+
+  const blocks = conf.split(/^location /m).slice(1);
+  const assets = blocks.find((block) => block.startsWith(`${base}assets/ {`));
+  if (!assets || !assets.includes('add_header Cache-Control "public, max-age=31536000, immutable" always;')) {
+    errors.push(`dist-nginx/ucn-gs.conf has no immutable cache block for ${base}assets/.`);
+  }
+  if (!blocks.some((block) => /^~ \S*\\\. \{\s+deny all;/.test(block))) {
+    errors.push('dist-nginx/ucn-gs.conf has no dotfile deny block.');
+  }
+  if (!blocks.some((block) => /^~\* \S*\.pdf\)\$ \{/.test(block) && /include \S*pdf-headers\.conf;/.test(block))) {
+    errors.push('dist-nginx/ucn-gs.conf has no .pdf location that includes pdf-headers.conf.');
+  }
+  // add_header is not inherited into a block that has its own, so each such block must include a headers file.
+  for (const block of blocks) {
+    if (block.includes('add_header') && !/include \S*(?:security|pdf)-headers\.conf;/.test(block)) {
+      errors.push(`dist-nginx/ucn-gs.conf: location ${block.split('{')[0]?.trim()} sets a header but includes no headers file.`);
+    }
+  }
+  return errors;
+}
+
 /**
  * @param {string} distDir
+ * @param {string} [nginxDir] generated Nginx files; defaults to dist-nginx/ next to distDir
  * @returns {string[]} one message per failed rule; empty when dist is deployable
  */
-export function checkDist(distDir) {
+export function checkDist(distDir, nginxDir = join(dirname(distDir), 'dist-nginx')) {
   /** @type {string[]} */
   const errors = [];
   const indexPath = join(distDir, 'index.html');
@@ -64,17 +133,26 @@ export function checkDist(distDir) {
     }
   }
 
-  // Rule 3
-  const htaccessPath = join(distDir, '.htaccess');
-  if (!existsSync(htaccessPath)) {
-    errors.push('dist/.htaccess is missing.');
-  } else {
-    const htaccess = readFileSync(htaccessPath, 'utf8');
-    const errorDocument = `ErrorDocument 404 ${base}404.html`;
-    if (!htaccess.includes(errorDocument)) errors.push(`dist/.htaccess does not contain "${errorDocument}".`);
-    if (!htaccess.includes(CSP_HEADER)) errors.push('dist/.htaccess does not contain the Content-Security-Policy header.');
+  // Rule 3: the generated Nginx config (dist-nginx/, next to dist/) and no leftover Apache files.
+  errors.push(...checkNginx(nginxDir, base));
+  for (const file of walk(distDir)) {
+    if (basename(file).toLowerCase() === '.htaccess') {
+      errors.push(`${relName(distDir, file)} found; the build no longer ships Apache config.`);
+    }
   }
-  if (!existsSync(join(distDir, 'assets', '.htaccess'))) errors.push('dist/assets/.htaccess is missing.');
+
+  // Rule 8: nothing under dist/files/ may be active content, so a same-origin frame can only hold a PDF.
+  const filesDir = join(distDir, 'files');
+  if (existsSync(filesDir)) {
+    for (const entry of walkEntries(filesDir)) {
+      const name = relName(distDir, entry.path);
+      if (entry.directory && /\.pdf$/i.test(entry.path)) {
+        errors.push(`${name} is a directory with a .pdf name; Nginx could serve HTML under a .pdf URL.`);
+      } else if (!entry.directory && ACTIVE_EXTENSIONS.test(entry.path)) {
+        errors.push(`${name} is active content under dist/files/; only documents and media may ship there.`);
+      }
+    }
+  }
 
   // Rule 4
   for (const [, url] of html.matchAll(/\b(?:src|href)="(\/[^"]*)"/gi)) {

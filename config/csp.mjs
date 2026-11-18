@@ -1,5 +1,5 @@
 // Single source of the Content-Security-Policy (spec section 8) and the other security headers.
-// Used by vite.config.ts (meta fallback), scripts/write-route-pages.mjs (.htaccess) and the dist check.
+// Used by vite.config.ts (meta fallback), scripts/write-route-pages.mjs (Nginx config) and the dist check.
 
 /** The only external hosts that may be framed (plus 'self' for opted-in local PDFs). Iframe URLs are built from IDs in src/lib/resourceUrls.ts. */
 export const FRAME_HOSTS = Object.freeze([

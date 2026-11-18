@@ -1,0 +1,41 @@
+# Generated into dist-nginx/ucn-gs.conf by scripts/write-route-pages.mjs. Do not edit the generated file by hand.
+# Location blocks only: `include` this file inside the server { } block for the site (see docs/deployment.md).
+# The security headers live in security-headers.conf and pdf-headers.conf next to it. add_header is not
+# inherited into a block that has its own add_header, so every location below includes a headers file itself.
+
+# The pages: the built index.html copies, one folder per route, with 404.html for anything else.
+location __BASE__ {
+    alias __DOCROOT__;
+    index index.html;
+    autoindex off;
+    try_files $uri $uri/index.html =404;
+    error_page 404 __BASE__404.html;
+    include __INCLUDE_DIR__security-headers.conf;
+    # HTML is revalidated on every visit so a new deploy shows at once.
+    add_header Cache-Control "no-cache" always;
+}
+
+# Files here have content hashes in their names.
+location __BASE__assets/ {
+    alias __DOCROOT__assets/;
+    autoindex off;
+    error_page 404 __BASE__404.html;
+    include __INCLUDE_DIR__security-headers.conf;
+    add_header Cache-Control "public, max-age=31536000, immutable" always;
+}
+
+# Dotfiles and dot folders are never served. Regex locations match in file order, so this block must
+# stay above the .pdf block: a dotfile path ending in .pdf is then denied too.
+location ~ ^__BASE_RE__(.*/)?\. {
+    deny all;
+    include __INCLUDE_DIR__security-headers.conf;
+}
+
+# Any .pdf under the base, matched on the URI (never the query string) and case-insensitively. These are
+# the only responses that may be framed by this site. A regex location wins over the prefix blocks above.
+location ~* ^__BASE_RE__(.+\.pdf)$ {
+    alias __DOCROOT__$1;
+    error_page 404 __BASE__404.html;
+    include __INCLUDE_DIR__pdf-headers.conf;
+    add_header Cache-Control "no-cache" always;
+}

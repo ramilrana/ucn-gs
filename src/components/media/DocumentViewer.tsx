@@ -30,9 +30,11 @@ export function DocumentViewer({ resource, mode }: DocumentViewerProps) {
   const openHref = viewUrl(source);
   const downloadHref = resource.downloadable ? downloadUrl(source) : null;
   // Local files are framed only when opted in (`inline` PDFs, see embedUrl). That frame has no sandbox
-  // because Chrome disables its PDF viewer inside sandboxed frames; it is safe because check:dist keeps
-  // anything but PDFs out of dist/files and PDF responses alone allow frame-ancestors 'self'. Every other
-  // local file, and a browser with no built-in PDF viewer, gets a card with Open and Download links.
+  // because Chrome disables its PDF viewer inside sandboxed frames. It is safe because isInlinePdf only
+  // accepts /files/*.pdf paths (no query, fragment or escapes), check:dist fails if dist/files/ holds any
+  // active content or a .pdf-named folder, and the generated Nginx config sends frame-ancestors 'self'
+  // on .pdf responses only (every other response keeps 'none'). Every other local file, and a browser
+  // with no built-in PDF viewer, gets a card with Open and Download links.
   const localInline = source.kind === 'local' && frameSrc !== null;
   const noPdfViewer = typeof navigator !== 'undefined' && navigator.pdfViewerEnabled === false;
   const localCard = source.kind === 'local' && (!localInline || noPdfViewer);

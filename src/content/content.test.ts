@@ -29,7 +29,7 @@ const recModules = import.meta.glob<Recommendation>(['./recommendations/*/rec-*.
   import: 'default',
 });
 
-// Case-exact: Windows and macOS match /files/Report.pdf to report.pdf, Linux Apache does not.
+// Case-exact: Windows and macOS match /files/Report.pdf to report.pdf, Linux servers do not.
 const publicFileExists = (path: string) => existsCaseExact(fileURLToPath(new URL('../../public/', import.meta.url)), path);
 
 const DRIVE_ID = 'A'.repeat(33);

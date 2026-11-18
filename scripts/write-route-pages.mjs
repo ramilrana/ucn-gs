@@ -1,17 +1,19 @@
 // Runs after `vite build`: copies index.html to every route folder and to 404.html,
-// and writes the Apache config. The base path is read from dist/index.html.
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+// and writes the Nginx config into dist-nginx/ (outside the web root). The base path is read from dist/index.html.
+// Env: UCN_DOCROOT (default /var/www/ucn-gs/) and UCN_NGINX_INCLUDE_DIR (default /etc/nginx/ucn-gs/).
+import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { baseFromIndexHtml } from '../config/base.mjs';
-import { SECURITY_HEADERS } from '../config/csp.mjs';
+import { renderNginxFiles } from './nginx-config.mjs';
 import { listRoutePaths } from './route-paths.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const dist = join(root, 'dist');
+const nginxOut = join(root, 'dist-nginx');
 const indexPath = join(dist, 'index.html');
 
-/** Reads a deploy template as LF text: a Windows checkout may have CRLF, and .htaccess should be LF. */
+/** Reads a deploy template as LF text: a Windows checkout may have CRLF, and the generated config should be LF. */
 const readTemplate = (name) => readFileSync(join(root, 'deploy', name), 'utf8').replace(/\r\n/g, '\n');
 
 if (!existsSync(indexPath)) {
@@ -30,19 +32,16 @@ for (const path of listRoutePaths(join(root, 'src', 'content'))) {
 }
 copyFileSync(indexPath, join(dist, '404.html'));
 
-// __BASE__ and __CSP__ plus one __<Header-Name>__ placeholder per remaining security header.
-let htaccess = readTemplate('htaccess.template').replaceAll('__BASE__', base);
-for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
-  const placeholder = name === 'Content-Security-Policy' ? '__CSP__' : `__${name}__`;
-  htaccess = htaccess.replaceAll(placeholder, value);
+const files = renderNginxFiles({
+  template: readTemplate('nginx.conf.template'),
+  base,
+  ...(process.env.UCN_DOCROOT ? { docroot: process.env.UCN_DOCROOT } : {}),
+  ...(process.env.UCN_NGINX_INCLUDE_DIR ? { includeDir: process.env.UCN_NGINX_INCLUDE_DIR } : {}),
+});
+rmSync(nginxOut, { recursive: true, force: true });
+mkdirSync(nginxOut, { recursive: true });
+for (const [name, content] of Object.entries(files)) {
+  writeFileSync(join(nginxOut, name), content);
 }
-const leftover = htaccess.match(/__[A-Za-z-]+__/);
-if (leftover) {
-  throw new Error(`Unreplaced placeholder ${leftover[0]} in deploy/htaccess.template.`);
-}
-writeFileSync(join(dist, '.htaccess'), htaccess);
 
-mkdirSync(join(dist, 'assets'), { recursive: true });
-writeFileSync(join(dist, 'assets', '.htaccess'), readTemplate('assets.htaccess'));
-
-console.log(`Wrote route pages, 404.html and .htaccess for base ${base}`);
+console.log(`Wrote route pages, 404.html and dist-nginx/ for base ${base}`);
