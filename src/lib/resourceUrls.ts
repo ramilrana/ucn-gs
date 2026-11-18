@@ -17,14 +17,17 @@ export function localFileUrl(path: string, base: string = import.meta.env.BASE_U
   return `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
 }
 
-/** True for a local PDF that opted in to inline display: local source, format pdf, path ends in .pdf. */
+/** Shape of a frameable local PDF path: under /files/, no query, fragment, percent-escape or "]" (any of them could hide a non-PDF behind a .pdf ending). */
+const INLINE_PDF_PATH = /^\/files\/[^?#%\]]+\.pdf$/i;
+
+/** True for a local PDF that opted in to inline display: local source, format pdf, path matches INLINE_PDF_PATH. */
 export function isInlinePdf(resource: Resource): boolean {
   const source = resource.source;
   return (
     resource.inline === true &&
     resource.format === 'pdf' &&
     source?.kind === 'local' &&
-    source.path.toLowerCase().endsWith('.pdf')
+    INLINE_PDF_PATH.test(source.path)
   );
 }
 

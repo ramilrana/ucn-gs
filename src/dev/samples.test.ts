@@ -63,7 +63,8 @@ describe('dev samples', () => {
       expect(path.startsWith('/')).toBe(true);
       expect(path).toContain('sample');
       // Dev URLs keep Vite's query string, for example sample.pdf?no-inline.
-      expect(path).toMatch(/sample[^/]*\.pdf(\?.*)?$/);
+      // Shaped like /files/ so isInlinePdf accepts it; the browser resolves the .. to the real URL.
+      expect(path).toMatch(/^\/files\/\.\.\/.*sample[^/]*\.pdf$/);
     }
   });
 });
@@ -73,11 +74,11 @@ describe('devLocalSource', () => {
 
   it('strips a subpath base so localFileUrl can add it back', () => {
     vi.stubEnv('BASE_URL', '/gs/');
-    expect(devLocalSource('/gs/assets/x.pdf')).toEqual({ kind: 'local', path: '/assets/x.pdf' });
+    expect(devLocalSource('/gs/assets/x.pdf')).toEqual({ kind: 'local', path: '/files/../assets/x.pdf' });
   });
 
   it('strips the root base', () => {
     vi.stubEnv('BASE_URL', '/');
-    expect(devLocalSource('/src/dev/sample.pdf')).toEqual({ kind: 'local', path: '/src/dev/sample.pdf' });
+    expect(devLocalSource('/src/dev/sample.pdf?no-inline')).toEqual({ kind: 'local', path: '/files/../src/dev/sample.pdf' });
   });
 });

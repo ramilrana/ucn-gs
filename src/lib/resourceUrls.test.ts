@@ -33,6 +33,10 @@ describe('resourceUrls', () => {
     expect(embedUrl(res({ kind: 'local', path: '/files/c.docx' }, { format: 'doc', inline: true }))).toBeNull();
     expect(embedUrl(res({ kind: 'local', path: '/files/c.html' }, { inline: true }))).toBeNull();
     expect(embedUrl(res({ kind: 'local', path: '/files/c.pdf' }, { format: 'doc', inline: true }))).toBeNull();
+    for (const path of ['/files/x.html?.pdf', '/files/x.html#.pdf', '/files/x%2ehtml.pdf', '/files/dir/x]y.pdf', '/assets/x.pdf']) {
+      expect(embedUrl(res({ kind: 'local', path: path as `/files/${string}` }, { inline: true }))).toBeNull();
+    }
+    expect(embedUrl(res({ kind: 'local', path: '/files/Report.PDF' }, { inline: true }))).toBe('/files/Report.PDF');
     expect(embedUrl(res(folder, { inline: true }))).toBeNull();
     expect(embedUrl(res(external, { inline: true }))).toBeNull();
     // The open and download links still work for local files.

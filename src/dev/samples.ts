@@ -11,13 +11,15 @@ import { svgPlaceholder } from './svgPlaceholder';
 
 /**
  * Wraps the bundler URL of the sample PDF as a local source: strips the site base path from the
- * start (localFileUrl adds it back) and casts the rest to the `/files/` template type.
- * The cast is dev-only: the sample PDF lives in src/dev/, not in public/files/.
+ * start (localFileUrl adds it back) and any Vite query string, then prefixes `/files/../` so the path
+ * passes the strict inline-PDF check (isInlinePdf); the browser resolves the `..` to the real URL.
+ * Dev-only: the sample PDF lives in src/dev/, not in public/files/.
  */
 export function devLocalSource(url: string): ResourceSource {
   const base = import.meta.env.BASE_URL;
-  const rest = url.startsWith(base) ? url.slice(base.length) : url.replace(/^\/+/, '');
-  return { kind: 'local', path: `/${rest}` as `/files/${string}` };
+  const bare = url.replace(/[?#].*$/, '');
+  const rest = bare.startsWith(base) ? bare.slice(base.length) : bare.replace(/^\/+/, '');
+  return { kind: 'local', path: `/files/../${rest}` as `/files/${string}` };
 }
 
 function sampleImage(n: number): ImageAsset {
