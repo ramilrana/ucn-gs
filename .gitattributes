@@ -1,2 +1,5 @@
 # Keep PDFs byte-exact: CRLF conversion would break the xref offsets of src/dev/sample.pdf.
 *.pdf binary
+
+# Shell scripts run on Linux (CI, servers): keep LF.
+*.sh text eol=lf
