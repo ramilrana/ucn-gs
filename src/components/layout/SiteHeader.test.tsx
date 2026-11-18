@@ -60,11 +60,25 @@ describe('SiteHeader', () => {
     const nav = within(desktopNav());
     expect(nav.getByRole('link', { name: 'Compliance Report' }).getAttribute('aria-current')).toBe('true');
     // Area anchors share the index page, so no child link is marked current.
-    const anchor = nav.getAllByRole('link', { name: 'Research', hidden: true }).find((l) => l.getAttribute('href')?.includes('#')) as HTMLElement;
+    const anchor = nav.getByRole('link', { name: 'Research recommendations', hidden: true });
     expect(anchor.getAttribute('href')).toBe('/compliance-report#research');
     expect(anchor.hasAttribute('aria-current')).toBe(false);
     expect(nav.getByRole('link', { name: 'Home' }).hasAttribute('aria-current')).toBe(false);
     expect(nav.getByRole('link', { name: 'AVP' }).hasAttribute('aria-current')).toBe(false);
+  });
+
+  it('gives area anchors a different accessible name from the area pages, on desktop and mobile', () => {
+    renderHeader();
+    const desktop = within(desktopNav());
+    expect(desktop.getByRole('link', { name: 'Research', hidden: true }).getAttribute('href')).toBe('/accreditation-areas/research');
+    expect(desktop.getByRole('link', { name: 'Research recommendations', hidden: true }).getAttribute('href')).toBe(
+      '/compliance-report#research',
+    );
+    const mobile = within(getDialog());
+    expect(mobile.getByRole('link', { name: 'Research recommendations', hidden: true }).getAttribute('href')).toBe(
+      '/compliance-report#research',
+    );
+    expect(mobile.getByRole('link', { name: 'Research', hidden: true }).getAttribute('href')).toBe('/accreditation-areas/research');
   });
 
   it('marks an exact match as the current page', () => {

@@ -3,6 +3,8 @@ import type { RouteEntry, RouteKind } from '../../content/routes';
 export interface NavChild {
   label: string;
   path: string;
+  /** Visually hidden word(s), added after a space, appended to the link's accessible name, to tell it apart from a same-named link. */
+  srSuffix?: string;
 }
 
 export interface NavItem {
@@ -43,6 +45,7 @@ export function buildNavModel(manifest: readonly RouteEntry[], areasLabel: strin
             {
               label: areaTitles.get(slug) ?? slug,
               path: `${COMPLIANCE_PATH}#${slug}`,
+              srSuffix: 'recommendations',
             },
           ],
   );

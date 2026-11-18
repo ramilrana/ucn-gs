@@ -116,7 +116,15 @@ export function MobileNav({ items, pathname }: MobileNavProps) {
                                 aria-current={isCurrent ? 'page' : undefined}
                                 className={`${rowClass} ${rowState(isCurrent)}`}
                               >
-                                {child.label}
+                                <span>
+                                  {child.label}
+                                  {child.srSuffix && (
+                                    <>
+                                      {' '}
+                                      <span className="sr-only">{child.srSuffix}</span>
+                                    </>
+                                  )}
+                                </span>
                               </Link>
                             </li>
                           );

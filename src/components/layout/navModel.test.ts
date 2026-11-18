@@ -93,8 +93,8 @@ describe('buildNavModel', () => {
   it('lists one anchor per area that has recommendations, in manifest order', () => {
     const nav = buildNavModel(full, 'Accreditation Areas');
     expect(item(nav, 'Compliance Report').children).toEqual([
-      { label: 'Area research', path: '/compliance-report#research' },
-      { label: 'Area extension', path: '/compliance-report#extension' },
+      { label: 'Area research', path: '/compliance-report#research', srSuffix: 'recommendations' },
+      { label: 'Area extension', path: '/compliance-report#extension', srSuffix: 'recommendations' },
     ]);
   });
 

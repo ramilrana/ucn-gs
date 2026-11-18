@@ -88,7 +88,7 @@ export function DesktopNav({ items, pathname }: DesktopNavProps) {
                 type="button"
                 aria-expanded={open}
                 aria-controls={panelId}
-                aria-label={`${item.label} pages`}
+                aria-label={`${item.label} submenu`}
                 onClick={() => setOpenLabel(open ? null : item.label)}
                 className="inline-flex size-11 items-center justify-center rounded text-maroon-800 hover:bg-paper"
               >
@@ -114,7 +114,15 @@ export function DesktopNav({ items, pathname }: DesktopNavProps) {
                           isCurrent ? 'border-maroon-800 font-semibold text-maroon-800' : 'border-transparent text-ink'
                         }`}
                       >
-                        {child.label}
+                        <span>
+                          {child.label}
+                          {child.srSuffix && (
+                            <>
+                              {' '}
+                              <span className="sr-only">{child.srSuffix}</span>
+                            </>
+                          )}
+                        </span>
                       </Link>
                     </li>
                   );
