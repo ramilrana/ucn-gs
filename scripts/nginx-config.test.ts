@@ -83,6 +83,12 @@ describe('renderNginxFiles', () => {
     expect(validateDirOption('X', '/ok/dir-1/')).toBe('/ok/dir-1/');
   });
 
+  it('throws when the base is not normalized', () => {
+    for (const base of ['gs', '/gs', '//gs/', '']) {
+      expect(() => renderNginxFiles({ template, base })).toThrow(/normalized/);
+    }
+  });
+
   it('throws on a leftover placeholder', () => {
     expect(() => renderNginxFiles({ template: `${template}\n# __SURPRISE__\n`, base: '/' })).toThrow(/__SURPRISE__/);
   });

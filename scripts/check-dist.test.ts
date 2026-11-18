@@ -159,6 +159,17 @@ describe('checkDist', () => {
     expect(checkDist(dist).some((e) => e.includes('.pdf'))).toBe(true);
   });
 
+  it('flags a location block that sets add_header but includes no headers file', () => {
+    const dist = makeDist('/gs/');
+    const file = nginxFile(dist, 'ucn-gs.conf');
+    const conf = readFileSync(file, 'utf8');
+    const stripped = conf.replace(/^\s*include \S*security-headers\.conf;\n/m, '');
+    expect(stripped).not.toBe(conf);
+    write(file, stripped);
+    const errors = checkDist(dist);
+    expect(errors.some((e) => e.includes('sets a header but includes no headers file'))).toBe(true);
+  });
+
   it('flags any .htaccess left in dist', () => {
     const dist = makeDist('/gs/');
     write(join(dist, '.htaccess'), 'Options -Indexes\n');

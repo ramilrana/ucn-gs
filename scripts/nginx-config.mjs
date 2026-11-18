@@ -1,4 +1,5 @@
 // Renders the Nginx files from deploy/nginx.conf.template and config/csp.mjs. Used by write-route-pages.mjs.
+import { normalizeBase } from '../config/base.mjs';
 import { CSP_HEADER_PDF, SECURITY_HEADERS } from '../config/csp.mjs';
 
 export const DEFAULT_DOCROOT = '/var/www/ucn-gs/';
@@ -43,6 +44,9 @@ function headerLines(headers) {
  * @returns {{ 'ucn-gs.conf': string, 'security-headers.conf': string, 'pdf-headers.conf': string }}
  */
 export function renderNginxFiles({ template, base, docroot = DEFAULT_DOCROOT, includeDir = DEFAULT_INCLUDE_DIR, headers = SECURITY_HEADERS }) {
+  if (normalizeBase(base) !== base) {
+    throw new Error(`base must be a normalized base path such as "/" or "/gs/" (got "${base}").`);
+  }
   const values = {
     __BASE__: base,
     __BASE_RE__: escapeRegex(base),
