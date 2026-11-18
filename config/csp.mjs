@@ -1,7 +1,7 @@
 // Single source of the Content-Security-Policy (spec section 8) and the other security headers.
 // Used by vite.config.ts (meta fallback), scripts/write-route-pages.mjs (.htaccess) and the dist check.
 
-/** The only hosts that may be framed. Iframe URLs are built from IDs in src/lib/resourceUrls.ts. */
+/** The only external hosts that may be framed (plus 'self' for opted-in local PDFs). Iframe URLs are built from IDs in src/lib/resourceUrls.ts. */
 export const FRAME_HOSTS = Object.freeze([
   'drive.google.com',
   'docs.google.com',
@@ -14,7 +14,7 @@ const DIRECTIVES = [
   "script-src 'self'",
   "style-src 'self'",
   "img-src 'self' data: https://i.ytimg.com",
-  `frame-src ${FRAME_HOSTS.map((host) => `https://${host}`).join(' ')}`,
+  `frame-src 'self' ${FRAME_HOSTS.map((host) => `https://${host}`).join(' ')}`,
   "media-src 'self'",
   "connect-src 'self'",
   "object-src 'none'",
@@ -29,6 +29,12 @@ const HEADER_ONLY = new Set(['frame-ancestors', 'upgrade-insecure-requests']);
 
 /** Full policy for the server header. */
 export const CSP_HEADER = DIRECTIVES.join('; ');
+
+/**
+ * Policy for PDF responses only: identical except frame-ancestors 'self', so a local PDF can sit in an
+ * inline frame on this site while every other response still refuses to be framed.
+ */
+export const CSP_HEADER_PDF = CSP_HEADER.replace("frame-ancestors 'none'", "frame-ancestors 'self'");
 
 /** Policy for the <meta http-equiv> fallback: the header policy minus header-only directives. */
 export const CSP_META = DIRECTIVES.filter((directive) => !HEADER_ONLY.has(directive.split(' ')[0] ?? '')).join('; ');

@@ -176,6 +176,23 @@ describe('rejects a bad fixture', () => {
     expect(checkResources([bad], () => false).join()).toContain('local file');
     expect(checkResources([bad], () => true)).toEqual([]);
   });
+  it('inline is valid only on a local pdf whose path ends in .pdf', () => {
+    const local = (path: `/files/${string}`, over: { format?: Resource['format']; inline?: boolean } = {}) =>
+      published({ id: 'i', source: { kind: 'local', path }, inline: true, ...over });
+    expect(checkResources([local('/files/a.pdf')], () => true)).toEqual([]);
+    expect(checkResources([local('/files/a.PDF')], () => true)).toEqual([]);
+    for (const bad of [
+      local('/files/a.docx', { format: 'doc' }),
+      local('/files/a.mp4', { format: 'video' }),
+      local('/files/a.html'),
+      local('/files/a.pdf', { format: 'doc' }),
+      published({ id: 'd', inline: true, source: { kind: 'drive', fileId: DRIVE_ID } }),
+      published({ id: 'e', inline: true }),
+    ]) {
+      expect(checkResources([bad], () => true).join()).toContain('inline');
+    }
+    expect(checkResources([local('/files/a.pdf', { inline: false })], () => true)).toEqual([]);
+  });
   it('bad drive and youtube ids', () => {
     const d = published({ id: 'd', source: { kind: 'drive', fileId: 'short' } });
     const f = published({ id: 'f', source: { kind: 'drive-folder', folderId: 'short' } });

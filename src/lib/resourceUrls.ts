@@ -1,4 +1,4 @@
-import type { ResourceSource } from '../types/content';
+import type { Resource, ResourceSource } from '../types/content';
 import { safeHref } from './safeUrl';
 
 const DRIVE_ID = /^[A-Za-z0-9_-]{20,}$/;
@@ -17,15 +17,32 @@ export function localFileUrl(path: string, base: string = import.meta.env.BASE_U
   return `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
 }
 
-/** Iframe URL for a source, or null when it cannot be embedded. Built only from validated IDs; always https on an allowed frame host. */
-export function embedUrl(source: ResourceSource): string | null {
+/** True for a local PDF that opted in to inline display: local source, format pdf, path ends in .pdf. */
+export function isInlinePdf(resource: Resource): boolean {
+  const source = resource.source;
+  return (
+    resource.inline === true &&
+    resource.format === 'pdf' &&
+    source?.kind === 'local' &&
+    source.path.toLowerCase().endsWith('.pdf')
+  );
+}
+
+/**
+ * Iframe URL for a resource, or null when it cannot be embedded. Drive and YouTube URLs are built only from
+ * validated IDs on an allowed https frame host. A local file is framed (same-origin) only when it is an
+ * opted-in PDF; every other local file stays an Open / Download card.
+ */
+export function embedUrl(resource: Resource): string | null {
+  const source = resource.source;
+  if (!source) return null;
   switch (source.kind) {
     case 'drive':
       return isDriveId(source.fileId) ? `https://drive.google.com/file/d/${source.fileId}/preview` : null;
     case 'youtube':
       return isYouTubeId(source.videoId) ? `https://www.youtube-nocookie.com/embed/${source.videoId}` : null;
-    // Local files are never framed (ruling R19): the spec section 8 CSP has no frame-src 'self'.
     case 'local':
+      return isInlinePdf(resource) ? localFileUrl(source.path) : null;
     case 'drive-folder':
     case 'external':
       return null;

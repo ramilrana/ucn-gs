@@ -16,7 +16,7 @@ interface DocumentViewerProps {
 
 const SANDBOX = 'allow-scripts allow-same-origin allow-popups allow-presentation';
 
-/** A document with an actions row and a sandboxed PDF frame (or a fallback card). */
+/** A document with an actions row and a PDF frame (sandboxed for Drive, unsandboxed for opted-in local PDFs) or a fallback card. */
 export function DocumentViewer({ resource, mode }: DocumentViewerProps) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const panelId = useId();
@@ -26,13 +26,16 @@ export function DocumentViewer({ resource, mode }: DocumentViewerProps) {
   const source = resource.source;
   if (!source) return <PendingNotice label={resource.title} />;
 
-  const frameSrc = embedUrl(source);
+  const frameSrc = embedUrl(resource);
   const openHref = viewUrl(source);
   const downloadHref = resource.downloadable ? downloadUrl(source) : null;
-  // Local files are never framed. Under the spec section 8 CSP a same-origin PDF frame is blocked three
-  // ways: frame-src has no 'self', the PDF response carries frame-ancestors 'none', and Chrome disables
-  // its PDF viewer in sandboxed frames. A card with Open and Download links replaces it (ruling R19).
-  const localCard = source.kind === 'local';
+  // Local files are framed only when opted in (`inline` PDFs, see embedUrl). That frame has no sandbox
+  // because Chrome disables its PDF viewer inside sandboxed frames; it is safe because check:dist keeps
+  // anything but PDFs out of dist/files and PDF responses alone allow frame-ancestors 'self'. Every other
+  // local file, and a browser with no built-in PDF viewer, gets a card with Open and Download links.
+  const localInline = source.kind === 'local' && frameSrc !== null;
+  const noPdfViewer = typeof navigator !== 'undefined' && navigator.pdfViewerEnabled === false;
+  const localCard = source.kind === 'local' && (!localInline || noPdfViewer);
   const canFrame = frameSrc !== null && !localCard;
   const showPanel = canFrame && (mode === 'embedded' || previewOpen);
 
@@ -96,7 +99,7 @@ export function DocumentViewer({ resource, mode }: DocumentViewerProps) {
               title={`${resource.title} (${formatLabels[resource.format]})`}
               src={frameSrc}
               loading="lazy"
-              sandbox={SANDBOX}
+              sandbox={localInline ? undefined : SANDBOX}
               referrerPolicy="strict-origin-when-cross-origin"
               allow="fullscreen"
               className="w-full h-[min(85vh,960px)] min-h-[480px]"

@@ -41,8 +41,8 @@ export function VideoEmbed({ resource, poster }: VideoEmbedProps) {
     );
   }
 
-  // Local files are never framed. The spec section 8 CSP blocks a same-origin frame (frame-src has no
-  // 'self' and the file response carries frame-ancestors 'none'), so show the title and an Open link only.
+  // Local videos are never framed: only an opted-in local PDF may be framed (the CSP allows frame-src
+  // 'self' for that), so show the title and an Open link only.
   if (source.kind === 'local') {
     return (
       <div className="space-y-3">
@@ -59,7 +59,7 @@ export function VideoEmbed({ resource, poster }: VideoEmbedProps) {
     );
   }
 
-  const frameBase = embedUrl(source);
+  const frameBase = embedUrl(resource);
   const isYouTube = source.kind === 'youtube';
   const frameSrc = frameBase === null ? null : frameBase + (isYouTube ? '?autoplay=1' : '');
   // youtubePosterUrl does not validate its id, so gate it here.

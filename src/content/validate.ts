@@ -1,5 +1,5 @@
 // Pure content rules. Each check returns a list of messages; an empty list means the rule holds.
-import { isDriveId, isYouTubeId } from '../lib/resourceUrls';
+import { isDriveId, isInlinePdf, isYouTubeId } from '../lib/resourceUrls';
 import { safeHref } from '../lib/safeUrl';
 import type { EvidenceBlock, ImageAsset, Person, Resource, ResourceFormat } from '../types/content';
 
@@ -157,6 +157,9 @@ export function checkResources(resources: readonly Resource[], fileExists: (publ
   for (const r of resources) {
     const at = `resource "${r.id}"`;
     const s = r.source;
+    if (r.inline === true && !isInlinePdf(r)) {
+      errors.push(`${at} sets inline but is not a local .pdf with format "pdf"`);
+    }
     if (!s) {
       if (r.status === 'published') errors.push(`${at} is published but has no source`);
       continue;

@@ -29,7 +29,7 @@ function pendingResource(id: string, title: string, format: ResourceFormat): Res
 }
 
 function samplePdfResource(id: string, title: string): Resource {
-  return { id: `DEV-SAMPLE-${id}`, title, format: 'pdf', status: 'published', source: devLocalSource(samplePdf), downloadable: true };
+  return { id: `DEV-SAMPLE-${id}`, title, format: 'pdf', status: 'published', source: devLocalSource(samplePdf), downloadable: true, inline: true };
 }
 
 // Obviously fake but valid-format Drive id (20+ of [A-Za-z0-9_-]); it points at no real file, so the
@@ -51,7 +51,7 @@ function sampleGroups(prefix: string): EvidenceGroup[] {
       title: 'Sample 1',
       status: 'published',
       blocks: [
-        // Local PDFs are never framed (they show an Open/Download card), so this embed:true block shows the card.
+        // The sample local PDF opts in to inline display, so this embed:true block shows the inline frame.
         { type: 'document', resource: samplePdfResource(`${prefix}-doc`, 'Sample document'), embed: true },
         // A Drive-hosted document in on-demand mode: the only sample with a Preview button.
         { type: 'document', resource: sampleDriveResource(`${prefix}-drive-doc`, 'Sample Drive document'), embed: false },
