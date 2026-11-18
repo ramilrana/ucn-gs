@@ -298,10 +298,13 @@ Changed 2026-11-18: `frame-src` gained `'self'`, and responses for `.pdf` files 
 | Change | Packages |
 |---|---|
 | Removed | `antd`, `@ant-design/icons` |
-| Added (runtime) | `tailwindcss`, `@tailwindcss/vite`, `lucide-react` |
+| Added (runtime) | `lucide-react` |
+| Added (dev, build-time) | `tailwindcss`, `@tailwindcss/vite` (nothing from them reaches `dist/`; see the 2026-11-18 note below) |
 | Added (dev) | `vite-imagetools`, `vitest`, `@testing-library/react`, `@testing-library/user-event`, `jsdom` |
 
 Each package is checked for maintenance and compatibility before install. `npm audit --omit=dev` runs after every change, and findings are reported.
+
+*Note, 2026-11-18:* `tailwindcss` and `@tailwindcss/vite` are build-time only, so they live in `devDependencies`. This keeps the Vite/picomatch ReDoS advisory (GHSA-fc5q-39xc-vjpf, no patched version yet) out of the production audit, which now reports 0 vulnerabilities. The advisory remains in the dev tree and is tracked by the informational CI step `npm audit --audit-level=high || true`; bump the toolchain once a patched picomatch is available.
 
 ## 9. Accessibility and performance
 

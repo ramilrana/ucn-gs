@@ -20,6 +20,9 @@ jobs:
       - run: npm run build
       - run: npm run check:dist
       - run: npm audit --omit=dev --audit-level=high
+      # Informational: the dev tree (build tooling) can carry advisories with no production reach. Never fails the job.
+      - name: Audit (all deps, informational)
+        run: npm audit --audit-level=high || true
 
   nginx-smoke:
     runs-on: ubuntu-latest
