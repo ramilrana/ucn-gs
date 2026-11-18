@@ -1,6 +1,6 @@
 # Current State
 
-Canonical snapshot of where the project stands. Update in place; do not append session diaries. Last updated: 2026-11-04.
+Canonical snapshot of where the project stands. Update in place; do not append session diaries. Last updated: 2026-11-18.
 
 ## Objective
 
@@ -10,7 +10,7 @@ Stack after the refactor: React 19, TypeScript 5.8, Vite 7, React Router 7, Tail
 
 ## Phase
 
-**Tasks 1–28 complete and merged to `main`; checkpoints A, B and C cleared (2026-10-30). Only Task 29 (UCN content entry) remains, and it is blocked on UCN materials.**
+**Tasks 1–28 complete and merged to `main`; checkpoints A, B and C cleared (2026-10-30). The 2026-11-18 answers require structural changes (per-area recommendations, inline PDFs, Nginx) before Task 29 (UCN content entry), which is still blocked on UCN materials.**
 
 - **PR #1** https://github.com/ramilrana/ucn-gs/pull/1 (`feat/accreditation-site` → `main`, including the `chore/claude-model-routing` commits and the spec/plan docs) was **merged 2026-11-04** as merge commit `cfc0ea4` after CI `build` passed. No GitHub review was requested. Local `main` is fast-forwarded to `cfc0ea4`. Task 29 work branches from `main`.
 - Plan: `docs/superpowers/plans/2026-10-29-ucn-gs-accreditation-site.md` (29 tasks in 8 phases).
@@ -24,6 +24,13 @@ Stack after the refactor: React 19, TypeScript 5.8, Vite 7, React Router 7, Tail
 - `CURRENT_STATE.md` is the single state snapshot. The approved spec and plan are the source of truth.
 - Design decisions D1–D9 (spec §3): D1 reference for structure only, no PUP content; D2 Tailwind v4 replaces Ant Design; D3 mixed hosting (local plus Drive/YouTube); D4 one program; D5 published/pending, pending hidden in production; D6 UCN's own server with per-route `index.html` and `.htaccess`; D7 refactor in place, typed TS content; D8 no slideshow autoplay; D9 no gold text or state indicators on white.
 - **R19 (2026-10-30, checkpoint B): local files are never framed.** Reason: spec §7 ("Local PDFs open in a titled iframe") conflicts with the exact §8 CSP (no `frame-src 'self'`; `frame-ancestors 'none'` on every response) and Chrome disables its PDF viewer in sandboxed frames. Local PDFs show an Open / Download card; local video shows an Open link; `embedUrl` returns null for local sources; Drive and YouTube embeds are unchanged. Consistent with D3. Alternative, not taken without user approval because it loosens §8: add `frame-src 'self'`, set `frame-ancestors 'self'` on PDF responses, drop `sandbox` on same-origin frames.
+- **User answers to spec §14 (2026-11-18).** These change approved decisions; the spec and plan are not yet updated (see Next actions 1):
+  - **Program (refines D4):** Master in Public Administration (MPA), AACCUP Level IV **Phase 2** accreditation, year 2026. The site is the Graduate School's site but covers only this accreditation.
+  - **Areas (5, in order):** Research; Performance of Graduates; Community Service; International Linkages & Consortia; Planning Process. Each area has its own AVP.
+  - **Recommendations are per area (changes spec §4 routes and the `Recommendation` type):** Research 2, Performance of Graduates 1, Community Service 5, International Linkages & Consortia 5, Planning Process 1 (14 total). The Compliance Report index groups them under area headings, numbered within each area, and each recommendation keeps its own page. Titles still to come.
+  - **PDF display is chosen per document (partly reverses R19):** some local PDFs display inline, some use the Open / Download card, some go on Google Drive. Inline local PDFs need the R19 alternative: `frame-src 'self'`, `frame-ancestors 'self'` on PDF responses, no `sandbox` on same-origin frames. Reason: user's answer.
+  - **Server (changes D6):** Nginx on a local UCN server. The Apache `.htaccess` template must be replaced or joined by an Nginx config that sends the same headers. Domain, base path and HTTPS are still open.
+  - **Language:** English only; no `lang="fil"` needed.
 - Other rulings that differ from plan text (full list with reasons and costs in the ledger): `engines.node >=22.22.2` (jsdom 30 floor); `safeHref` also rejects `\` and control characters; the accessibility-auditor agent omits the upstream `npx` commands; ActionLink treats root-relative paths with a file extension as file links (R14); published evidence groups with no visible content are hidden in production, including `blocks: []` (R13); the inline-author-style 200% root font case at desktop width is accepted (R23); logo alt text kept as planned despite the redundant link name (R22).
 
 ## Reference and content status
@@ -31,7 +38,7 @@ Stack after the refactor: React 19, TypeScript 5.8, Vite 7, React Router 7, Tail
 - **Reference:** https://sites.google.com/view/pupgs-mapsych/ (PUP GS MA Psychology), used for structure only.
 - **Verified UCN content:** "University of Camarines Norte", "LEVEL IV AACCUP ACCREDITATION", and the logo (`src/assets/brand/ucn-logo.png`). Everything else is `pending`; `/content-status` (dev and preview only) lists every pending item.
 - **Missing materials (spec §13):** leadership photos, accreditation slides 1–2, second gallery, GS video, Dean and Program Chair messages and photos; about photo, mission, vision, goals, objectives, history; compliance overview and the recommendations with documents and evidence; the area list, narrative reports, galleries, evidence and AVPs; certificate PDF and image; additional files; people (names, positions, ranks, departments, photos); FAQs, address, map query, contact details.
-- **Open questions (spec §14):** program name and accreditation date; area list; number and titles of recommendations; Apache or Nginx, domain, base path, HTTPS; download permissions; Filipino text.
+- **Open questions (spec §14):** answered 2026-11-18 (see Approved decisions) except: recommendation titles; Nginx server's domain or IP, base path and HTTPS; which PDFs are inline, card or Drive (decided per document as materials arrive).
 
 ## Architecture overview
 
@@ -73,9 +80,9 @@ Latest, reviewer-run at `0e3f863` (checkpoint C re-review, 2026-10-30):
 
 ## Next actions
 
-1. Answer the spec §14 questions and supply the spec §13 materials, then run Task 29 batch by batch (`docs/content-guide.md`; plan Task 29 steps). Each batch: add files/data with UCN's exact wording, flip to `published` only when verified, `npm test` + `npm run check:links`, render at 375/1280px, standard checks, update this file, commit `content: <batch>`.
-2. Decide whether local PDFs should display inline (needs the §8 CSP deviation described under R19); otherwise host such documents on Google Drive.
-3. Before the first deploy: confirm Apache with `mod_headers`, the domain, base path and HTTPS; then follow `docs/deployment.md`, including the post-deploy checks.
+1. **Plan (Plan Mode) the structural changes from the 2026-11-18 answers**, then update the spec and plan and implement on a branch from `main` with a review checkpoint: (a) per-area recommendations: `Recommendation.areaSlug`, numbering within area, routes such as `/compliance-report/<area-slug>/recommendation-<n>`, grouped index, nav, breadcrumbs, pager, per-route HTML, `/content-status`; (b) the five area stubs with slugs and AVP slots; (c) site/program text: MPA, Level IV Phase 2, 2026; (d) per-document inline local PDFs under a scoped CSP change (R19 alternative) in `config/csp.mjs`, `check:dist` and tests; (e) Nginx config equivalent to `deploy/htaccess.template` (headers, per-route `index.html`, 404, caching) and an updated `docs/deployment.md`.
+2. Supply the spec §13 materials (and the 14 recommendation titles), then run Task 29 batch by batch (`docs/content-guide.md`; plan Task 29 steps). Each batch: add files/data with UCN's exact wording, flip to `published` only when verified, `npm test` + `npm run check:links`, render at 375/1280px, standard checks, update this file, commit `content: <batch>`.
+3. Before the first deploy: confirm the Nginx server's domain or IP, base path and HTTPS; then follow the updated `docs/deployment.md`, including the post-deploy checks.
 4. Optional: move the repo out of OneDrive (for example `C:/dev/ucn-gs`); consider adding `eslint-plugin-jsx-a11y` (new dependency, needs approval); run a screen-reader pass once real content exists; delete the merged `feat/accreditation-site`, `docs/accreditation-design-spec` and `chore/claude-model-routing` branches if no longer wanted.
 
 ## How to resume in a new conversation
