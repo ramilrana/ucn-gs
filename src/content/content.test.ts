@@ -96,6 +96,24 @@ describe('content (real data)', () => {
   it('real content exports never contain samples', () => {
     expect(collectIds({ a: content.contentAreas, r: content.contentRecommendations }).filter((id) => !isReal(id))).toEqual([]);
   });
+  it('has the five accreditation areas in order, with 2/1/5/5/1 recommendations', () => {
+    expect(content.contentAreas.map((a) => [a.slug, a.order, a.title])).toEqual([
+      ['research', 1, 'Research'],
+      ['performance-of-graduates', 2, 'Performance of Graduates'],
+      ['community-service', 3, 'Community Service'],
+      ['international-linkages-and-consortia', 4, 'International Linkages & Consortia'],
+      ['planning-process', 5, 'Planning Process'],
+    ]);
+    const counts = content.contentAreas.map((a) => content.contentRecommendations.filter((r) => r.areaSlug === a.slug).length);
+    expect(counts).toEqual([2, 1, 5, 5, 1]);
+    expect(content.contentRecommendations).toHaveLength(14);
+  });
+  it('publishes the program name', () => {
+    expect(content.site.programName).toMatchObject({
+      status: 'published',
+      value: 'AACCUP Level IV Phase 2 Accreditation of the Master in Public Administration (MPA) Program, 2026',
+    });
+  });
   it('exports the documented shape', () => {
     expect(content.site.universityName).toBe('University of Camarines Norte');
     expect(content.home.accreditationHeading).toBe('LEVEL IV AACCUP ACCREDITATION');

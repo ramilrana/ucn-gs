@@ -39,10 +39,10 @@ it('RecommendationPage renders the 404 page for an unknown number', () => {
 
 it('RecommendationPage renders the 404 page when the area slug does not match', () => {
   renderAt({
-    path: '/compliance-report/research/recommendation-1',
-    title: 'Research: Recommendation 1',
+    path: '/compliance-report/no-such-area/recommendation-1',
+    title: 'No such area: Recommendation 1',
     kind: 'recommendation',
-    slug: 'research',
+    slug: 'no-such-area',
     number: 1,
   });
   expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Page not found');

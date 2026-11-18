@@ -259,7 +259,7 @@ describe('SiteFooter', () => {
 
   it('footer formats contentUpdated', () => {
     renderPlain(<SiteFooter manifest={manifest} />);
-    expect(screen.getByText('Content last updated October 29, 2026')).not.toBeNull();
+    expect(screen.getByText('Content last updated November 18, 2026')).not.toBeNull();
   });
 
   it('footer shows the copyright line, the names and the main links', () => {

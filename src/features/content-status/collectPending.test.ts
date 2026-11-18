@@ -24,7 +24,7 @@ describe('collectPending', () => {
   });
 
   it('reports missing area and recommendation lists', () => {
-    const labels = collectPending(content).map((e) => e.label);
+    const labels = collectPending({ ...content, contentAreas: [], contentRecommendations: [] }).map((e) => e.label);
     expect(labels).toContain('Area list not supplied');
     expect(labels).toContain('Recommendation list not supplied');
   });

@@ -21,7 +21,10 @@ it('shows the pending table when pending content is shown', () => {
   expect(screen.getByRole('heading', { level: 1, name: 'Content status' })).toBeTruthy();
   expect(screen.getByRole('table')).toBeTruthy();
   expect(screen.getByText("Dean's photograph and message")).toBeTruthy();
-  expect(screen.getByText('Area list not supplied')).toBeTruthy();
+  // The pending area and recommendation stubs are listed, so the "not supplied" rows are gone.
+  expect(screen.queryByText('Area list not supplied')).toBeNull();
+  expect(screen.getAllByText('Area: Research').length).toBeGreaterThan(0);
+  expect(screen.getAllByText('Community Service: Recommendation 5').length).toBeGreaterThan(0);
   // Samples are in the merged lists in dev but never in the checklist.
   expect(screen.queryByText(/sample/i)).toBeNull();
 });
