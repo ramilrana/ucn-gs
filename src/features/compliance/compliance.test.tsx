@@ -82,7 +82,7 @@ const renderUi = (ui: React.ReactElement, path = PATH) => {
   const router = createMemoryRouter([{ path: '*', element: ui }], {
     initialEntries: [path],
   });
-  return render(<RouterProvider router={router} />);
+  return { ...render(<RouterProvider router={router} />), router };
 };
 
 const production = () => {
@@ -133,7 +133,10 @@ describe('ComplianceIndexView', () => {
       within(sections[0] as HTMLElement)
         .getAllByRole('listitem')
         .map((li) => li.textContent),
-    ).toEqual(['Recommendation 1: First title', 'Recommendation 3: Third title']);
+    ).toEqual(['Research, Recommendation 1: First title', 'Research, Recommendation 3: Third title']);
+    expect(
+      within(sections[0] as HTMLElement).getByRole('link', { name: 'Research, Recommendation 1: First title' }),
+    ).toBeTruthy();
     const link = within(sections[0] as HTMLElement).getAllByRole('link')[1] as HTMLElement;
     expect(link.getAttribute('href')).toBe('/compliance-report/research/recommendation-3');
     expect(within(sections[1] as HTMLElement).getByRole('link').getAttribute('href')).toBe(
@@ -166,6 +169,34 @@ describe('ComplianceIndexView', () => {
       />,
       '/compliance-report#community-service',
     );
+    await waitFor(() => expect(document.activeElement?.textContent).toBe('Community Service'));
+  });
+
+  it('index puts the scroll margin on the focused h2, not the section', () => {
+    production();
+    renderUi(
+      <ComplianceIndexView overview={pendingOverview} areas={[research]} recommendations={[makeRec({ number: 1 })]} />,
+      '/compliance-report',
+    );
+    const h2 = screen.getByRole('heading', { level: 2 });
+    expect(h2.className).toContain('scroll-mt-24');
+    expect((h2.closest('section') as HTMLElement).className).not.toContain('scroll-mt');
+  });
+
+  it('index refocuses the target when the same hash is navigated to again', async () => {
+    production();
+    const { router } = renderUi(
+      <ComplianceIndexView
+        overview={pendingOverview}
+        areas={[research, community]}
+        recommendations={[makeRec({ number: 1 }), makeRec({ areaSlug: 'community-service', number: 1 })]}
+      />,
+      '/compliance-report#community-service',
+    );
+    await waitFor(() => expect(document.activeElement?.textContent).toBe('Community Service'));
+    (document.activeElement as HTMLElement).blur();
+    expect(document.activeElement).toBe(document.body);
+    await router.navigate('/compliance-report#community-service');
     await waitFor(() => expect(document.activeElement?.textContent).toBe('Community Service'));
   });
 

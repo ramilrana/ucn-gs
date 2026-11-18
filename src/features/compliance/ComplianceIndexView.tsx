@@ -24,7 +24,7 @@ const headingId = (slug: string) => `${slug}-recommendations-title`;
  * visible recommendations. Each section's id is the area slug, so `/compliance-report#<slug>` lands on it.
  */
 export function ComplianceIndexView({ overview, areas, recommendations }: ComplianceIndexViewProps) {
-  const { hash } = useLocation();
+  const { hash, key } = useLocation();
   const paragraphs = slotValue(overview) ?? [];
   const showOverview = paragraphs.length > 0 || isSlotVisible(overview);
   const groups = [...areas]
@@ -38,6 +38,7 @@ export function ComplianceIndexView({ overview, areas, recommendations }: Compli
   useFocusHashTarget(
     hash,
     groups.map(({ area }) => area.slug),
+    key,
   );
 
   return (
@@ -50,16 +51,20 @@ export function ComplianceIndexView({ overview, areas, recommendations }: Compli
             key={area.slug}
             id={area.slug}
             aria-labelledby={headingId(area.slug)}
-            className="scroll-mt-24 space-y-3"
+            className="space-y-3"
           >
-            <SectionHeading level={2} id={headingId(area.slug)} tabIndex={-1}>
+            <SectionHeading level={2} id={headingId(area.slug)} tabIndex={-1} className="scroll-mt-24">
               {area.title}
             </SectionHeading>
             <ol className="divide-y divide-line border-y border-line">
               {recs.map((rec) => (
                 <li key={recommendationPath(area.slug, rec.number)} className="py-3">
                   <ActionLink href={recommendationPath(area.slug, rec.number)}>
-                    Recommendation {rec.number}: {rec.title}
+                    {/* One wrapper keeps the text inline: ActionLink is a flex box that would drop the space after the hidden prefix. */}
+                    <span>
+                      <span className="sr-only">{area.title},</span>{' '}
+                      Recommendation {rec.number}: {rec.title}
+                    </span>
                   </ActionLink>
                 </li>
               ))}
