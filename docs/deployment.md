@@ -1,137 +1,181 @@
 # Deployment
 
-The site is a static build. `npm run build` writes everything to `dist/`; there is no server-side code.
+The site is a static build served by Nginx on a local UCN server. `npm run build` writes the site to `dist/` and an Nginx config to `dist-nginx/`; there is no server-side code. Apache is not supported: the build no longer writes `.htaccess` files.
 
 ## Build
 
 ```bash
 npm ci
 npm run build        # tsc -b, vite build, then scripts/write-route-pages.mjs
-npm run check:dist   # fails if dist/ is not deployable
+npm run check:dist   # fails if dist/ or dist-nginx/ is not deployable
 ```
 
-`write-route-pages.mjs` copies `dist/index.html` into one folder per route (for example `dist/about/people/index.html`) and to `dist/404.html`. It also writes `dist/.htaccess` and `dist/assets/.htaccess`. The server then answers every known URL with a real file, and unknown URLs with the app's 404 page and a 404 status.
+`write-route-pages.mjs` copies `dist/index.html` into one folder per route (for example `dist/about/people/index.html`) and to `dist/404.html`. It then writes the Nginx files into `dist-nginx/` (git-ignored, next to `dist/`, never inside the web root):
 
-`npm run build:preview` builds with sample and pending content visible (`.env.preview-content`). Use it to review pages. **Never deploy a preview build.**
+- `ucn-gs.conf`: the `location` blocks for the site.
+- `security-headers.conf`: the five security headers for pages and assets.
+- `pdf-headers.conf`: the same five headers, with `frame-ancestors 'self'` so local PDFs can display in the site's own frames.
+
+`npm run build:preview` builds with sample and pending content visible (`.env.preview-content`). Use it to review pages. **Never deploy a preview build.** `check:dist` fails on one by design.
 
 ## Building for a subpath
 
-To serve the site from `https://example.edu.ph/gs/` instead of the domain root, create `.env.production.local` (it is git-ignored) containing:
+To serve the site from `https://<host>/gs/` instead of the domain root, create `.env.production.local` (it is git-ignored) containing:
 
 ```
 VITE_BASE_PATH=/gs/
 ```
 
-Then run `npm run build && npm run check:dist`. The base is applied to asset URLs, the per-route pages, `ErrorDocument 404` and the router. Upload the contents of `dist/` into the `gs/` folder on the server. `check:dist` reads the base from `dist/index.html` and confirms that every root-absolute URL carries it. Delete `.env.production.local` when you build for the root again.
+Then build as above. The base goes into asset URLs, the per-route pages, `error_page` and every `location` in `ucn-gs.conf`, and into the router. `check:dist` reads the base from `dist/index.html` and confirms that every root-absolute URL, the `error_page` line and the assets location carry it. Delete `.env.production.local` when you build for the root again.
 
-## Apache
+## Generate the config for the server's paths
 
-Requirements:
-- `mod_headers` enabled.
-- `AllowOverride` that permits `.htaccess` to set `Options`, `ErrorDocument` and `Header` (`AllowOverride Options FileInfo Indexes`, or `All`) for the site folder.
+The generated config contains two absolute paths: where `dist/` will live on the server (the docroot) and where the three `.conf` files will live. Set them at build time:
 
-Upload the whole `dist/` folder **including the dotfiles** `dist/.htaccess` and `dist/assets/.htaccess`. Many FTP clients hide dotfiles by default; turn on "show hidden files".
+| Env var | Default | Meaning |
+|---|---|---|
+| `UCN_DOCROOT` | `/var/www/ucn-gs/` | Folder that receives the contents of `dist/` |
+| `UCN_NGINX_INCLUDE_DIR` | `/etc/nginx/ucn-gs/` | Folder that receives `dist-nginx/*.conf` |
 
-What the generated `.htaccess` does:
-- `Options -Indexes`: no directory listings.
-- `DirectorySlash On`: `/accreditation-areas` redirects to `/accreditation-areas/`. The app handles the trailing slash.
-- `DirectoryIndex index.html`: a folder URL serves its `index.html` even if the host's default index list omits it.
-- `ErrorDocument 404 <base>404.html`.
-- Security headers (CSP, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `Cross-Origin-Opener-Policy`) with `Header always set`.
-- `Cache-Control: no-cache` for `*.html`, so a new deploy shows immediately.
-- `assets/.htaccess`: `Cache-Control: public, max-age=31536000, immutable` for the hashed files.
+Both must be absolute and end in `/`. Whitespace, quotes, `;`, `{`, `}`, `$`, backticks and backslashes are rejected.
 
-The Content-Security-Policy lives in one place, `config/csp.mjs`. The `<meta>` fallback in `index.html` and the server header are both generated from it.
-
-## Nginx
-
-Equivalent server block (replace `/gs/` with `/` for a root deployment):
-
-```nginx
-location /gs/ {
-    alias /var/www/gs/;
-    try_files $uri $uri/index.html =404;
-    error_page 404 /gs/404.html;
-
-    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://i.ytimg.com; frame-src https://drive.google.com https://docs.google.com https://www.youtube-nocookie.com https://www.google.com; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
-    add_header Cross-Origin-Opener-Policy "same-origin" always;
-}
-
-location /gs/assets/ {
-    alias /var/www/gs/assets/;
-    add_header Cache-Control "public, max-age=31536000, immutable" always;
-    # Repeat the five security headers from the block above here (see the note below).
-}
+```bash
+UCN_DOCROOT=/srv/ucn-gs/ UCN_NGINX_INCLUDE_DIR=/etc/nginx/ucn-gs/ npm run build
+npm run check:dist
 ```
 
-HTML files should be revalidated on every visit: add `add_header Cache-Control "no-cache" always;` to the `/gs/` location, which the `/gs/assets/` location overrides for hashed files.
+On Windows in Git Bash, prefix the command with `MSYS_NO_PATHCONV=1`. Git Bash otherwise rewrites `/srv/...` into `C:/Program Files/Git/...` and the build stops with an error about the path.
 
-Nginx drops inherited `add_header` lines in any location that declares its own, so repeat the security headers wherever you add `Cache-Control`. Keep the CSP string identical to `config/csp.mjs` (`CSP_HEADER`).
+## Install on the server
+
+1. Copy the contents of `dist/` to the docroot.
+2. Copy `dist-nginx/ucn-gs.conf`, `security-headers.conf` and `pdf-headers.conf` to the include folder. Keep the three together: the config includes the other two by absolute path.
+3. The server admin adds one line inside the site's `server { }` block:
+
+   ```nginx
+   server {
+       listen 80;
+       server_name <host>;
+
+       include /etc/nginx/ucn-gs/ucn-gs.conf;
+   }
+   ```
+
+4. Test and reload:
+
+   ```
+   nginx -t
+   nginx -s reload      # or: systemctl reload nginx
+   ```
+
+What `ucn-gs.conf` does:
+- `try_files $uri $uri/index.html =404`: a known route serves its own `index.html`; anything else is a 404.
+- `error_page 404 <base>404.html`: unknown URLs get the app's 404 page with a 404 status.
+- `Cache-Control: no-cache` on pages, so a new deploy shows at once. `<base>assets/` gets `public, max-age=31536000, immutable` (hashed names).
+- Any URL ending in `.pdf` (any case) gets `pdf-headers.conf` and `no-cache`. These are the only responses a site page may frame.
+- `deny all` for dotfiles and dot folders (`.htaccess`, `.git`, ...).
+- `autoindex off`. Every location includes a headers file itself, because Nginx drops inherited `add_header` lines in any location that declares its own.
+
+The Content-Security-Policy lives in one place, `config/csp.mjs`; the `<meta>` fallback in `index.html` and the generated header files both come from it. Do not hand-edit the generated files; change the source and rebuild.
+
+### Notes for the server admin
+
+- **A subpath base without a trailing slash.** If the base is `/gs/`, add this to the `server { }` block so `/gs` reaches the site:
+
+  ```nginx
+  location = /gs { return 301 /gs/; }
+  ```
+
+- **`.well-known/`.** The dotfile rule blocks `<base>.well-known/` (for example certificate validation). If it is needed, add this before the `include` line:
+
+  ```nginx
+  location ^~ /gs/.well-known/ { ... }
+  ```
+
+  Use the real base in the path (`/.well-known/` for a root deployment).
+- **Server-level headers are dropped.** A header set with `add_header` at `server` level (HSTS, for example) does not reach responses from these locations, because each location has its own `add_header`. Put such a header in your own small include and add it to the locations that need it, or add a line to the generated header files after each build. See HTTPS and HSTS below.
 
 ## Post-deploy verification
 
-Run these against the real host after every deploy. Replace `<host>` with the domain and `<base>` with the site folder (empty for a root deployment).
+Run these against the real host after every deploy. Replace `<host>` with the domain or IP and `<base>` with the site folder (`/` for a root deployment, `/gs/` for a subpath). Use `http://` until HTTPS exists.
 
-1. Check the headers on the home page and on a deep route:
-
-   ```
-   curl -I https://<host>/<base>/
-   curl -I https://<host>/<base>/about/
-   ```
-
-   Each response must include `Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` and `Cross-Origin-Opener-Policy`, plus `Cache-Control: no-cache`.
-
-2. Check one hashed asset (pick any file name from `dist/assets/`):
+1. Pages: the home page, a deep route and an unknown URL.
 
    ```
-   curl -I https://<host>/<base>/assets/<file>
+   curl -I https://<host><base>
+   curl -I https://<host><base>about/
+   curl -I https://<host><base>no-such-page
    ```
 
-   It must return `Cache-Control: public, max-age=31536000, immutable`.
+   The first two return 200, the third 404. All three must include `Content-Security-Policy` with `frame-ancestors 'none'`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` and `Cross-Origin-Opener-Policy`, plus `Cache-Control: no-cache`.
 
-3. If the security headers are missing, `mod_headers` is not enabled. The generated `.htaccess` wraps the headers in `<IfModule mod_headers.c>`, so Apache drops them **silently** instead of reporting an error. Ask the host to enable `mod_headers` (and check `AllowOverride`, see Apache above), then repeat steps 1 and 2.
+2. A hashed asset (any file name from `dist/assets/`):
 
-4. Open one `public/files/*.pdf` directly in Chrome, Firefox and Safari on the real host. If a browser's PDF viewer is blocked by the Content-Security-Policy header on the PDF response, report it so a PDF-only header override can be considered (checkpoint C finding 3, deferred to Task 29).
+   ```
+   curl -I https://<host><base>assets/<file>
+   ```
+
+   It must return `Cache-Control: public, max-age=31536000, immutable` and the same five security headers.
+
+3. A local PDF (any file under `dist/files/`):
+
+   ```
+   curl -I https://<host><base>files/<file>.pdf
+   ```
+
+   It must return 200, `Content-Type: application/pdf`, `Cache-Control: no-cache` and a Content-Security-Policy with `frame-ancestors 'self'`. Pages and assets must never show `'self'` there.
+
+4. A dotfile and a missing PDF:
+
+   ```
+   curl -I https://<host><base>.htaccess
+   curl -I https://<host><base>files/no-such-file.pdf
+   ```
+
+   The first is 403 or 404. The second is 404 with `frame-ancestors 'none'`.
+
+5. If any header is missing, check that the include line is inside the `server { }` block, that all three `.conf` files are in the include folder, and that the paths in `ucn-gs.conf` match the server. Run `nginx -t`.
+
+6. Open one inline PDF page in Chrome, Firefox and Safari on the real host. Inline PDF display has not been verified in any browser on the real host yet. A browser without a PDF viewer shows the Open / Download card.
+
+CI runs the same checks against a real Nginx (job `nginx-smoke`, `scripts/nginx-smoke.sh`, a Docker `nginx:1.27-alpine`). It uses a preview build, so it does not replace the post-deploy checks.
 
 ## Documents and inline viewing
 
-Documents meant for inline viewing should be hosted on Google Drive (spec D3). Local PDFs under `public/files/` open in a new tab, because the security policy forbids framing them.
+Local PDFs under `public/files/` display inline only when the content file sets `inline: true` (see `docs/content-guide.md`). Other local files open as an Open / Download card. A document that should display on the page without those rules can go on Google Drive (spec D3). Files under `dist/files/` must not be `.html`, `.svg`, `.xml` or `.js`: `check:dist` fails on them, because a same-origin frame must only ever hold a PDF.
 
 ## HTTPS and HSTS
 
-`upgrade-insecure-requests` is part of the CSP header. Serve the site over HTTPS. Add HSTS **only after HTTPS is confirmed to work on the whole domain**, because browsers remember it:
+`upgrade-insecure-requests` is part of the CSP header. Serve the site over HTTPS if the server can. Domain, base path and HTTPS are not decided yet.
 
-```
-Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains"
+Add HSTS **only after HTTPS is confirmed to work on the whole domain**, because browsers remember it. Once it does, add this to `security-headers.conf` and `pdf-headers.conf` after each build (the build overwrites both files, so keep it in a script or a second include that every location line pulls in):
+
+```nginx
+add_header Strict-Transport-Security "max-age=63072000; includeSubDomains" always;
 ```
 
-It is deliberately not in the generated `.htaccess`. Do not add `preload` unless UCN IT decides to submit the domain to the preload list.
+It is deliberately not generated. Do not add `preload` unless UCN IT decides to submit the domain to the preload list.
 
 ## Deploy access, MFA and branch protection
 
-- Restrict write access to the web folder (SFTP or hosting account) to the people who deploy. Use SSH keys or SFTP with unique accounts, not shared passwords.
-- Turn on multi-factor authentication for the hosting account, the Git hosting account and the Google account that owns the Drive files.
-- Protect `main`: require a pull request, passing CI (`lint`, `typecheck`, `test`, `build`, `check:dist`, `audit`) and no force pushes.
+- Restrict write access to the web folder and the Nginx include folder to the people who deploy. Use SSH keys or SFTP with unique accounts, not shared passwords.
+- Turn on multi-factor authentication for the Git hosting account and the Google account that owns the Drive files, and for the server account if it supports it.
+- Protect `main`: require a pull request, passing CI (`lint`, `typecheck`, `test`, `build`, `check:dist`, `audit`, `nginx-smoke`) and no force pushes.
 - Deploy from a clean CI or local build of `main`, never from a working tree with uncommitted changes.
 
 ## Rollback
 
-Before each deploy, keep the previous build next to the live folder:
+Dotfiles are not part of the site any more, so a plain copy is enough. Before each deploy, keep the previous build next to the live folder:
 
-1. Rename or copy the live folder to `dist-previous/` (outside the web root, or in a path that is not served).
-2. Upload the new `dist/`, including dotfiles.
-3. Copy the files from `dist-previous/assets/` into the new live `assets/` folder **without overwriting** existing files (for example `cp -n dist-previous/assets/* <live>/assets/`, or the "skip existing" option in your FTP client). Open tabs can then still load the old hashed chunks. On the next release, upload `dist/` fresh and do not copy these older files again, which removes them.
-4. If something is wrong, swap `dist-previous/` back into place.
+1. Copy the live docroot to `dist-previous/` (outside the web root, or in a path that is not served). Keep the previous `.conf` files too.
+2. Copy the new `dist/` into the docroot and the new `dist-nginx/*.conf` into the include folder. Run `nginx -t`, then reload.
+3. Copy the files from `dist-previous/assets/` into the new live `assets/` folder **without overwriting** existing files (for example `cp -n dist-previous/assets/* <live>/assets/`). Open tabs can then still load the old hashed chunks. On the next release, copy `dist/` fresh and do not copy these older files again, which removes them. Tabs that still request files that are gone show the "Something went wrong" page with a reload button.
+4. If something is wrong, put `dist-previous/` and the previous `.conf` files back and reload Nginx.
 
-Keep one previous version at least. Because assets have hashed names and HTML is `no-cache`, a swap takes effect immediately.
-
-When you upload a new release, keep the previous release's `assets/` files in place for one more release (step 3 above; they go away on the release after that). Tabs that are already open still load old page chunks by their old hashed names; if those files are gone, the visitor sees the "Something went wrong" page with a reload button instead.
+Because assets have hashed names and HTML is `no-cache`, a swap takes effect immediately.
 
 ## Limits
 
 A static frontend cannot prevent DDoS attacks or server-level defacement. Those depend on UCN's hosting: network protection, patching, account security and monitoring. This site reduces what an attacker can do through the page itself (strict CSP, restricted embeds, no HTML rendering, validated links), but it does not replace server hardening.
 
-Add area and recommendation content files only when they are ready to publish. A pending file still gets an HTML copy in the build (HTTP 200 showing the in-app 404 page) and so reveals its slug in the URL space.
+Add area and recommendation content files only when they are ready to publish, or leave the existing stubs pending. A pending file still gets an HTML copy in the build (HTTP 200 showing the in-app 404 page) and so reveals its slug in the URL space.
