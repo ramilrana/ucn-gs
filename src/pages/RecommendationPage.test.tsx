@@ -62,7 +62,7 @@ it('ComplianceIndexPage groups the sample recommendation under its area in dev',
   expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Compliance Report');
   expect(screen.getByRole('heading', { level: 2, name: 'Sample area' })).toBeTruthy();
   const link = screen.getByRole('link', {
-    name: 'Recommendation 1: Sample recommendation',
+    name: 'Sample area, Recommendation 1: Sample recommendation',
   });
   expect(link.getAttribute('href')).toBe('/compliance-report/sample-area/recommendation-1');
 });

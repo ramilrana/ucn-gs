@@ -52,6 +52,7 @@ Spec §6. Typed content in `src/content/` (areas and recommendations as one file
 - **Task 27 accessibility audit:** rendered audit (playwright-cli, 14 routes × 320/375/768/1280px, keyboard, reduced motion): 0 Critical, 0 High, 1 Medium, 8 Low. Accessibility-auditor (Opus): 0 Critical, 0 High, 3 Medium, 15 Low, verdict "DOES NOT CONFORM" (SC 2.4.4 link purpose, SC 2.4.2 error-page title). All Mediums and both Level A failures fixed (`b7051d8..f9d0d13`); post-fix keyboard pass 11/11. Accessibility verdict for the tested scope is now **NOT DETERMINED**: no screen reader, touch, forced-colors, 400% zoom or real-content testing has been done.
 - **Checkpoint C (whole branch vs `main`):** review "Verdict: PASS WITH ISSUES" (no Critical/High; 1 Medium: VideoEmbed link names) → fixes `e8b78e8..0e3f863` → re-review **"Verdict: PASS"**. Cleared.
 - **Structure changes (2026-11-18, branch `feat/structure-2026-11`):** Task 1 content model and validation (`1d01408`); Tasks 2–4 routes, views, nav, pager (`18cf184`); Task 5 five area and 14 recommendation stubs plus the published program name (`d44dc7d`); Task 6 inline local PDFs (`9314f03`, `ff875cc`); Task 7 Nginx config and CI smoke job (`acd5557`, `8b00e30`) with fixes (`96c6b10`, `6b9a1f0`); Task 8 docs. Each code task had an independent review; Task 7 needed two fix rounds. Ledger: `.superpowers/sdd/2026-11-18-structure-changes/progress.md` (git-ignored).
+- **Checkpoint D (whole `feat/structure-2026-11` branch vs `main`):** reviewer returned "Verdict: PASS WITH ISSUES" (no Critical or High). Mediums: the production audit (fixed by the final fix wave) and browser verification of an inline PDF (deferred; see the gate under Known issues). **Accessibility audit (code-level):** 0 Critical, 0 High, 1 Medium (focus lost when re-selecting the same area anchor; fixed by the final fix wave), a few Low (scroll margin, repeated link names, anchor names; fixed). Conformance remains NOT DETERMINED. Final fix wave commits follow `67fe829` on the branch; no re-review has run on them.
 - Execution ledger (every ruling, deferred minor finding and review result): `.superpowers/sdd/2026-10-29-ucn-gs-accreditation-site/progress.md`, git-ignored via `.git/info/exclude`. Kept until Task 29 is done.
 
 ## Verification status
@@ -68,8 +69,10 @@ Structure changes, implementer-run at `6b9a1f0` (2026-11-18), not re-run by a re
 | `npm run build:preview` | Builds; `check:dist` fails on it as designed |
 | Dev server `/files/dev-sample.pdf` | 200, `application/pdf` |
 | `scripts/nginx-smoke.sh` on real Nginx | Not run locally (Docker daemon unavailable). **CI job `nginx-smoke` passed** at `6b9a1f0` (run 44238768431, 2026-11-18) |
-| GitHub Actions `build` job at `6b9a1f0` | lint, typecheck, test, build, `check:dist` passed; **`npm audit --omit=dev --audit-level=high` failed**: 4 high findings (picomatch ReDoS via fdir, tinyglobby, vite), a new advisory not caused by this branch. Not yet investigated |
-| `audit:prod`, `check:links` | Not re-run on this branch |
+| GitHub Actions `build` job at `6b9a1f0` | lint, typecheck, test, build, `check:dist` passed; `npm audit --omit=dev --audit-level=high` failed on GHSA-fc5q-39xc-vjpf (picomatch <=4.0.7 ReDoS, no patched version), reached in production only through `@tailwindcss/vite` and vite. Fixed by the final fix wave below |
+| `check:links` | Not re-run on this branch |
+
+Final fix wave (after checkpoint D), run locally at the fix commits: `npm run lint`, `typecheck`, `npm test` (41 files / 444 tests), `npm run build`, `npm run check:dist` pass; `npm run audit:prod` reports 0 vulnerabilities; `bash -n scripts/nginx-smoke.sh` ok. CI not yet re-run on these commits.
 | Browser checks of the new pages, inline PDF in Chrome, Firefox, Safari | Not done |
 
 The docs commit changes no code and ran no checks.
@@ -77,17 +80,19 @@ The docs commit changes no code and ran no checks.
 ## Known issues and blockers
 
 - **Content blocker:** no UCN accreditation materials yet (Task 29).
-- **CI audit failure:** `npm audit` reports 4 high findings (picomatch via vite's dependencies) on this branch; the `build` job fails at that step. Triage before merging (`npm audit fix` may suffice).
+- **Dev-tree audit advisory:** GHSA-fc5q-39xc-vjpf (picomatch <=4.0.7 ReDoS, no patched version). Decision (final fix wave): the build-only plugins `tailwindcss` and `@tailwindcss/vite` moved to `devDependencies`, so `npm run audit:prod` reports 0 vulnerabilities. The advisory remains in the dev tree and is tracked by the informational CI step "Audit (all deps, informational)"; bump the toolchain once a patched picomatch exists.
+- **Gate before real content sets `inline: true`:** verify an inline local PDF renders in Chrome, Firefox and Safari under the real Nginx headers (no CSP violations). Not yet done in any browser.
 - **Nginx on a real server:** CI `nginx-smoke` passed against `nginx:1.27-alpine` with a preview build. The UCN server itself is untested.
 - **Needs the real server (Task 29):** run the post-deploy `curl -I` header checks in `docs/deployment.md`; open one inline PDF in Chrome, Firefox and Safari under the real headers; re-check `check:links` "not-public" against a real unshared Drive file (Google may answer some with 200).
 - **Environment:** the repo is in OneDrive, which causes intermittent vitest worker failures (`ERR_MODULE_NOT_FOUND`, `lstat`) on this machine. CI on Ubuntu is unaffected.
-- **Branch minors, deferred:** server-level `add_header` (HSTS) is dropped by per-location `add_header` (documented); `.well-known/` is blocked by the dotfile rule (documented); `nginx-config.mjs` does not re-validate the base; no failing test for the "block sets header but no include" rule; smoke script exits silently if curl cannot connect.
+- **Branch minors, deferred:** server-level `add_header` (HSTS) is dropped by per-location `add_header` (documented); `.well-known/` is blocked by the dotfile rule (documented); smoke script exits silently if curl cannot connect.
+- **Deferred for later:** soft-404 for pending routes (19 URLs return 200 with the 404 view; options: a route-manifest JSON, or `noindex` on NotFound); `check:dist` Rule 8 should become an allow-list of extensions; add a `/gs/` matrix entry to `nginx-smoke` before any subpath deploy.
 - **Pending stubs:** pending area and recommendation titles are in the production JS bundle (the manifest hides them from pages); pending routes get an HTML copy that shows the 404 view with HTTP 200. Accepted under D5.
 - **Deferred minor items** (cosmetic, test-quality or plan-mandated; none affects security, conformance or deployment) are listed in the ledger and were triaged at checkpoint C as acceptable to leave.
 
 ## Next actions
 
-1. Fix the CI audit failure (picomatch advisory; run `npm audit`, try `npm audit fix`, rerun `audit:prod`), then final review of `feat/structure-2026-11` and a PR to `main`.
+1. Push `feat/structure-2026-11`, confirm CI passes (including the audit step), then open a PR to `main`.
 2. Supply the spec §13 materials (and the 14 recommendation titles), then run Task 29 batch by batch (`docs/content-guide.md`; plan Task 29 steps). Each batch: add files/data with UCN's exact wording, flip to `published` only when verified, `npm test` + `npm run check:links`, render at 375/1280px, standard checks, update this file, commit `content: <batch>`. Name inline PDFs with simple file names (content guide 5.2.1).
 3. Before the first deploy: confirm the Nginx server's domain or IP, base path and HTTPS; build with `UCN_DOCROOT` and `UCN_NGINX_INCLUDE_DIR` set to the server's paths; follow `docs/deployment.md`, including the post-deploy checks.
 4. Optional: move the repo out of OneDrive (for example `C:/dev/ucn-gs`); consider adding `eslint-plugin-jsx-a11y` (new dependency, needs approval); run a screen-reader pass once real content exists; delete the merged `feat/accreditation-site`, `docs/accreditation-design-spec` and `chore/claude-model-routing` branches if no longer wanted.
