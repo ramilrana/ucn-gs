@@ -40,6 +40,13 @@ const COMPLIANCE_PATH = '/compliance-report';
 
 const ABOUT_CHILDREN: ReadonlySet<RouteKind> = new Set(['about-people', 'about-faculty', 'about-faqs']);
 
+/** Route of one recommendation: the number is counted within its area. */
+export const recommendationPath = (areaSlug: string, number: number): string =>
+  `${COMPLIANCE_PATH}/${areaSlug}/recommendation-${number}`;
+
+/** Page title and H1 of one recommendation, for example "Community Service: Recommendation 3". */
+export const recommendationTitle = (areaTitle: string, number: number): string => `${areaTitle}: Recommendation ${number}`;
+
 export interface RouteManifestInput {
   areas: readonly Area[];
   recommendations: readonly Recommendation[];
@@ -69,11 +76,14 @@ export function buildRouteManifest({ areas: areaList, recommendations: recList, 
   }
 
   for (const rec of keep(recList)) {
+    const area = areaList.find((a) => a.slug === rec.areaSlug);
+    if (!area) throw new Error(`Recommendation ${rec.number} names unknown area "${rec.areaSlug}"`);
     entries.push({
-      path: `${COMPLIANCE_PATH}/recommendation-${rec.number}`,
-      title: `Recommendation ${rec.number}`,
+      path: recommendationPath(rec.areaSlug, rec.number),
+      title: recommendationTitle(area.title, rec.number),
       kind: 'recommendation',
       parentPath: COMPLIANCE_PATH,
+      slug: rec.areaSlug,
       number: rec.number,
     });
   }

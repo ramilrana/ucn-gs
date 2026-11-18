@@ -108,7 +108,7 @@ describe('checkDist', () => {
 });
 
 describe('listRoutePaths', () => {
-  it('maps rec-03.ts to /compliance-report/recommendation-3 and ignores .gitkeep', () => {
+  it('maps research/rec-03.ts to /compliance-report/research/recommendation-3 and ignores .gitkeep', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ucn-content-'));
     roots.push(dir);
     write(
@@ -122,14 +122,17 @@ describe('listRoutePaths', () => {
     write(join(dir, 'areas', 'area-one.ts'), '');
     write(join(dir, 'areas', 'area-one.test.ts'), '');
     write(join(dir, 'recommendations', '.gitkeep'), '');
-    write(join(dir, 'recommendations', 'rec-03.ts'), '');
-    write(join(dir, 'recommendations', 'rec-12.ts'), '');
+    write(join(dir, 'recommendations', 'research', '.gitkeep'), '');
+    write(join(dir, 'recommendations', 'research', 'rec-03.ts'), '');
+    write(join(dir, 'recommendations', 'research', 'rec-12.ts'), '');
+    write(join(dir, 'recommendations', 'community-service', 'rec-01.ts'), '');
     expect(listRoutePaths(dir)).toEqual([
       '/',
       '/about',
       '/accreditation-areas/area-one',
-      '/compliance-report/recommendation-3',
-      '/compliance-report/recommendation-12',
+      '/compliance-report/community-service/recommendation-1',
+      '/compliance-report/research/recommendation-3',
+      '/compliance-report/research/recommendation-12',
     ]);
   });
 });

@@ -106,7 +106,8 @@ export const sampleAreas: Area[] = [
 
 export const sampleRecommendations: Recommendation[] = [
   {
-    areaSlug: 'sample-area', number: 99,
+    areaSlug: 'sample-area',
+    number: 1,
     title: 'Sample recommendation',
     status: 'pending',
     statement: /* @__PURE__ */ sampleText(),

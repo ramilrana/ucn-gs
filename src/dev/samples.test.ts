@@ -22,7 +22,7 @@ describe('dev samples', () => {
     expect(sampleAreas).toHaveLength(1);
     expect(sampleAreas[0]).toMatchObject({ slug: 'sample-area', title: 'Sample area', status: 'pending' });
     expect(sampleRecommendations).toHaveLength(1);
-    expect(sampleRecommendations[0]).toMatchObject({ number: 99, title: 'Sample recommendation', status: 'pending' });
+    expect(sampleRecommendations[0]).toMatchObject({ areaSlug: 'sample-area', number: 1, title: 'Sample recommendation', status: 'pending' });
   });
 
   it('the area has a 3-image gallery, a local narrative report and groups Sample 1, 2 and 3', () => {

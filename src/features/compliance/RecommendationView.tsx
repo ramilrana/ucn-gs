@@ -11,11 +11,15 @@ import type { Recommendation } from '../../types/content';
 
 interface RecommendationViewProps {
   rec: Recommendation;
+  /** Page title from the route entry, for example "Community Service: Recommendation 3". */
+  title: string;
+  /** Route path of this page, from the route entry. */
+  path: string;
   siblings: readonly PagerItem[];
 }
 
 /** One recommendation: statement, the recommendation document, numbered evidence and additional files. */
-export function RecommendationView({ rec, siblings }: RecommendationViewProps) {
+export function RecommendationView({ rec, title, path, siblings }: RecommendationViewProps) {
   const statement = rec.statement ?? [];
   const showDocument = isVisible(rec.document) && (rec.document.source !== undefined || showPending());
   // Numbered by visible position: hidden groups leave no gaps.
@@ -25,7 +29,7 @@ export function RecommendationView({ rec, siblings }: RecommendationViewProps) {
   const hasContent = statement.length > 0 || showDocument || evidence.length > 0 || extraFiles.length > 0;
 
   return (
-    <PageShell title={`Recommendation ${rec.number}`} intro={[rec.title]} hasContent={hasContent}>
+    <PageShell title={title} intro={[rec.title]} hasContent={hasContent}>
       <div className="space-y-12">
         {statement.length > 0 && <Prose paragraphs={statement} />}
 
@@ -54,11 +58,11 @@ export function RecommendationView({ rec, siblings }: RecommendationViewProps) {
             <SectionHeading level={2} id="additional-files">
               Additional Files
             </SectionHeading>
-            <ResourceList items={rec.additionalFiles} label={`Recommendation ${rec.number} additional files`} />
+            <ResourceList items={rec.additionalFiles} label={`${title} additional files`} />
           </section>
         )}
 
-        <Pager items={siblings} currentPath={`/compliance-report/recommendation-${rec.number}`} />
+        <Pager items={siblings} currentPath={path} />
       </div>
     </PageShell>
   );

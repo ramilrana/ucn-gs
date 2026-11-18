@@ -11,7 +11,12 @@ import { Pager } from './Pager';
 import { SiteFooter } from './SiteFooter';
 import { buildCrumbs } from './crumbs';
 
-const doc: Resource = { id: 'doc', title: 'Doc', format: 'pdf', status: 'pending' };
+const doc: Resource = {
+  id: 'doc',
+  title: 'Doc',
+  format: 'pdf',
+  status: 'pending',
+};
 const area: Area = {
   slug: 'research',
   order: 1,
@@ -23,14 +28,19 @@ const area: Area = {
   additionalFiles: [],
 };
 const rec = (number: number): Recommendation => ({
-  areaSlug: 'sample-area', number,
+  areaSlug: 'research',
+  number,
   title: `Rec ${number}`,
   status: 'published',
   document: doc,
   evidence: [],
   additionalFiles: [],
 });
-const manifest = buildRouteManifest({ areas: [area], recommendations: [rec(1), rec(2)], includePending: false });
+const manifest = buildRouteManifest({
+  areas: [area],
+  recommendations: [rec(1), rec(2)],
+  includePending: false,
+});
 
 function entryFor(path: string): RouteEntry {
   const entry = manifest.find((candidate) => candidate.path === path);
@@ -47,7 +57,9 @@ function renderPage(path: string, element: ReactNode) {
 }
 
 function renderPlain(element: ReactNode, path = '/') {
-  const router = createMemoryRouter([{ path: '*', element }], { initialEntries: [path] });
+  const router = createMemoryRouter([{ path: '*', element }], {
+    initialEntries: [path],
+  });
   return render(<RouterProvider router={router} />);
 }
 
@@ -57,11 +69,11 @@ afterEach(() => {
 
 describe('buildCrumbs', () => {
   it('crumbs for a recommendation are Home › Compliance Report › Recommendation 1', () => {
-    const crumbs = buildCrumbs(entryFor('/compliance-report/recommendation-1'), manifest);
+    const crumbs = buildCrumbs(entryFor('/compliance-report/research/recommendation-1'), manifest);
     expect(crumbs).toEqual([
       { label: 'Home', path: '/' },
       { label: 'Compliance Report', path: '/compliance-report' },
-      { label: 'Recommendation 1' },
+      { label: 'Research: Recommendation 1' },
     ]);
   });
 
@@ -75,15 +87,16 @@ describe('buildCrumbs', () => {
 
 describe('Breadcrumbs', () => {
   it('marks the last crumb as the current page', () => {
-    renderPage('/compliance-report/recommendation-1', <Breadcrumbs manifest={manifest} />);
+    renderPage('/compliance-report/research/recommendation-1', <Breadcrumbs manifest={manifest} />);
     const nav = screen.getByRole('navigation', { name: 'Breadcrumb' });
     const items = within(nav).getAllByRole('listitem');
-    expect(items.map((item) => item.textContent)).toEqual(['Home', 'Compliance Report', 'Recommendation 1']);
-    expect(items[2]?.querySelector('[aria-current="page"]')?.textContent).toBe('Recommendation 1');
-    expect(within(nav).getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual([
-      '/',
-      '/compliance-report',
-    ]);
+    expect(items.map((item) => item.textContent)).toEqual(['Home', 'Compliance Report', 'Research: Recommendation 1']);
+    expect(items[2]?.querySelector('[aria-current="page"]')?.textContent).toBe('Research: Recommendation 1');
+    expect(
+      within(nav)
+        .getAllByRole('link')
+        .map((link) => link.getAttribute('href')),
+    ).toEqual(['/', '/compliance-report']);
   });
 
   it('no breadcrumbs on Home', () => {
@@ -99,7 +112,7 @@ describe('Breadcrumbs', () => {
 
 describe('Breadcrumb targets', () => {
   it('breadcrumb links are 44px targets', () => {
-    renderPage('/compliance-report/recommendation-1', <Breadcrumbs manifest={manifest} />);
+    renderPage('/compliance-report/research/recommendation-1', <Breadcrumbs manifest={manifest} />);
     const nav = screen.getByRole('navigation', { name: 'Breadcrumb' });
     const links = within(nav).getAllByRole('link');
     expect(links.length).toBeGreaterThan(0);
@@ -117,7 +130,10 @@ describe('PageShell', () => {
     );
     expect(screen.getByText('Materials for this page are being prepared.')).not.toBeNull();
     expect(screen.queryByText('Real content')).toBeNull();
-    const h1 = screen.getByRole('heading', { level: 1, name: 'Audio Visual Presentations' });
+    const h1 = screen.getByRole('heading', {
+      level: 1,
+      name: 'Audio Visual Presentations',
+    });
     expect(h1.id).toBe('page-title');
     expect(h1.getAttribute('tabindex')).toBe('-1');
   });
@@ -148,27 +164,27 @@ describe('PageShell', () => {
 
 describe('Pager', () => {
   const items = [
-    { title: 'Rec 1', path: '/compliance-report/recommendation-1' },
-    { title: 'Rec 2', path: '/compliance-report/recommendation-2' },
-    { title: 'Rec 3', path: '/compliance-report/recommendation-3' },
+    { title: 'Rec 1', path: '/compliance-report/research/recommendation-1' },
+    { title: 'Rec 2', path: '/compliance-report/research/recommendation-2' },
+    { title: 'Rec 3', path: '/compliance-report/extension/recommendation-1' },
   ];
 
   it('Pager on the first item has only Next', () => {
-    renderPlain(<Pager items={items} currentPath="/compliance-report/recommendation-1" />);
+    renderPlain(<Pager items={items} currentPath="/compliance-report/research/recommendation-1" />);
     expect(screen.getByRole('navigation', { name: 'Pager' })).not.toBeNull();
     expect(screen.queryByRole('link', { name: /^Previous/ })).toBeNull();
     const next = screen.getByRole('link', { name: 'Next: Rec 2' });
-    expect(next.getAttribute('href')).toBe('/compliance-report/recommendation-2');
+    expect(next.getAttribute('href')).toBe('/compliance-report/research/recommendation-2');
   });
 
   it('Pager on the last item has only Previous', () => {
-    renderPlain(<Pager items={items} currentPath="/compliance-report/recommendation-3/" />);
+    renderPlain(<Pager items={items} currentPath="/compliance-report/extension/recommendation-1/" />);
     expect(screen.getByRole('link', { name: 'Previous: Rec 2' })).not.toBeNull();
     expect(screen.queryByRole('link', { name: /^Next/ })).toBeNull();
   });
 
   it('Pager in the middle has both', () => {
-    renderPlain(<Pager items={items} currentPath="/compliance-report/recommendation-2" />);
+    renderPlain(<Pager items={items} currentPath="/compliance-report/research/recommendation-2" />);
     expect(screen.getByRole('link', { name: 'Previous: Rec 1' })).not.toBeNull();
     expect(screen.getByRole('link', { name: 'Next: Rec 3' })).not.toBeNull();
   });
@@ -199,7 +215,11 @@ describe('SiteFooter', () => {
         contact={{
           label: 'Contact',
           status: 'published',
-          value: { address: '1 Test Road', email: 'gs@example.org', phone: '+63 000 000 0000' },
+          value: {
+            address: '1 Test Road',
+            email: 'gs@example.org',
+            phone: '+63 000 000 0000',
+          },
         }}
       />,
     );
@@ -223,7 +243,11 @@ describe('SiteFooter', () => {
     renderPlain(
       <SiteFooter
         manifest={manifest}
-        contact={{ label: 'Contact', status: 'published', value: { address: '1 Test Road' } }}
+        contact={{
+          label: 'Contact',
+          status: 'published',
+          value: { address: '1 Test Road' },
+        }}
       />,
     );
     const grid = screen.getByRole('contentinfo').firstElementChild;
