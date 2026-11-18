@@ -72,7 +72,7 @@ Structure changes, implementer-run at `6b9a1f0` (2026-11-18), not re-run by a re
 | GitHub Actions `build` job at `6b9a1f0` | lint, typecheck, test, build, `check:dist` passed; `npm audit --omit=dev --audit-level=high` failed on GHSA-fc5q-39xc-vjpf (picomatch <=4.0.7 ReDoS, no patched version), reached in production only through `@tailwindcss/vite` and vite. Fixed by the final fix wave below |
 | `check:links` | Not re-run on this branch |
 
-Final fix wave (after checkpoint D), run locally at the fix commits: `npm run lint`, `typecheck`, `npm test` (41 files / 444 tests), `npm run build`, `npm run check:dist` pass; `npm run audit:prod` reports 0 vulnerabilities; `bash -n scripts/nginx-smoke.sh` ok. Re-review of the fix wave: F1–F3 and F5–F7 addressed; F4 parked (the hidden area name precedes the visible link text; SC 2.5.3 still passes, best practice is label first; small follow-up).
+Final fix wave (after checkpoint D), run locally at the fix commits: `npm run lint`, `typecheck`, `npm test` (41 files / 444 tests), `npm run build`, `npm run check:dist` pass; `npm run audit:prod` reports 0 vulnerabilities; `bash -n scripts/nginx-smoke.sh` ok. Re-review of the fix wave: F1–F3 and F5–F7 addressed; F4 fixed afterwards: the hidden area name now follows the visible link text, e.g. "Recommendation 1: … (Research)".
 
 Browser check at `5454270` (controller, `vite preview` of `build:preview` in the Claude desktop browser pane, 2026-11-18): grouped Compliance index renders; area anchors in the nav focus the area h2 on first and repeated selection; at 375px a recommendation page has no horizontal scroll and the breadcrumb, H1 and cross-area pager are correct; the sample inline PDF frames are unsandboxed, load `/files/dev-sample.pdf` as `application/pdf` same-origin, and the console shows no CSP violations. PDF rendering itself was not visible (that pane has no PDF viewer), and `vite preview` sends no server headers. Chrome, Firefox and Safari under real Nginx headers: not done.
 
@@ -93,7 +93,7 @@ The docs commit changes no code and ran no checks.
 
 ## Next actions
 
-1. Review and merge the `feat/structure-2026-11` PR into `main` once CI passes (pushed 2026-11-18). Small follow-up: move the hidden area name in Compliance index link names after the visible text (F4).
+1. Review and merge the `feat/structure-2026-11` PR into `main` once CI passes (pushed 2026-11-18).
 2. Supply the spec §13 materials (and the 14 recommendation titles), then run Task 29 batch by batch (`docs/content-guide.md`; plan Task 29 steps). Each batch: add files/data with UCN's exact wording, flip to `published` only when verified, `npm test` + `npm run check:links`, render at 375/1280px, standard checks, update this file, commit `content: <batch>`. Name inline PDFs with simple file names (content guide 5.2.1).
 3. Before the first deploy: confirm the Nginx server's domain or IP, base path and HTTPS; build with `UCN_DOCROOT` and `UCN_NGINX_INCLUDE_DIR` set to the server's paths; follow `docs/deployment.md`, including the post-deploy checks.
 4. Optional: move the repo out of OneDrive (for example `C:/dev/ucn-gs`); consider adding `eslint-plugin-jsx-a11y` (new dependency, needs approval); run a screen-reader pass once real content exists; delete the merged `feat/accreditation-site`, `docs/accreditation-design-spec` and `chore/claude-model-routing` branches if no longer wanted.

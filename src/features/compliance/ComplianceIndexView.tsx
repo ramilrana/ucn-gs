@@ -60,10 +60,11 @@ export function ComplianceIndexView({ overview, areas, recommendations }: Compli
               {recs.map((rec) => (
                 <li key={recommendationPath(area.slug, rec.number)} className="py-3">
                   <ActionLink href={recommendationPath(area.slug, rec.number)}>
-                    {/* One wrapper keeps the text inline: ActionLink is a flex box that would drop the space after the hidden prefix. */}
+                    {/* One wrapper keeps the text inline: ActionLink is a flex box that would drop the space before the hidden suffix.
+                        The visible text starts the accessible name (SC 2.5.3); the hidden area name tells the areas apart. */}
                     <span>
-                      <span className="sr-only">{area.title},</span>{' '}
-                      Recommendation {rec.number}: {rec.title}
+                      Recommendation {rec.number}: {rec.title}{' '}
+                      <span className="sr-only">({area.title})</span>
                     </span>
                   </ActionLink>
                 </li>

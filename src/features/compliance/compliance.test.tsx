@@ -133,9 +133,9 @@ describe('ComplianceIndexView', () => {
       within(sections[0] as HTMLElement)
         .getAllByRole('listitem')
         .map((li) => li.textContent),
-    ).toEqual(['Research, Recommendation 1: First title', 'Research, Recommendation 3: Third title']);
+    ).toEqual(['Recommendation 1: First title (Research)', 'Recommendation 3: Third title (Research)']);
     expect(
-      within(sections[0] as HTMLElement).getByRole('link', { name: 'Research, Recommendation 1: First title' }),
+      within(sections[0] as HTMLElement).getByRole('link', { name: 'Recommendation 1: First title (Research)' }),
     ).toBeTruthy();
     const link = within(sections[0] as HTMLElement).getAllByRole('link')[1] as HTMLElement;
     expect(link.getAttribute('href')).toBe('/compliance-report/research/recommendation-3');
