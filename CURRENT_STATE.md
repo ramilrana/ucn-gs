@@ -10,7 +10,7 @@ Stack after the refactor: React 19, TypeScript 5.8, Vite 7, React Router 7, Tail
 
 ## Phase
 
-**Tasks 1–28 complete and merged to `main`; checkpoints A, B and C cleared (2026-10-30). The structural changes from the 2026-11-18 answers (per-area recommendations, inline PDFs, Nginx, program name) are built and documented on branch `feat/structure-2026-11` (not yet merged, no PR). Task 29 (UCN content entry) is still blocked on UCN materials.**
+**Tasks 1–28 complete and merged to `main`; checkpoints A, B and C cleared (2026-10-30). The structural changes from the 2026-11-18 answers (per-area recommendations, inline PDFs, Nginx, program name) are merged to `main` via **PR #2** https://github.com/ramilrana/ucn-gs/pull/2 (merge commit `233a038`, 2026-11-18, after CI `build` and `nginx-smoke` passed on `1651130`; no GitHub review requested). Task 29 (UCN content entry) is still blocked on UCN materials.**
 
 - **PR #1** https://github.com/ramilrana/ucn-gs/pull/1 (`feat/accreditation-site` → `main`, including the `chore/claude-model-routing` commits and the spec/plan docs) was **merged 2026-11-04** as merge commit `cfc0ea4` after CI `build` passed. No GitHub review was requested. Local `main` is fast-forwarded to `cfc0ea4`. Task 29 work branches from `main`.
 - Plan: `docs/superpowers/plans/2026-10-29-ucn-gs-accreditation-site.md` (29 tasks in 8 phases). Structure-change plan: `docs/superpowers/plans/2026-11-18-structure-changes.md` (8 tasks).
@@ -93,10 +93,9 @@ The docs commit changes no code and ran no checks.
 
 ## Next actions
 
-1. Review and merge the `feat/structure-2026-11` PR into `main` once CI passes (pushed 2026-11-18).
-2. Supply the spec §13 materials (and the 14 recommendation titles), then run Task 29 batch by batch (`docs/content-guide.md`; plan Task 29 steps). Each batch: add files/data with UCN's exact wording, flip to `published` only when verified, `npm test` + `npm run check:links`, render at 375/1280px, standard checks, update this file, commit `content: <batch>`. Name inline PDFs with simple file names (content guide 5.2.1).
-3. Before the first deploy: confirm the Nginx server's domain or IP, base path and HTTPS; build with `UCN_DOCROOT` and `UCN_NGINX_INCLUDE_DIR` set to the server's paths; follow `docs/deployment.md`, including the post-deploy checks.
-4. Optional: move the repo out of OneDrive (for example `C:/dev/ucn-gs`); consider adding `eslint-plugin-jsx-a11y` (new dependency, needs approval); run a screen-reader pass once real content exists; delete the merged `feat/accreditation-site`, `docs/accreditation-design-spec` and `chore/claude-model-routing` branches if no longer wanted.
+1. Supply the spec §13 materials (and the 14 recommendation titles), then run Task 29 batch by batch (`docs/content-guide.md`; plan Task 29 steps). Each batch: add files/data with UCN's exact wording, flip to `published` only when verified, `npm test` + `npm run check:links`, render at 375/1280px, standard checks, update this file, commit `content: <batch>`. Name inline PDFs with simple file names (content guide 5.2.1).
+2. Before the first deploy: confirm the Nginx server's domain or IP, base path and HTTPS; build with `UCN_DOCROOT` and `UCN_NGINX_INCLUDE_DIR` set to the server's paths; follow `docs/deployment.md`, including the post-deploy checks.
+3. Optional: move the repo out of OneDrive (for example `C:/dev/ucn-gs`); consider adding `eslint-plugin-jsx-a11y` (new dependency, needs approval); run a screen-reader pass once real content exists; delete the merged `feat/accreditation-site`, `docs/accreditation-design-spec` and `chore/claude-model-routing` branches if no longer wanted.
 
 ## How to resume in a new conversation
 
