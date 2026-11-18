@@ -183,6 +183,8 @@ describe('rejects a bad fixture', () => {
     expect(checkResources([local('/files/a.PDF')], () => true)).toEqual([]);
     expect(checkResources([local('/files/Report.PDF')], () => true)).toEqual([]);
     expect(checkResources([local('/files/sub/Report.PDF')], () => true)).toEqual([]);
+    expect(checkResources([local('/files/dev-sample.pdf')], () => true)).toEqual([]);
+    expect(checkResources([local('/files/Annual Report_2026-v2~final.pdf')], () => true)).toEqual([]);
     for (const bad of [
       local('/files/a.docx', { format: 'doc' }),
       local('/files/a.mp4', { format: 'video' }),
@@ -194,6 +196,12 @@ describe('rejects a bad fixture', () => {
       local('/files//a.pdf'),
       local('/files/./a.pdf'),
       local('/files/.hidden.pdf'),
+      local('/files/\t../x.pdf'),
+      local('/files/\n../\n../x.pdf'),
+      local('/files/a/\r..\t/x.pdf'),
+      local('/files/a\0.pdf'),
+      local('/files/a\x7f.pdf'),
+      local('/files/a(1).pdf'),
       local('/files/x.html#.pdf'),
       local('/files/x%2ehtml.pdf'),
       local('/files/a.pdf', { format: 'doc' }),

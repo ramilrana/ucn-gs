@@ -33,7 +33,7 @@ describe('resourceUrls', () => {
     expect(embedUrl(res({ kind: 'local', path: '/files/c.docx' }, { format: 'doc', inline: true }))).toBeNull();
     expect(embedUrl(res({ kind: 'local', path: '/files/c.html' }, { inline: true }))).toBeNull();
     expect(embedUrl(res({ kind: 'local', path: '/files/c.pdf' }, { format: 'doc', inline: true }))).toBeNull();
-    for (const path of ['/files/x.html?.pdf', '/files/x.html#.pdf', '/files/x%2ehtml.pdf', '/files/dir/x]y.pdf', '/assets/x.pdf', '/files/../anything.pdf', '/files/a/../../x.pdf', '/files/..\\x.pdf', '/files//a.pdf', '/files/./a.pdf', '/files/.hidden.pdf', '/files/a/.pdf', '/files/a\\b.pdf']) {
+    for (const path of ['/files/x.html?.pdf', '/files/x.html#.pdf', '/files/x%2ehtml.pdf', '/files/dir/x]y.pdf', '/assets/x.pdf', '/files/../anything.pdf', '/files/a/../../x.pdf', '/files/..\\x.pdf', '/files//a.pdf', '/files/./a.pdf', '/files/.hidden.pdf', '/files/a/.pdf', '/files/\t../x.pdf', '/files/\n../\n../x.pdf', '/files/a/\r..\t/x.pdf', '/files/a\0.pdf', '/files/a\x7f.pdf', '/files/a\t.pdf', '/files/a(1).pdf', '/files/caf\u00e9.pdf', '/files/a\\b.pdf']) {
       expect(embedUrl(res({ kind: 'local', path: path as `/files/${string}` }, { inline: true }))).toBeNull();
     }
     expect(embedUrl(res({ kind: 'local', path: '/files/Report.PDF' }, { inline: true }))).toBe('/files/Report.PDF');

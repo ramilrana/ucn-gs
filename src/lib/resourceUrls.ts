@@ -18,11 +18,12 @@ export function localFileUrl(path: string, base: string = import.meta.env.BASE_U
 }
 
 /**
- * Frameable local PDF path: under /files/, every segment non-empty and not starting with "." (so no "." or
- * ".." traversal), and no backslash, query, fragment, percent-escape or "]" in any segment; the last segment
- * ends in .pdf (any case). Anything else could point a same-origin frame outside /files/ or at a non-PDF.
+ * Frameable local PDF path: under /files/, every segment on an allow-list and the last one ending in .pdf
+ * (any case). A segment starts with a letter, digit, "_", "~" or "-" (never "."), then may also contain "." and
+ * a space. That excludes empty and dot segments, every control character (the URL parser deletes tab, LF and CR
+ * before resolving "..", so they could hide a traversal), backslash, "%", "?", "#", parentheses and non-ASCII.
  */
-const INLINE_PDF_SEGMENT = /^[^.\\?#%\]][^\\?#%\]]*$/;
+const INLINE_PDF_SEGMENT = /^[A-Za-z0-9_~-][A-Za-z0-9._~ -]*$/;
 export function isInlinePdfPath(path: string): boolean {
   if (!path.startsWith('/files/')) return false;
   const segments = path.slice('/files/'.length).split('/');
