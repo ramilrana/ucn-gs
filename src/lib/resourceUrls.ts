@@ -17,17 +17,27 @@ export function localFileUrl(path: string, base: string = import.meta.env.BASE_U
   return `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
 }
 
-/** Shape of a frameable local PDF path: under /files/, no query, fragment, percent-escape or "]" (any of them could hide a non-PDF behind a .pdf ending). */
-const INLINE_PDF_PATH = /^\/files\/[^?#%\]]+\.pdf$/i;
+/**
+ * Frameable local PDF path: under /files/, every segment non-empty and not starting with "." (so no "." or
+ * ".." traversal), and no backslash, query, fragment, percent-escape or "]" in any segment; the last segment
+ * ends in .pdf (any case). Anything else could point a same-origin frame outside /files/ or at a non-PDF.
+ */
+const INLINE_PDF_SEGMENT = /^[^.\\?#%\]][^\\?#%\]]*$/;
+export function isInlinePdfPath(path: string): boolean {
+  if (!path.startsWith('/files/')) return false;
+  const segments = path.slice('/files/'.length).split('/');
+  const last = segments[segments.length - 1] ?? '';
+  return segments.every((segment) => INLINE_PDF_SEGMENT.test(segment)) && /\.pdf$/i.test(last);
+}
 
-/** True for a local PDF that opted in to inline display: local source, format pdf, path matches INLINE_PDF_PATH. */
+/** True for a local PDF that opted in to inline display: local source, format pdf, path passes isInlinePdfPath. */
 export function isInlinePdf(resource: Resource): boolean {
   const source = resource.source;
   return (
     resource.inline === true &&
     resource.format === 'pdf' &&
     source?.kind === 'local' &&
-    INLINE_PDF_PATH.test(source.path)
+    isInlinePdfPath(source.path)
   );
 }
 

@@ -1,4 +1,6 @@
 /// <reference types="vitest/config" />
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
@@ -27,28 +29,36 @@ function cspMetaOnBuild(): Plugin {
 }
 
 /**
- * Keeps the dev sample PDF out of production builds. Rollup drops the unused sample module, but Vite
- * still emits every asset it loads, so without this stub dist/ would contain assets/sample-<hash>.pdf.
- * Preview builds (VITE_CONTENT_PREVIEW=true) keep the real file.
+ * Serves the dev sample PDF at the real URL /files/dev-sample.pdf (the path src/dev/samples.ts uses): from the
+ * dev server, and as files/dev-sample.pdf in preview-content builds. A production build never gets it, and
+ * check:dist fails if it does. The source lives in src/dev/, not public/, so it cannot ship by accident.
  */
-function dropSamplePdfFromProduction(includeSamples: boolean): Plugin {
+function devSamplePdf(includeSamples: boolean, base: string): Plugin {
+  const source = fileURLToPath(new URL('./src/dev/sample.pdf', import.meta.url));
   return {
-    name: 'drop-sample-pdf-from-production',
-    apply: 'build',
-    enforce: 'pre',
-    load(id) {
-      if (!includeSamples && id.split('?')[0]?.endsWith('/src/dev/sample.pdf')) return 'export default "";';
-      return null;
+    name: 'dev-sample-pdf',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const path = (req.url ?? '').split('?')[0] ?? '';
+        if (path !== '/files/dev-sample.pdf' && path !== `${base}files/dev-sample.pdf`) return next();
+        res.setHeader('Content-Type', 'application/pdf');
+        res.end(readFileSync(source));
+      });
+    },
+    generateBundle() {
+      if (!includeSamples) return;
+      this.emitFile({ type: 'asset', fileName: 'files/dev-sample.pdf', source: readFileSync(source) });
     },
   };
 }
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
+  const base = normalizeBase(env.VITE_BASE_PATH);
   return {
     // VITE_BASE_PATH=/gs/ in .env.production.local builds for a subpath (docs/deployment.md).
-    base: normalizeBase(env.VITE_BASE_PATH),
-    plugins: [react(), tailwindcss(), imagetools(), cspMetaOnBuild(), dropSamplePdfFromProduction(env.VITE_CONTENT_PREVIEW === 'true')],
+    base,
+    plugins: [react(), tailwindcss(), imagetools(), cspMetaOnBuild(), devSamplePdf(env.VITE_CONTENT_PREVIEW === 'true', base)],
     test: {
       environment: 'jsdom',
       setupFiles: ['src/test/setup.ts'],

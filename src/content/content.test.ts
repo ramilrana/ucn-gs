@@ -182,11 +182,18 @@ describe('rejects a bad fixture', () => {
     expect(checkResources([local('/files/a.pdf')], () => true)).toEqual([]);
     expect(checkResources([local('/files/a.PDF')], () => true)).toEqual([]);
     expect(checkResources([local('/files/Report.PDF')], () => true)).toEqual([]);
+    expect(checkResources([local('/files/sub/Report.PDF')], () => true)).toEqual([]);
     for (const bad of [
       local('/files/a.docx', { format: 'doc' }),
       local('/files/a.mp4', { format: 'video' }),
       local('/files/a.html'),
       local('/files/x.html?.pdf'),
+      local('/files/../anything.pdf'),
+      local('/files/a/../../x.pdf'),
+      local('/files/..\\x.pdf'),
+      local('/files//a.pdf'),
+      local('/files/./a.pdf'),
+      local('/files/.hidden.pdf'),
       local('/files/x.html#.pdf'),
       local('/files/x%2ehtml.pdf'),
       local('/files/a.pdf', { format: 'doc' }),

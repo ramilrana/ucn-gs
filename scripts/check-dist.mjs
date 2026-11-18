@@ -187,7 +187,7 @@ export function checkDist(distDir, nginxDir = join(dirname(distDir), 'dist-nginx
   // Rule 7: the dev sample PDF has no DEV-SAMPLE text, so rule 5 cannot see it.
   for (const file of walk(distDir)) {
     const name = file.slice(distDir.length + 1).replaceAll('\\', '/');
-    if (/^sample[^/]*\.pdf$/i.test(name.split('/').pop() ?? '')) {
+    if (/^(?:dev-)?sample[^/]*\.pdf$/i.test(name.split('/').pop() ?? '')) {
       errors.push(`Dev sample PDF found at ${name}; sample files must not ship.`);
     }
   }

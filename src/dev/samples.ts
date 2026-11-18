@@ -4,23 +4,14 @@
 //
 // Keep this module free of side effects so Rollup can drop it: only declarations at the top level,
 // and every top-level call carries a PURE annotation.
-import type { Area, EvidenceGroup, ImageAsset, Recommendation, Resource, ResourceFormat, ResourceSource } from '../types/content';
-// `no-inline` keeps the 600-byte PDF out of Vite's 4 kB data-URI inlining, which would break devLocalSource.
-import samplePdf from './sample.pdf?url&no-inline';
+import type { Area, EvidenceGroup, ImageAsset, Recommendation, Resource, ResourceFormat } from '../types/content';
 import { svgPlaceholder } from './svgPlaceholder';
 
 /**
- * Wraps the bundler URL of the sample PDF as a local source: strips the site base path from the
- * start (localFileUrl adds it back) and any Vite query string, then prefixes `/files/../` so the path
- * passes the strict inline-PDF check (isInlinePdf); the browser resolves the `..` to the real URL.
- * Dev-only: the sample PDF lives in src/dev/, not in public/files/.
+ * The sample PDF is served at this real /files/ URL by the devSamplePdf plugin in vite.config.ts: by the dev
+ * server, and copied into preview-content builds. It never reaches a production build (check:dist fails if it does).
  */
-export function devLocalSource(url: string): ResourceSource {
-  const base = import.meta.env.BASE_URL;
-  const bare = url.replace(/[?#].*$/, '');
-  const rest = bare.startsWith(base) ? bare.slice(base.length) : bare.replace(/^\/+/, '');
-  return { kind: 'local', path: `/files/../${rest}` as `/files/${string}` };
-}
+const SAMPLE_PDF_PATH = '/files/dev-sample.pdf' as const;
 
 function sampleImage(n: number): ImageAsset {
   return { src: svgPlaceholder(`Sample image ${n}`, 800, 600), width: 800, height: 600, alt: `Sample image ${n}` };
@@ -31,7 +22,7 @@ function pendingResource(id: string, title: string, format: ResourceFormat): Res
 }
 
 function samplePdfResource(id: string, title: string): Resource {
-  return { id: `DEV-SAMPLE-${id}`, title, format: 'pdf', status: 'published', source: devLocalSource(samplePdf), downloadable: true, inline: true };
+  return { id: `DEV-SAMPLE-${id}`, title, format: 'pdf', status: 'published', source: { kind: 'local', path: SAMPLE_PDF_PATH }, downloadable: true, inline: true };
 }
 
 // Obviously fake but valid-format Drive id (20+ of [A-Za-z0-9_-]); it points at no real file, so the

@@ -4,7 +4,7 @@
 #
 # Build first with the paths Nginx will see inside the container:
 #   UCN_DOCROOT=/usr/share/nginx/html/ UCN_NGINX_INCLUDE_DIR=/etc/nginx/ucn-gs/ npm run build:preview
-# (build:preview, not build, because the sample PDF only exists in the preview build).
+# (build:preview, not build, because files/dev-sample.pdf only exists in the preview build).
 # Run: bash scripts/nginx-smoke.sh   (npm run smoke:nginx)
 set -euo pipefail
 
@@ -17,21 +17,22 @@ export MSYS_NO_PATHCONV=1 # Git Bash on Windows must not rewrite the container p
 [ -f dist/index.html ] || { echo "FAIL: dist/index.html not found; build first" >&2; exit 1; }
 [ -f dist-nginx/ucn-gs.conf ] || { echo "FAIL: dist-nginx/ucn-gs.conf not found; build first" >&2; exit 1; }
 
-# Base path, read from the first module script ("/gs/assets/index-x.js" gives "/gs/", "/assets/..." gives "/").
-BASE="$(sed -n 's|.*<script[^>]*type="module"[^>]*src="\([^"]*\)/assets/[^"]*".*|\1|p' dist/index.html | head -1)/"
-case "$BASE" in
-  /*/) ;;
-  *) echo "FAIL: cannot read the base path from dist/index.html (got '$BASE')" >&2; exit 1 ;;
-esac
+# Base path, read with the same helper the build uses ("/" or "/gs/"), then checked with normalizeBase's rule.
+BASE="$(node -e "
+import('./config/base.mjs').then(({ baseFromIndexHtml, normalizeBase }) => {
+  const base = baseFromIndexHtml(require('node:fs').readFileSync('dist/index.html', 'utf8'));
+  if (base === null || normalizeBase(base) !== base) process.exit(1);
+  console.log(base);
+});
+")" || { echo "FAIL: cannot read a valid base path from dist/index.html" >&2; exit 1; }
 
 # Expected headers come from config/csp.mjs, the same source the build uses.
 EXPECTED_CSP="$(node -e "import('./config/csp.mjs').then((m) => console.log(m.CSP_HEADER))")"
 EXPECTED_CSP_PDF="$(node -e "import('./config/csp.mjs').then((m) => console.log(m.CSP_HEADER_PDF))")"
 
 JS_FILE="$(cd dist/assets && find . -maxdepth 1 -name '*.js' | head -1 | sed 's|^\./||')"
-PDF_FILE="$(cd dist/assets && find . -maxdepth 1 -iname 'sample*.pdf' | head -1 | sed 's|^\./||')"
 [ -n "$JS_FILE" ] || { echo "FAIL: no .js file in dist/assets" >&2; exit 1; }
-[ -n "$PDF_FILE" ] || { echo "FAIL: no sample*.pdf in dist/assets; build with npm run build:preview" >&2; exit 1; }
+[ -f dist/files/dev-sample.pdf ] || { echo "FAIL: dist/files/dev-sample.pdf missing; build with npm run build:preview" >&2; exit 1; }
 
 WORK="$(mktemp -d)"
 cleanup() {
@@ -146,8 +147,8 @@ all_security_headers "$EXPECTED_CSP"
 header_equals Cache-Control "public, max-age=31536000, immutable"
 header_contains Content-Type javascript
 
-echo "check: ${BASE}assets/${PDF_FILE} -> 200 application/pdf, PDF CSP with frame-ancestors 'self'"
-get "${BASE}assets/${PDF_FILE}"; status_is 200
+echo "check: ${BASE}files/dev-sample.pdf -> 200 application/pdf, PDF CSP with frame-ancestors 'self'"
+get "${BASE}files/dev-sample.pdf"; status_is 200
 header_contains Content-Type application/pdf
 all_security_headers "$EXPECTED_CSP_PDF"
 header_contains Content-Security-Policy "frame-ancestors 'self'"
@@ -162,8 +163,12 @@ echo "check: ${BASE}about/?x=.pdf -> the page keeps frame-ancestors 'none'"
 get "${BASE}about/?x=.pdf"; status_is 200
 header_contains Content-Security-Policy "frame-ancestors 'none'"
 
-echo "check: ${BASE}no-such-file.pdf -> 404"
+echo "check: ${BASE}no-such-file.pdf -> 404 with the non-PDF headers (error_page drops the PDF headers)"
 get "${BASE}no-such-file.pdf"; status_is 404
+all_security_headers "$EXPECTED_CSP"
+header_contains Content-Security-Policy "frame-ancestors 'none'"
+header_lacks Content-Security-Policy "frame-ancestors 'self'"
+header_contains Content-Type text/html
 
 for dot in ".htaccess" "assets/.htaccess" ".git/config" "about/.hidden.pdf"; do
   echo "check: ${BASE}${dot} -> 403 or 404"

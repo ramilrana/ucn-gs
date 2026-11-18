@@ -177,7 +177,7 @@ describe('AreaView', () => {
     );
     const frames = [...container.querySelectorAll('iframe')];
     expect(frames.length).toBeGreaterThan(0);
-    for (const frame of frames) expect(frame.getAttribute('src')).toContain('/files/../');
+    for (const frame of frames) expect(frame.getAttribute('src')).toContain('/files/dev-sample.pdf');
     expect(screen.getByRole('button', { name: /Preview Sample Drive document/ })).toBeTruthy();
   });
 });

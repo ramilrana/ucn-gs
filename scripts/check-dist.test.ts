@@ -86,6 +86,14 @@ describe('checkDist', () => {
     expect(checkDist(nested).some((e) => e.includes('files/Sample.PDF'))).toBe(true);
   });
 
+  it('flags files/dev-sample.pdf in a production dist', () => {
+    const dist = makeDist('/gs/');
+    write(join(dist, 'files', 'dev-sample.pdf'), PDF_BYTES);
+    const errors = checkDist(dist);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain('files/dev-sample.pdf');
+  });
+
   it('does not flag other PDFs', () => {
     const dist = makeDist('/gs/');
     write(join(dist, 'files', 'narrative-report.pdf'), PDF_BYTES);
