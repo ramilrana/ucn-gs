@@ -19,7 +19,7 @@ const makeArea = (slug: string, status: Area['status']): Area => ({
 });
 
 const makeRec = (number: number, status: Recommendation['status']): Recommendation => ({
-  number,
+  areaSlug: 'sample-area', number,
   title: `Rec ${number}`,
   status,
   document: pendingDoc,

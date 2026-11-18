@@ -6,7 +6,11 @@ export type ResourceSource =
   | { kind: 'drive-folder'; folderId: string }
   | { kind: 'youtube'; videoId: string }
   | { kind: 'external'; url: string };
-interface ResourceBase { id: string; title: string; description?: string; format: ResourceFormat; downloadable?: boolean }
+interface ResourceBase {
+  id: string; title: string; description?: string; format: ResourceFormat; downloadable?: boolean;
+  /** Show a local PDF in an inline frame (Task 6 validates it). */
+  inline?: boolean;
+}
 export type Resource = ResourceBase &
   ({ status: 'published'; source: ResourceSource } | { status: 'pending'; source?: ResourceSource });
 export interface ImageAsset { src: string; srcSet?: string; width: number; height: number; alt: string; caption?: string }
@@ -24,7 +28,7 @@ export interface Area {
   additionalFiles: Resource[]; avp?: Resource & { avpTitle?: string };
 }
 export interface Recommendation {
-  number: number; title: string; status: Status; statement?: string[];
+  areaSlug: string; number: number; title: string; status: Status; statement?: string[];
   document: Resource; evidence: EvidenceGroup[]; additionalFiles: Resource[];
 }
 export type PersonRole = 'official' | 'faculty' | 'staff' | 'student-assistant';

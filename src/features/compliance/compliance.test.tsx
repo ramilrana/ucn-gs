@@ -26,7 +26,7 @@ const group = (id: string, title: string, extra: Partial<EvidenceGroup> = {}): E
 });
 
 const makeRec = (extra: Partial<Recommendation> = {}): Recommendation => ({
-  number: 2,
+  areaSlug: 'sample-area', number: 2,
   title: 'Strengthen research output',
   status: 'published',
   statement: ['The recommendation statement.'],

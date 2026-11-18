@@ -15,7 +15,7 @@ const makeArea = (slug: string, order: number): Area => ({
   additionalFiles: [],
 });
 const makeRec = (number: number): Recommendation => ({
-  number,
+  areaSlug: 'sample-area', number,
   title: `Rec ${number}`,
   status: 'published',
   document: doc,

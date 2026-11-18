@@ -22,7 +22,7 @@ const area: Area = {
   additionalFiles: [],
 };
 const rec: Recommendation = {
-  number: 99,
+  areaSlug: 'sample-area', number: 99,
   title: 'Sample recommendation',
   status: 'published',
   document: pendingDoc,

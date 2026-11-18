@@ -202,10 +202,10 @@ export function checkImages(images: readonly LocatedImage[]): string[] {
   return images.filter(({ image }) => !image.alt.trim()).map(({ where }) => `image at ${where} has empty alt text`);
 }
 
-/** Rule 8: file basenames match slug and number. Keys are import.meta.glob keys. */
+/** Rule 8: file basenames match slug and number; a recommendation sits in the folder named by its areaSlug. Keys are import.meta.glob keys. */
 export function checkFilenames(
   areaModules: Readonly<Record<string, { slug: string }>>,
-  recModules: Readonly<Record<string, { number: number }>>,
+  recModules: Readonly<Record<string, { areaSlug: string; number: number }>>,
 ): string[] {
   const errors: string[] = [];
   for (const [key, mod] of Object.entries(areaModules)) {
@@ -213,11 +213,62 @@ export function checkFilenames(
     if (base !== mod.slug) errors.push(`area file ${key} must have slug "${base}", found "${mod.slug}"`);
   }
   for (const [key, mod] of Object.entries(recModules)) {
-    const match = /rec-(\d+)\.ts$/.exec(key);
-    if (!match) errors.push(`recommendation file ${key} must be named rec-NN.ts`);
-    else if (Number(match[1]) !== mod.number) {
-      errors.push(`recommendation file ${key} must have number ${Number(match[1])}, found ${mod.number}`);
+    const match = /\/recommendations\/([^/]+)\/rec-(\d+)\.ts$/.exec(key);
+    if (!match) {
+      errors.push(`recommendation file ${key} must be named recommendations/<area-slug>/rec-NN.ts`);
+      continue;
     }
+    if (match[1] !== mod.areaSlug) {
+      errors.push(`recommendation file ${key} must have areaSlug "${match[1]}", found "${mod.areaSlug}"`);
+    }
+    if (Number(match[2]) !== mod.number) {
+      errors.push(`recommendation file ${key} must have number ${Number(match[2])}, found ${mod.number}`);
+    }
+  }
+  return errors;
+}
+
+/**
+ * Rule 10: recommendations belong to areas. areaSlug names an existing area, (areaSlug, number) is
+ * unique, numbers within an area run 1..k, and a published recommendation needs a published area.
+ */
+export function checkRecommendations(
+  areas: ReadonlyArray<{ slug: string; status: string }>,
+  recs: ReadonlyArray<{ areaSlug: string; number: number; status: string }>,
+): string[] {
+  const errors: string[] = [];
+  const areaBySlug = new Map(areas.map((a) => [a.slug, a]));
+  const byArea = new Map<string, number[]>();
+  const seen = new Set<string>();
+  for (const rec of recs) {
+    const at = `recommendation ${rec.areaSlug}/${rec.number}`;
+    const area = areaBySlug.get(rec.areaSlug);
+    if (!area) errors.push(`${at} has areaSlug "${rec.areaSlug}" with no matching area file`);
+    else if (rec.status === 'published' && area.status !== 'published') {
+      errors.push(`${at} is published but its area "${rec.areaSlug}" is not`);
+    }
+    const id = `${rec.areaSlug}#${rec.number}`;
+    if (seen.has(id)) errors.push(`duplicate recommendation ${at}`);
+    seen.add(id);
+    byArea.set(rec.areaSlug, [...(byArea.get(rec.areaSlug) ?? []), rec.number]);
+  }
+  for (const [slug, numbers] of byArea) {
+    const sorted = [...new Set(numbers)].sort((x, y) => x - y);
+    if (sorted.some((n, i) => n !== i + 1)) {
+      errors.push(`recommendation numbers in area "${slug}" must run 1..${sorted.length}, found ${sorted.join(', ')}`);
+    }
+  }
+  return errors;
+}
+
+/** Rule 11: area order values are unique, so area sorting is unambiguous. */
+export function checkAreaOrders(areas: ReadonlyArray<{ slug: string; order: number }>): string[] {
+  const seen = new Map<number, string>();
+  const errors: string[] = [];
+  for (const a of areas) {
+    const prev = seen.get(a.order);
+    if (prev !== undefined) errors.push(`areas "${prev}" and "${a.slug}" share order ${a.order}`);
+    else seen.set(a.order, a.slug);
   }
   return errors;
 }

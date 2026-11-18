@@ -37,7 +37,7 @@ describe('collectPending', () => {
     narrativeReport: pendingDoc('real-narrative'), groups: [], additionalFiles: [],
   };
   const realRec: Recommendation = {
-    number: 7, title: 'Real rec', status: 'pending', document: pendingDoc('real-rec-doc'), evidence: [], additionalFiles: [],
+    areaSlug: 'sample-area', number: 7, title: 'Real rec', status: 'pending', document: pendingDoc('real-rec-doc'), evidence: [], additionalFiles: [],
   };
 
   it('does not report the lists as missing once real files exist', () => {
