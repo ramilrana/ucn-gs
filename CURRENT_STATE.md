@@ -95,7 +95,7 @@ The docs commit changes no code and ran no checks.
 
 1. Supply the spec §13 materials (and the 14 recommendation titles), then run Task 29 batch by batch (`docs/content-guide.md`; plan Task 29 steps). Each batch: add files/data with UCN's exact wording, flip to `published` only when verified, `npm test` + `npm run check:links`, render at 375/1280px, standard checks, update this file, commit `content: <batch>`. Name inline PDFs with simple file names (content guide 5.2.1).
 2. Before the first deploy: confirm the Nginx server's domain or IP, base path and HTTPS; build with `UCN_DOCROOT` and `UCN_NGINX_INCLUDE_DIR` set to the server's paths; follow `docs/deployment.md`, including the post-deploy checks.
-3. Optional: move the repo out of OneDrive (for example `C:/dev/ucn-gs`); consider adding `eslint-plugin-jsx-a11y` (new dependency, needs approval); run a screen-reader pass once real content exists; delete the merged `feat/accreditation-site`, `docs/accreditation-design-spec` and `chore/claude-model-routing` branches if no longer wanted.
+3. Optional: move the repo out of OneDrive (for example `C:/dev/ucn-gs`); consider adding `eslint-plugin-jsx-a11y` (new dependency, needs approval); run a screen-reader pass once real content exists. (All merged branches were deleted 2026-11-18; `main` is the only branch.)
 
 ## How to resume in a new conversation
 
