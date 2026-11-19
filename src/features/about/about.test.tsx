@@ -261,6 +261,25 @@ describe('AboutView', () => {
     ]);
   });
 
+  it('section titles sit on a maroon band and the page nav is a labelled bar of button links', () => {
+    production();
+    renderUi(<AboutView about={fullAbout} />);
+    for (const h2 of screen.getAllByRole('heading', { level: 2 })) {
+      expect(h2.className).toContain('text-white');
+      const band = h2.parentElement as HTMLElement;
+      expect(band.className).toContain('bg-maroon-800');
+      expect(band.className).toContain('on-maroon');
+    }
+    // Subtitles stay plain maroon text, so they read as a lower level.
+    for (const h3 of screen.getAllByRole('heading', { level: 3 })) expect(h3.className).toContain('text-maroon-800');
+    const nav = screen.getByRole('navigation', { name: 'On this page' });
+    expect(nav.textContent).toContain('On this page');
+    for (const a of Array.from(nav.querySelectorAll('a'))) {
+      expect(a.className).toContain('rounded-full');
+      expect(a.className).toContain('border-maroon-800');
+    }
+  });
+
   it('about with everything pending in production shows the preparing note and no headings', () => {
     production();
     const { container } = renderUi(<AboutView about={pendingAbout} />);

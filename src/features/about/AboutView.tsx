@@ -131,13 +131,17 @@ export function AboutView({ about }: { about: AboutContent }) {
           <PendingNotice label={about.photo.label} />
         )}
         {shown.length > 0 && (
-          <nav aria-label="On this page">
-            <ul className="flex flex-wrap gap-x-6 gap-y-2">
+          // A labelled bar of button-style links, so the section list reads as navigation, not as body text.
+          <nav aria-label="On this page" className="rounded border border-line bg-paper p-4 sm:p-5">
+            <p aria-hidden="true" className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-muted">
+              On this page
+            </p>
+            <ul className="flex flex-wrap gap-3">
               {shown.map((section) => (
                 <li key={section.id}>
                   <a
                     href={`#${section.id}`}
-                    className="inline-flex min-h-11 items-center text-maroon-800 underline underline-offset-4"
+                    className="inline-flex min-h-11 items-center rounded-full border-2 border-maroon-800 bg-white px-5 font-semibold text-maroon-800 transition-colors hover:bg-maroon-800 hover:text-white"
                   >
                     {section.title}
                   </a>
@@ -148,9 +152,17 @@ export function AboutView({ about }: { about: AboutContent }) {
         )}
         {shown.map((section) => (
           <section key={section.id} id={section.id} aria-labelledby={`${section.id}-title`} className="space-y-6">
-            <SectionHeading level={2} id={`${section.id}-title`} tabIndex={-1} className="scroll-mt-6">
-              {section.title}
-            </SectionHeading>
+            {/* Section titles sit on a maroon band (gold edge is decorative, on maroon: D9) so they stand apart from
+                the plain maroon h3 subtitles. on-maroon gives the programmatic-focus ring its gold colour. */}
+            <div className="on-maroon rounded border-l-8 border-gold-500 bg-maroon-800 px-5 py-3 sm:px-6 sm:py-4">
+              <h2
+                id={`${section.id}-title`}
+                tabIndex={-1}
+                className="scroll-mt-10 font-serif text-2xl font-semibold text-white sm:text-3xl"
+              >
+                {section.title}
+              </h2>
+            </div>
             {section.parts
               .filter((part) => slotRenders(part.slot))
               .map((part) => (
