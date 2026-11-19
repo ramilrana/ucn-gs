@@ -70,7 +70,7 @@
 | `/avp` | All AVPs, one entry per area, anchors such as `/avp#research` |
 | `/certificate-of-authenticity` | Certificate PDF and image |
 | `/additional-files` | Additional Files for the Accreditors (grouped when the data provides groups) |
-| `/about` | Mission and Vision, Goals and Objectives, History (anchored sections) |
+| `/about` | Mission and Vision (Vision first), Goals and Objectives (per-program objective lists), Program Description (per program; added 2026-11-19, user's request), History (with the list of Deans) (anchored sections) |
 | `/about/people` | Faculty, Staff and Student Assistants |
 | `/about/faculty-by-department` | Faculty grouped by department |
 | `/about/faqs-and-location` | FAQs plus map |
@@ -85,7 +85,7 @@
 5. Second accreditation slide
 6. Second slideshow or gallery
 7. Graduate School video, or a link to it
-8. Dean's photo and message, then the Program Chair's photo and message
+8. Messages, stacked full width: the President's, then the Dean's, then the Program Chair's photo and message (President added 2026-11-19, user's request). Until a real photo arrives, dev and preview show a scenery stand-in from `src/dev/placeholders/`; production shows a silhouette (check:dist rule 9).
 9. About preview: photo with Mission and Vision, Goals and Objectives, History, linking to `/about`
 
 **Header navigation:**
@@ -379,7 +379,7 @@ Each package is checked for maintenance and compatibility before install. `npm a
 
 | UCN page | Reference equivalent | UCN material status |
 |---|---|---|
-| Home | Home | Missing: leadership photos, accreditation slides 1–2, second gallery, GS video, Dean's and Program Chair's photos and messages, Mission and Vision, Goals and Objectives, History |
+| Home | Home | Received 2026-11-19: President's, Dean's and Program Chair's messages; Vision, Mission, Goals, Objectives (7 programs), Program Descriptions (7 programs), History and Deans. Missing: leadership photos, accreditation slides 1–2, second gallery, GS video, the three message photos, About photo |
 | Additional Files | Additional Files for the Accreditors (9 links) | Missing: UCN file list |
 | Certificate of Authenticity | placeholder | Missing: certificate PDF and image |
 | Compliance Report and Recommendations | Rec 1–8 (3–5 evidence items each) | Known (2026-11-18): 14 recommendations by area — Research 2, Performance of Graduates 1, Community Service 5, International Linkages & Consortia 5, Planning Process 1. Missing: titles, documents, evidence |

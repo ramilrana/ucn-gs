@@ -14,8 +14,8 @@ All content is in `src/content/`. You only edit these files; the page code is no
 | What | File |
 |---|---|
 | University and school name, program name, contact details, map | `src/content/site.ts` |
-| Home page photos, slides, video, Dean and Program Chair messages | `src/content/home.ts` |
-| About page: photo, mission, vision, goals, objectives, history | `src/content/about.ts` |
+| Home page photos, slides, video, President, Dean and Program Chair messages | `src/content/home.ts` |
+| About page: photo, vision, mission, goals, objectives and program descriptions (one entry per program), history, list of Deans | `src/content/about.ts` |
 | Officials, faculty, staff, student assistants | `src/content/people.ts` |
 | FAQs | `src/content/faqs.ts` |
 | Compliance Report overview | `src/content/compliance.ts` |
@@ -245,6 +245,7 @@ Where photos go:
 - Area gallery: `gallery: { status: 'published', label: '…', value: [toImageAsset(photo1, '…'), toImageAsset(photo2, '…')] }`
 - Photo inside an evidence group: a `{ type: 'gallery', images: [toImageAsset(photo1, '…')] }` block (section 7).
 - Home page, About page and people: the matching slot or `photo` field in `home.ts`, `about.ts` or `people.ts`.
+- Leader messages: add `photo: toImageAsset(photo, 'Portrait of …')` inside the message's `value` in `home.ts`. Until then, dev and preview show a scenery stand-in (from `src/dev/placeholders/`, never on the live site) and `/content-status` lists the photo as still needed.
 
 Use JPEG or PNG sources. Keep each file under a few MB; the build makes the web sizes.
 

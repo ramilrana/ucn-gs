@@ -1,10 +1,13 @@
 import { User } from 'lucide-react';
 import { Prose } from '../../components/content/Prose';
-import type { LeaderMessage } from '../../types/content';
+import type { ImageAsset, LeaderMessage } from '../../types/content';
 
-/** One leader's message: the photo (never a made-up one), the name and position, then the paragraphs. */
-export function LeaderMessageCard({ message }: { message: LeaderMessage }) {
-  const { photo } = message;
+/**
+ * One leader's message: the photo, the name and position, then the paragraphs. Without a real photo it shows the
+ * dev/preview-only `placeholderPhoto` if given, otherwise a silhouette (production never gets a placeholder).
+ */
+export function LeaderMessageCard({ message, placeholderPhoto }: { message: LeaderMessage; placeholderPhoto?: ImageAsset }) {
+  const photo = message.photo ?? placeholderPhoto;
   return (
     <article className="grid grid-cols-1 gap-6 rounded border border-line bg-white p-5 sm:grid-cols-[12rem_minmax(0,1fr)] sm:p-6">
       {photo ? (

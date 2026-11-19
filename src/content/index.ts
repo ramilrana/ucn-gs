@@ -1,3 +1,4 @@
+import { devMessagePlaceholders, type MessagePlaceholders } from '../dev/messagePlaceholders';
 import { sampleAreas, sampleRecommendations } from '../dev/samples';
 import type { Area, Recommendation } from '../types/content';
 
@@ -27,6 +28,9 @@ export const contentRecommendations: Recommendation[] = Object.values(recommenda
 // Written inline so Rollup folds it to `false` in production builds and drops src/dev/samples.ts.
 // `npm run check:dist` fails if a DEV-SAMPLE id reaches dist/.
 const includeSamples = import.meta.env.DEV || import.meta.env.VITE_CONTENT_PREVIEW === 'true';
+
+/** Stand-in leader photos for dev and preview only; production gets none and the card shows a silhouette. */
+export const messagePlaceholders: Partial<MessagePlaceholders> = includeSamples ? devMessagePlaceholders : {};
 
 export const areas: Area[] = includeSamples ? [...contentAreas, ...sampleAreas] : contentAreas;
 export const recommendations: Recommendation[] = includeSamples

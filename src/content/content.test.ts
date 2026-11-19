@@ -388,4 +388,17 @@ describe('collectors traverse nested content', () => {
     };
     expect(checkImages(collectImages(broken))).toHaveLength(8);
   });
+
+  it('collectImages checks the photo of each published leader message, and skips pending ones', () => {
+    const noAlt = (src: string): ImageAsset => ({ ...img(src), alt: '' });
+    const located = collectImages({
+      home: {
+        presidentMessage: { status: 'published', value: { photo: noAlt('/pres.jpg') } },
+        deanMessage: { status: 'published', value: {} },
+        programChairMessage: { status: 'pending', value: { photo: noAlt('/chair.jpg') } },
+      },
+    });
+    expect(located.map((l) => l.where)).toEqual(['home.presidentMessage photo']);
+    expect(checkImages(located)).toHaveLength(1);
+  });
 });

@@ -44,6 +44,11 @@ const fullHome: HomeContent = {
     status: 'published',
     source: { kind: 'youtube', videoId: YT },
   },
+  presidentMessage: {
+    status: 'published',
+    label: 'President',
+    value: { name: 'Sample President', position: 'President', paragraphs: ['President words.'] },
+  },
   deanMessage: {
     status: 'published',
     label: 'Dean',
@@ -61,8 +66,36 @@ const fullAbout: AboutContent = {
   mission: { status: 'published', label: 'Mission', value: ['Mission first.', 'Mission second.'] },
   vision: { status: 'published', label: 'Vision', value: ['Vision first.'] },
   goals: { status: 'published', label: 'Goals', value: ['Goals first.', 'Goals second.'] },
-  objectives: { status: 'published', label: 'Objectives', value: ['Objectives first.'] },
+  objectives: {
+    status: 'published',
+    label: 'Objectives',
+    value: [{ program: 'Sample Program Objectives', text: ['Objectives first.'] }],
+  },
+  programDescriptions: {
+    status: 'published',
+    label: 'Program Description',
+    value: [{ program: 'Sample Program', text: ['Description first.'] }],
+  },
   history: { status: 'published', label: 'History', value: ['History first.', 'History second.'] },
+  deans: { status: 'published', label: 'Deans', value: ['Dean One (2000 - 2001)'] },
+};
+
+/** Every slot pending, as before any UCN material arrived. */
+const pendingHome: HomeContent = {
+  ...realHome,
+  presidentMessage: { status: 'pending', label: realHome.presidentMessage.label },
+  deanMessage: { status: 'pending', label: realHome.deanMessage.label },
+  programChairMessage: { status: 'pending', label: realHome.programChairMessage.label },
+};
+const pendingAbout: AboutContent = {
+  photo: { status: 'pending', label: 'About photograph' },
+  mission: { status: 'pending', label: 'Mission' },
+  vision: { status: 'pending', label: 'Vision' },
+  goals: { status: 'pending', label: 'Goals' },
+  objectives: { status: 'pending', label: 'Objectives' },
+  programDescriptions: { status: 'pending', label: 'Program Description' },
+  history: { status: 'pending', label: 'History' },
+  deans: { status: 'pending', label: 'Deans' },
 };
 
 /** The page's outline: headings, named landmarks, and the key images and controls, in document order. */
@@ -93,6 +126,7 @@ describe('HomeView', () => {
       'section: Graduate School video',
       'video player',
       'h2: Messages',
+      'h3: Sample President',
       'h3: Sample Dean',
       'h3: Sample Chair',
       'h2: About the Graduate School',
@@ -152,7 +186,8 @@ describe('HomeView', () => {
     expect(screen.getByText('Mission first.')).toBeTruthy();
     expect(screen.getByText('Vision first.')).toBeTruthy();
     expect(screen.getByText('Goals first.')).toBeTruthy();
-    expect(screen.getByText('Objectives first.')).toBeTruthy();
+    // Objectives are per-program lists, so the Goals and Objectives preview quotes the goal only.
+    expect(screen.queryByText('Objectives first.')).toBeNull();
     expect(screen.getByText('History first.')).toBeTruthy();
     expect(screen.queryByText('Mission second.')).toBeNull();
     expect(screen.queryByText('History second.')).toBeNull();
@@ -164,7 +199,7 @@ describe('HomeView', () => {
   });
 
   it('shows a pending notice for each missing slot in development', () => {
-    renderUi(<HomeView home={realHome} about={realAbout} site={realSite} />);
+    renderUi(<HomeView home={pendingHome} about={pendingAbout} site={realSite} />);
     expect(screen.getAllByRole('note').length).toBeGreaterThanOrEqual(8);
     expect(screen.getByText('Pending: First accreditation slide')).toBeTruthy();
     expect(screen.queryByText('Accreditation materials are being prepared.')).toBeNull();
@@ -172,7 +207,7 @@ describe('HomeView', () => {
 
   it('all-pending production home is not an empty shell', () => {
     production();
-    renderUi(<HomeView home={realHome} about={realAbout} site={realSite} />);
+    renderUi(<HomeView home={pendingHome} about={pendingAbout} site={realSite} />);
     expect(screen.getByRole('heading', { level: 1, name: 'University of Camarines Norte Graduate School' })).toBeTruthy();
     expect(screen.getByRole('navigation', { name: 'Principal accreditation resources' })).toBeTruthy();
     expect(screen.getByRole('heading', { level: 2, name: 'LEVEL IV AACCUP ACCREDITATION' })).toBeTruthy();
@@ -185,10 +220,10 @@ describe('HomeView', () => {
   it('production hides pending slots but keeps published ones, without the empty note', () => {
     production();
     const partial: HomeContent = {
-      ...realHome,
+      ...pendingHome,
       accreditationSlide1: fullHome.accreditationSlide1,
     };
-    const { container } = renderUi(<HomeView home={partial} about={realAbout} site={realSite} />);
+    const { container } = renderUi(<HomeView home={partial} about={pendingAbout} site={realSite} />);
     expect(outline(container)).toContain('img: Accreditation slide one');
     expect(screen.queryByText('Accreditation materials are being prepared.')).toBeNull();
     expect(screen.queryAllByRole('note')).toHaveLength(0);
@@ -224,6 +259,46 @@ describe('LeaderMessageCard', () => {
     const { container } = render(<LeaderMessageCard message={{ ...message, photo: undefined }} />);
     expect(container.querySelector('img')).toBeNull();
     expect(screen.getByRole('heading', { level: 3, name: 'Sample Dean' })).toBeTruthy();
+  });
+
+  it('uses a given placeholder photo only when there is no real photo', () => {
+    const placeholder = image('Placeholder scenery');
+    const { container, unmount } = render(
+      <LeaderMessageCard message={{ ...message, photo: undefined }} placeholderPhoto={placeholder} />,
+    );
+    expect(container.querySelector('img')?.getAttribute('alt')).toBe('Placeholder scenery');
+    unmount();
+    const real = render(<LeaderMessageCard message={message} placeholderPhoto={placeholder} />);
+    expect(real.container.querySelector('img')?.getAttribute('alt')).toBe('Dean photo');
+  });
+});
+
+describe('HomeView messages', () => {
+  it('stacks President, Dean and Program Chair in that order, passing each placeholder to its card', () => {
+    const placeholders = { president: image('P stand-in'), dean: image('D stand-in'), programChair: image('C stand-in') };
+    const noPhotos: HomeContent = {
+      ...fullHome,
+      deanMessage: { status: 'published', label: 'Dean', value: { name: 'Sample Dean', position: 'Dean', paragraphs: ['x'] } },
+    };
+    renderUi(<HomeView home={noPhotos} about={fullAbout} site={site} messagePlaceholders={placeholders} />);
+    const section = screen.getByRole('heading', { level: 2, name: 'Messages' }).closest('section') as HTMLElement;
+    const order = Array.from(section.querySelectorAll('article')).map((card) => [
+      card.querySelector('h3')?.textContent,
+      card.querySelector('img')?.getAttribute('alt'),
+    ]);
+    expect(order).toEqual([
+      ['Sample President', 'P stand-in'],
+      ['Sample Dean', 'D stand-in'],
+      ['Sample Chair', 'C stand-in'],
+    ]);
+  });
+
+  it('shows no placeholder when none is passed (production)', () => {
+    production();
+    renderUi(<HomeView home={fullHome} about={fullAbout} site={site} />);
+    const section = screen.getByRole('heading', { level: 2, name: 'Messages' }).closest('section') as HTMLElement;
+    const alts = Array.from(section.querySelectorAll('img')).map((img) => img.getAttribute('alt'));
+    expect(alts).toEqual(['Dean photo']);
   });
 });
 

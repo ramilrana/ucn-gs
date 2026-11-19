@@ -90,12 +90,21 @@ export function collectPending(content: Content): PendingEntry[] {
   home.slot(h.accreditationSlide2);
   home.slot(h.gallery);
   home.resource(h.video);
-  home.slot(h.deanMessage);
-  home.slot(h.programChairMessage);
+  for (const [slot, who] of [
+    [h.presidentMessage, "President's"],
+    [h.deanMessage, "Dean's"],
+    [h.programChairMessage, "Program Chair's"],
+  ] as const) {
+    home.slot(slot);
+    // A published message without a real photo still needs one (dev/preview shows a stand-in meanwhile).
+    if (slot.status === 'published' && !slot.value.photo) home.add(`${who} photograph (message is published)`);
+  }
 
   const about = createCollector('About', '/about', out);
   const a = content.about;
-  for (const s of [a.photo, a.mission, a.vision, a.goals, a.objectives, a.history]) about.slot(s);
+  for (const s of [a.photo, a.vision, a.mission, a.goals, a.objectives, a.programDescriptions, a.history, a.deans]) {
+    about.slot(s);
+  }
 
   const faculty = createCollector('Faculty by department', '/about/faculty-by-department', out);
   const people = createCollector('People', '/about/people', out);

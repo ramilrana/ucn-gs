@@ -94,6 +94,14 @@ describe('checkDist', () => {
     expect(errors[0]).toContain('files/dev-sample.pdf');
   });
 
+  it('flags a dev placeholder photo anywhere under dist', () => {
+    const dist = makeDist('/gs/');
+    write(join(dist, 'assets', 'dev-placeholder-dean-Ab12Cd.webp'), 'x');
+    const errors = checkDist(dist);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain('assets/dev-placeholder-dean-Ab12Cd.webp');
+  });
+
   it('does not flag other PDFs', () => {
     const dist = makeDist('/gs/');
     write(join(dist, 'files', 'narrative-report.pdf'), PDF_BYTES);

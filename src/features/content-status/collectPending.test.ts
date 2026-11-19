@@ -16,8 +16,9 @@ describe('collectPending', () => {
         'Second accreditation slide',
         'Second slideshow or photo gallery',
         'Graduate School video',
-        "Dean's photograph and message",
-        "Program Chair's photograph and message",
+        "President's photograph (message is published)",
+        "Dean's photograph (message is published)",
+        "Program Chair's photograph (message is published)",
       ]),
     );
     expect(home.every((e) => e.path === '/')).toBe(true);

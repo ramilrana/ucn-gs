@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { RootLayout } from '../../app/RootLayout';
@@ -36,7 +36,9 @@ const pendingAbout: AboutContent = {
   vision: { status: 'pending', label: 'Vision' },
   goals: { status: 'pending', label: 'Goals' },
   objectives: { status: 'pending', label: 'Objectives' },
+  programDescriptions: { status: 'pending', label: 'Program Description' },
   history: { status: 'pending', label: 'History' },
+  deans: { status: 'pending', label: 'Deans' },
 };
 
 const fullAbout: AboutContent = {
@@ -48,8 +50,24 @@ const fullAbout: AboutContent = {
   mission: { status: 'published', label: 'Mission', value: ['Mission text.'] },
   vision: { status: 'published', label: 'Vision', value: ['Vision text.'] },
   goals: { status: 'published', label: 'Goals', value: ['Goal one.', 'Goal two.'] },
-  objectives: { status: 'published', label: 'Objectives', value: ['Objective one.'] },
-  history: { status: 'published', label: 'History', value: ['History text.'] },
+  objectives: {
+    status: 'published',
+    label: 'Program Objectives',
+    value: [
+      { program: 'Program A Objectives', text: ['Objective one;', 'Objective two.'] },
+      { program: 'Program B Objectives', text: ['Objective three.'] },
+    ],
+  },
+  programDescriptions: {
+    status: 'published',
+    label: 'Program Description',
+    value: [
+      { program: 'Program A Description', text: ['Description A.'] },
+      { program: 'Program B Description', text: ['Description B.'] },
+    ],
+  },
+  history: { status: 'published', label: 'History', value: ['History text.', 'Led by several Deans:'] },
+  deans: { status: 'published', label: 'Deans', value: ['Dean One (2000 - 2001)', 'Dean Two (2001 - present)'] },
 };
 
 const settle = (ms = 50) =>
@@ -184,7 +202,7 @@ describe('AboutView', () => {
   it('about sections have stable anchors', () => {
     production();
     const { container } = renderUi(<AboutView about={fullAbout} />);
-    for (const id of ['mission-and-vision', 'goals-and-objectives', 'history']) {
+    for (const id of ['mission-and-vision', 'goals-and-objectives', 'program-description', 'history']) {
       const section = container.querySelector(`section#${id}`);
       expect(section, id).not.toBeNull();
       expect(section?.querySelector('h2')).not.toBeNull();
@@ -192,11 +210,12 @@ describe('AboutView', () => {
     expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual([
       'Mission and Vision',
       'Goals and Objectives',
+      'Program Description',
       'History',
     ]);
     const nav = screen.getByRole('navigation', { name: 'On this page' });
     const hrefs = Array.from(nav.querySelectorAll('a')).map((a) => a.getAttribute('href'));
-    expect(hrefs).toEqual(['#mission-and-vision', '#goals-and-objectives', '#history']);
+    expect(hrefs).toEqual(['#mission-and-vision', '#goals-and-objectives', '#program-description', '#history']);
     // Navigation landmarks get 44px targets (ruling R11).
     for (const a of Array.from(nav.querySelectorAll('a'))) {
       expect(a.className).toContain('min-h-11');
@@ -205,6 +224,41 @@ describe('AboutView', () => {
     }
     expect(screen.getByText('Mission text.')).toBeTruthy();
     expect(screen.getByRole('img', { name: 'The campus' })).toBeTruthy();
+  });
+
+  it('shows Vision before Mission, and goals then per-program objective lists under h3/h4 headings', () => {
+    production();
+    const { container } = renderUi(<AboutView about={fullAbout} />);
+    const mv = container.querySelector('section#mission-and-vision') as HTMLElement;
+    expect(Array.from(mv.querySelectorAll('h3')).map((h) => h.textContent)).toEqual(['Vision', 'Mission']);
+    const go = container.querySelector('section#goals-and-objectives') as HTMLElement;
+    expect(Array.from(go.querySelectorAll('h3, h4')).map((h) => `${h.tagName}: ${h.textContent}`)).toEqual([
+      'H3: Goals',
+      'H3: Program Objectives',
+      'H4: Program A Objectives',
+      'H4: Program B Objectives',
+    ]);
+    const lists = Array.from(go.querySelectorAll('ul')).map((ul) => Array.from(ul.querySelectorAll('li')).map((li) => li.textContent));
+    expect(lists).toEqual([['Objective one;', 'Objective two.'], ['Objective three.']]);
+  });
+
+  it('shows each program description under its own h3, and the deans as a list after the history', () => {
+    production();
+    const { container } = renderUi(<AboutView about={fullAbout} />);
+    const pd = container.querySelector('section#program-description') as HTMLElement;
+    expect(Array.from(pd.querySelectorAll('h3')).map((h) => h.textContent)).toEqual([
+      'Program A Description',
+      'Program B Description',
+    ]);
+    expect(within(pd).getByText('Description B.').tagName).toBe('P');
+    const history = container.querySelector('section#history') as HTMLElement;
+    const items = Array.from(history.querySelectorAll('p, li')).map((el) => `${el.tagName}: ${el.textContent}`);
+    expect(items).toEqual([
+      'P: History text.',
+      'P: Led by several Deans:',
+      'LI: Dean One (2000 - 2001)',
+      'LI: Dean Two (2001 - present)',
+    ]);
   });
 
   it('about with everything pending in production shows the preparing note and no headings', () => {
@@ -227,7 +281,9 @@ describe('AboutView', () => {
   it('about shows pending notices for every section when pending content is shown', () => {
     vi.stubEnv('VITE_CONTENT_PREVIEW', 'true');
     renderUi(<AboutView about={pendingAbout} />);
-    expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(3);
+    expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(4);
+    expect(screen.getByText('Pending: Program Description')).toBeTruthy();
+    expect(screen.getByText('Pending: Deans')).toBeTruthy();
     expect(screen.getByText('Pending: Mission')).toBeTruthy();
     expect(screen.getByText('Pending: History')).toBeTruthy();
     expect(screen.getByText('Pending: About photograph')).toBeTruthy();

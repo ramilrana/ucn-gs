@@ -15,6 +15,8 @@ interface HomeViewProps {
   home: HomeContent;
   about: AboutContent;
   site: SiteContent;
+  /** Dev/preview-only stand-in photos for messages without a real photo. Production passes none. */
+  messagePlaceholders?: Partial<Record<'president' | 'dean' | 'programChair', ImageAsset>>;
 }
 
 const wrap = 'mx-auto max-w-7xl px-4 sm:px-6';
@@ -78,17 +80,19 @@ function Band({ children }: { children: ReactNode }) {
 }
 
 /** The Home page, in spec section 4 order. Each section renders only when its slot is published (or, in dev, pending). */
-export function HomeView({ home, about, site }: HomeViewProps) {
+export function HomeView({ home, about, site, messagePlaceholders = {} }: HomeViewProps) {
   const programName = slotValue(site.programName);
   const leadership = slotValue(home.leadershipSlides);
   const gallery = slotValue(home.gallery);
+  const president = slotValue(home.presidentMessage);
   const dean = slotValue(home.deanMessage);
   const chair = slotValue(home.programChairMessage);
   const aboutPhoto = slotValue(about.photo);
 
   const previews: Preview[] = [
     { id: 'mission-and-vision', title: 'Mission and Vision', slots: [about.mission, about.vision] },
-    { id: 'goals-and-objectives', title: 'Goals and Objectives', slots: [about.goals, about.objectives] },
+    // Objectives are per-program lists, so the preview quotes the goal paragraph only.
+    { id: 'goals-and-objectives', title: 'Goals and Objectives', slots: [about.goals] },
     { id: 'history', title: 'History', slots: [about.history] },
   ].filter((preview) => preview.slots.some(listRenders));
 
@@ -97,7 +101,8 @@ export function HomeView({ home, about, site }: HomeViewProps) {
   const showSlide2 = singleRenders(home.accreditationSlide2);
   const showGallery = listRenders(home.gallery);
   const showVideo = videoRenders(home.video);
-  const showMessages = singleRenders(home.deanMessage) || singleRenders(home.programChairMessage);
+  const showMessages =
+    singleRenders(home.presidentMessage) || singleRenders(home.deanMessage) || singleRenders(home.programChairMessage);
   const showAbout = singleRenders(about.photo) || previews.length > 0;
   // In production with everything pending, none of these is true and the page says so instead of ending after the heading.
   const hasAnything =
@@ -170,10 +175,20 @@ export function HomeView({ home, about, site }: HomeViewProps) {
               <SectionHeading level={2} id="messages-title">
                 Messages
               </SectionHeading>
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
-                {dean ? <LeaderMessageCard message={dean} /> : <PendingNotice label={home.deanMessage.label} />}
+              {/* President, Dean, then Program Chair, stacked: the messages are long and read better full width. */}
+              <div className="grid grid-cols-1 gap-6">
+                {president ? (
+                  <LeaderMessageCard message={president} placeholderPhoto={messagePlaceholders.president} />
+                ) : (
+                  <PendingNotice label={home.presidentMessage.label} />
+                )}
+                {dean ? (
+                  <LeaderMessageCard message={dean} placeholderPhoto={messagePlaceholders.dean} />
+                ) : (
+                  <PendingNotice label={home.deanMessage.label} />
+                )}
                 {chair ? (
-                  <LeaderMessageCard message={chair} />
+                  <LeaderMessageCard message={chair} placeholderPhoto={messagePlaceholders.programChair} />
                 ) : (
                   <PendingNotice label={home.programChairMessage.label} />
                 )}
