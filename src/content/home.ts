@@ -46,10 +46,10 @@ export const home: HomeContent = {
     label: "Program Chair's photograph and message",
     value: {
       name: 'ROSALIE A. ALMADRONES, PhD',
-      position: 'Program Chairperson, Master of Public Administration Program',
+      position: 'Program Chairperson, Master in Public Administration Program',
       paragraphs: [
-        'On behalf of the faculty members, students, and staff of the Master of Public Administration (MPA) Program, I warmly welcome you to our Graduate School. It is my privilege to share with you the continuing journey, accomplishments, and aspirations of our academic community as we pursue excellence in public administration education, research, and public service.',
-        'The Master of Public Administration Program is committed to developing competent, ethical, and transformative public administrators who are equipped with the knowledge, skills, and values necessary to address the evolving challenges of governance and public service. Through quality instruction, relevant research, and meaningful community engagement, we strive to provide our students with opportunities to deepen their understanding of public policies, institutional management, leadership, and the dynamics of public governance.',
+        'On behalf of the faculty members, students, and staff of the Master in Public Administration (MPA) Program, I warmly welcome you to our Graduate School. It is my privilege to share with you the continuing journey, accomplishments, and aspirations of our academic community as we pursue excellence in public administration education, research, and public service.',
+        'The Master in Public Administration Program is committed to developing competent, ethical, and transformative public administrators who are equipped with the knowledge, skills, and values necessary to address the evolving challenges of governance and public service. Through quality instruction, relevant research, and meaningful community engagement, we strive to provide our students with opportunities to deepen their understanding of public policies, institutional management, leadership, and the dynamics of public governance.',
         'As Program Chairperson, I am honored to lead and work alongside individuals who share a common vision of academic excellence and public service. Moving forward, we remain committed to sustaining our accomplishments, embracing opportunities for innovation, strengthening partnerships, and continuously enhancing the quality and relevance of our program.',
         'Together, let us continue to cultivate principled leadership, advance good governance, and inspire positive transformation through public service.',
       ],

@@ -60,9 +60,9 @@ export const about: AboutContent = {
         program: 'Master in Public Administration Program Objectives',
         text: [
           'To develop effective and efficient leaders and administrators of the government organizations;',
-          'To enhance students capability in decision-making;',
+          'To enhance students’ capability in decision-making;',
           'To facilitate conduct of research that promote economic, scientific, political and social progress; and',
-          'To improve students professional skills in public administration and governance.',
+          'To improve students’ professional skills in public administration and governance.',
         ],
       },
       {
@@ -98,7 +98,7 @@ export const about: AboutContent = {
     label: 'Program Description',
     value: [
       {
-        program: 'Doctor IN Business Administration Program Description',
+        program: 'Doctor in Business Administration Program Description',
         text: [
           'The Doctor in Business Administration is a program designed to meet the needs of top executives, entrepreneurs, and business faculty to contribute to their fields and respond to the needs of society particularly in the management of various government and private agencies. The program combines an in-depth examination of theories and practices in management, specifically research methods and basic discipline which contribute to the understanding of the managerial process. The program seeks to broaden students’ understanding of managerial processes and the relationship of management in national and international issues. Likewise, it is designed to combine practitioners’ experiences in academic abstraction in a distinctive curriculum content with the mission of the college.',
         ],
@@ -112,7 +112,7 @@ export const about: AboutContent = {
       {
         program: 'Doctor of Education Program Description',
         text: [
-          'This executive program in educational leadership and management is designed for experience educational leaders and managers. Through the adoption of an innovative teaching-learning system that combines traditional classroom work with technology-enabled learning strategies, independent study and one-to-one faculty, student consultation, the program enables the participants to complement their extant knowledge, competencies and skills in the various areas of educational leadership and management.',
+          'This executive program in educational leadership and management is designed for experienced educational leaders and managers. Through the adoption of an innovative teaching-learning system that combines traditional classroom work with technology-enabled learning strategies, independent study and one-to-one faculty, student consultation, the program enables the participants to complement their extant knowledge, competencies and skills in the various areas of educational leadership and management.',
         ],
       },
       {
@@ -124,13 +124,13 @@ export const about: AboutContent = {
       {
         program: 'Master in Business Administration Program Description',
         text: [
-          'The Master in Business Administration (MBA) program is designed to develop competent and socially responsible managers and leaders in today’s global business environment. The program focuses on those skills needed by business professionals such as analytical reasoning, communication, leadership, strategic thinking professional competence, critical and creative thinking skills, technical competitive skills, productivity, social and ethical responsibility, interpersonal skills and lifelong learning. The curriculum emphasizes the knowledge of fundamental and advanced business practices. applications currently in demand in international and multinational corporations while integrating global trends and practices and information systems application. The program is designed for professionals who already have relevant experience gained in the workplace, but wish to develop their business administration and leadership skills. It is designed for working professionals who wish to pursue further career advancement in their respective fields. In addition, the MBA course exposes future senior leaders and managers to all aspects of business at a graduate level and prepares them for senior management responsibilities.',
+          'The Master in Business Administration (MBA) program is designed to develop competent and socially responsible managers and leaders in today’s global business environment. The program focuses on those skills needed by business professionals such as analytical reasoning, communication, leadership, strategic thinking professional competence, critical and creative thinking skills, technical competitive skills, productivity, social and ethical responsibility, interpersonal skills and lifelong learning. The curriculum emphasizes the knowledge of fundamental and advanced business practices, applications currently in demand in international and multinational corporations while integrating global trends and practices and information systems application. The program is designed for professionals who already have relevant experience gained in the workplace, but wish to develop their business administration and leadership skills. It is designed for working professionals who wish to pursue further career advancement in their respective fields. In addition, the MBA course exposes future senior leaders and managers to all aspects of business at a graduate level and prepares them for senior management responsibilities.',
         ],
       },
       {
         program: 'Master of Arts in Education',
         text: [
-          'This program aims to cultivate essential skills and strategies for teaching, tailored to meet the evolving educational needs of diverse student learners within a knowledge-based community. Additionally, it enhances teachers’ proficiency in school leadership, management. and administration, guided by educational theories, principles, and practices, in consideration of the emerging changes and developments from local, national and international perspectives.',
+          'This program aims to cultivate essential skills and strategies for teaching, tailored to meet the evolving educational needs of diverse student learners within a knowledge-based community. Additionally, it enhances teachers’ proficiency in school leadership, management, and administration, guided by educational theories, principles, and practices, in consideration of the emerging changes and developments from local, national and international perspectives.',
         ],
       },
       {
