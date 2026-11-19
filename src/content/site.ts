@@ -6,7 +6,7 @@ export const site: SiteContent = {
   programName: {
     status: 'published',
     label: 'Name of the program under accreditation',
-    value: 'AACCUP Level IV Phase 2 Accreditation of the Master in Public Administration (MPA) Program, 2026',
+    value: 'Master in Public Administration',
   },
   areasLabel: 'Accreditation Areas',
   contentUpdated: '2026-11-18',

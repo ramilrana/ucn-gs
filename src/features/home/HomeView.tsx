@@ -7,6 +7,7 @@ import { ActionLink } from '../../components/ui/ActionLink';
 import { SectionHeading } from '../../components/ui/SectionHeading';
 import { isVisible, showPending, slotValue } from '../../lib/published';
 import type { AboutContent, HomeContent, ImageAsset, SiteContent, Slot } from '../../types/content';
+import { HomeHero } from './HomeHero';
 import { LeaderMessageCard } from './LeaderMessageCard';
 import { QuickAccess } from './QuickAccess';
 
@@ -104,31 +105,22 @@ export function HomeView({ home, about, site }: HomeViewProps) {
 
   return (
     <>
-      <div className="on-maroon bg-maroon-800 text-white">
-        <div className={`${wrap} py-10 sm:py-12 lg:py-14`}>
-          <h1
-            id="page-title"
-            tabIndex={-1}
-            className="font-serif text-3xl font-semibold leading-tight tracking-tight text-white outline-none sm:text-4xl lg:text-5xl"
-          >
-            {`${site.universityName} ${site.schoolName}`}
-          </h1>
-          {programName && <p className="mt-3 max-w-[60ch] text-lg text-white">{programName}</p>}
-          <div aria-hidden="true" className="mt-5 h-[3px] w-16 bg-gold-500" />
-          {showLeadership && (
-            <div className="mt-8 sm:mt-10">
-              {leadership && leadership.length > 0 ? (
-                // The white panel keeps the slideshow dots visible, and on-light resets the gold focus ring (D9: gold on maroon only).
-                <div className="on-light mx-auto max-w-4xl rounded bg-white p-3 sm:p-4">
-                  <Slideshow label="Graduate School leadership" slides={leadership} />
-                </div>
-              ) : (
-                <PendingNotice label={home.leadershipSlides.label} />
-              )}
-            </div>
-          )}
+      <HomeHero universityName={site.universityName} schoolName={site.schoolName} programName={programName} />
+
+      {showLeadership && (
+        <div className="on-maroon bg-maroon-800 text-white">
+          <div className={`${wrap} py-8 sm:py-10`}>
+            {leadership && leadership.length > 0 ? (
+              // The white panel keeps the slideshow dots visible, and on-light resets the gold focus ring (D9: gold on maroon only).
+              <div className="on-light mx-auto max-w-4xl rounded bg-white p-3 sm:p-4">
+                <Slideshow label="Graduate School leadership" slides={leadership} />
+              </div>
+            ) : (
+              <PendingNotice label={home.leadershipSlides.label} />
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       <QuickAccess areasLabel={site.areasLabel} />
 
