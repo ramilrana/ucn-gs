@@ -54,7 +54,7 @@
 | D5 | Each item has a `published` or `pending` status. Pending items show in dev and preview builds, are hidden in production, and are listed on a dev-only `/content-status` page. | Accreditors never see empty or fake slots. |
 | D6 | Deploy to UCN's own local server running Nginx. Write a per-route `index.html` after build and generate the Nginx config from `deploy/nginx.conf.template`. Remove `vercel.json`, `public/_headers` and `public/_redirects`. | Configure only the platform in use. Routes work without rewrites. Changed 2026-11-18: Nginx, Apache files removed — reason: user's answer to §14. |
 | D7 | Refactor in place (approach A). Content lives in typed TS modules plus a content validation test. | Preserves working CI, security setup and conventions. |
-| D8 | No slideshow autoplay, except the Home leadership carousel. | Avoids distracting motion and the pause-control requirement. Changed 2026-11-20: the Home leadership carousel is full width and auto-advances every 6 s — reason: user's request. It meets WCAG 2.2.2 with a visible Pause/Play button, pauses on hover and while focus is inside, starts paused under reduced motion, and keeps its live region off while rotating. Area galleries still never autoplay. |
+| D8 | No slideshow autoplay, except the Home leadership carousel. | Avoids distracting motion and the pause-control requirement. Changed 2026-11-20: the Home leadership carousel is a full-width "peek" carousel (current slide centred at up to its own 1056px, neighbours' edges dimmed on both sides; chosen by the user from four previewed layouts: full, exact, in-banner, peek) and auto-advances every 6 s — reason: user's request. It meets WCAG 2.2.2 with a visible Pause/Play button, pauses on hover and while focus is inside, starts paused under reduced motion, and keeps its live region off while rotating. Area galleries still never autoplay. |
 | D9 | Gold is never used as text, focus ring or state indicator on white. | Gold on white is about 2.1:1, below the 3:1 minimum. |
 | R19 | Local PDFs may display inline only when the resource sets `inline: true` (rules in §7, headers in §8). Other local files show an Open / Download card and local video an Open link. | R19 (checkpoint B, 2026-10-30) said local files are never framed, because §8 forbade `frame-src 'self'`. Changed 2026-11-18: partly reversed — reason: user's answer to §14, PDF display is chosen per document. |
 
@@ -78,7 +78,7 @@
 | `*` | 404 |
 
 **Home sections, in the required order:**
-1. Leadership carousel (President, then Dean, then faculty), full viewport width, sliding, auto-advancing with Pause/Play (D8 exception, 2026-11-20)
+1. Leadership carousel (President, then Dean, then faculty): full-width "peek" layout, sliding, auto-advancing with Pause/Play (D8 exception, 2026-11-20)
 2. Quick-access row: Areas, Compliance Report, AVP, Certificate
 3. First accreditation slide
 4. **MPA LEVEL 4 PHASE 2 AACCUP ACCREDITATION** (renamed 2026-11-20, user's request; was "LEVEL IV AACCUP ACCREDITATION")

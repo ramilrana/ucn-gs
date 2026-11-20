@@ -23,13 +23,17 @@ afterEach(() => {
 });
 
 describe('HeroCarousel', () => {
-  it('is a labelled full-width carousel whose track moves to the current slide', () => {
+  it('is a labelled full-width peek carousel that centres the current slide and dims the neighbours', () => {
     const { container } = render(<HeroCarousel label="Leadership" slides={slides} />);
     const region = screen.getByRole('region', { name: 'Leadership' });
     expect(region.className).toContain('w-full');
-    expect((container.querySelector('[data-track]') as HTMLElement).style.transform).toBe('translateX(-0%)');
+    const track = container.querySelector('[data-track]') as HTMLElement;
+    expect(track.style.transform).toContain('0.5 * min(80%, 1056px)');
     fireEvent.click(screen.getByRole('button', { name: 'Next slide' }));
-    expect((container.querySelector('[data-track]') as HTMLElement).style.transform).toBe('translateX(-100%)');
+    expect(track.style.transform).toContain('1.5 * min(80%, 1056px)');
+    const groups = Array.from(container.querySelectorAll('[aria-roledescription="slide"]'));
+    expect(groups.map((g) => g.className.includes('opacity-40'))).toEqual([true, false, true]);
+    expect(groups[1]?.className).toContain('max-w-[1056px]');
     expect(currentDot()).toBe('Show slide 2');
   });
 

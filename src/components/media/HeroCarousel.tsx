@@ -10,6 +10,10 @@ interface HeroCarouselProps {
   intervalMs?: number;
 }
 
+// Each slide is 80% of the width, at most its own 1056px (so it stays sharp); the track shifts so the current
+// slide is centred and the neighbours' edges show on both sides ("peek", the user's choice 2026-11-20).
+const PEEK_WIDTH = 'min(80%, 1056px)';
+
 const SWIPE_DISTANCE = 40;
 export const HERO_INTERVAL_MS = 6000;
 
@@ -20,7 +24,7 @@ const roundButton =
   'inline-flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-white text-white hover:bg-maroon-800';
 
 /**
- * Full-width carousel for the Home leadership slides: slides move sideways, advance on their own, and can be moved
+ * Full-width "peek" carousel for the Home leadership slides: slides move sideways, advance on their own, and can be moved
  * by buttons, dots, arrow keys or swipe. Auto-advance (user's request 2026-11-20, replacing D8 for this carousel)
  * follows WCAG 2.2.2: a visible Pause button, and it also pauses while the pointer is over it or focus is inside it.
  * With reduced motion it starts paused and slides change without animation.
@@ -81,7 +85,7 @@ export function HeroCarousel({ label, slides, intervalMs = HERO_INTERVAL_MS }: H
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false);
       }}
-      className="on-maroon relative w-full bg-maroon-900"
+      className="on-maroon relative w-full bg-maroon-900 pt-6 sm:pt-8"
     >
       <div
         data-swipe-area=""
@@ -95,7 +99,7 @@ export function HeroCarousel({ label, slides, intervalMs = HERO_INTERVAL_MS }: H
         <div
           data-track=""
           className="flex transition-transform duration-700 ease-in-out motion-reduce:transition-none"
-          style={{ transform: `translateX(-${current * 100}%)` }}
+          style={{ transform: `translateX(calc(50% - ${current + 0.5} * ${PEEK_WIDTH}))` }}
         >
           {slides.map((slide, i) => {
             const broken = failed.has(i);
@@ -108,12 +112,14 @@ export function HeroCarousel({ label, slides, intervalMs = HERO_INTERVAL_MS }: H
                 aria-label={`${i + 1} of ${count}`}
                 aria-hidden={isCurrent ? undefined : true}
                 inert={!isCurrent}
-                className="w-full shrink-0"
+                className={`w-[80%] max-w-[1056px] shrink-0 px-1.5 transition-opacity duration-700 motion-reduce:transition-none sm:px-3 ${
+                  isCurrent ? '' : 'opacity-40'
+                }`}
               >
                 <img
                   src={broken ? FALLBACK_IMAGE : slide.src}
                   srcSet={broken ? undefined : slide.srcSet}
-                  sizes="100vw"
+                  sizes="(min-width: 1320px) 1056px, 80vw"
                   width={slide.width}
                   height={slide.height}
                   alt={slide.alt}
@@ -121,7 +127,7 @@ export function HeroCarousel({ label, slides, intervalMs = HERO_INTERVAL_MS }: H
                   loading={Math.abs(i - current) <= 1 || (current === count - 1 && i === 0) ? 'eager' : 'lazy'}
                   draggable={false}
                   onError={() => setFailed((prev) => new Set(prev).add(i))}
-                  className="block h-auto w-full"
+                  className="block h-auto w-full rounded shadow-lg"
                 />
               </div>
             );
