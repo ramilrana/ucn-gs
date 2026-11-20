@@ -172,11 +172,13 @@ describe('HomeView', () => {
     const nav = screen.getByRole('navigation', { name: 'Principal accreditation resources' });
     const links = within(nav).getAllByRole('link');
     expect(links.map((a) => [a.textContent, a.getAttribute('href')])).toEqual([
-      ['Accreditation Areas', '/accreditation-areas'],
-      ['Compliance Report', '/compliance-report'],
-      ['Audio Visual Presentations', '/avp'],
       ['Certificate of Authenticity', '/certificate-of-authenticity'],
+      ['Compliance Report', '/compliance-report'],
+      ['Accreditation Areas', '/accreditation-areas'],
+      ['Audio Visual Presentations', '/avp'],
     ]);
+    // Each tile has its own decorative icon (hidden from screen readers), not an arrow.
+    for (const link of links) expect(link.querySelector('span[aria-hidden="true"] svg')).not.toBeNull();
   });
 
   it('quick access uses the configured areas label', () => {
@@ -330,7 +332,7 @@ describe('QuickAccess', () => {
     expect(list?.className).toContain('grid-cols-1');
     expect(screen.getAllByRole('link')).toHaveLength(4);
     // A long word wraps inside the tile instead of pushing it past the viewport.
-    const label = screen.getByRole('link', { name: 'Accreditation Areas' }).querySelector('span');
+    const label = screen.getByRole('link', { name: 'Accreditation Areas' }).querySelector('span:last-child');
     expect(label?.className).toContain('min-w-0');
     expect(label?.className).toContain('break-words');
   });

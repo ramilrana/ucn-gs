@@ -26,7 +26,8 @@ function group(label: string, path: string, children: NavChild[]): NavItem {
 }
 
 /**
- * The six top-level header items, in order. A group with no visible pages (for example
+ * The six top-level header items, in order (user's order, 2026-11-20): Home, Certificate of Authenticity, Compliance
+ * Report, the areas, AVP, About. A group with no visible pages (for example
  * every area still pending in production) keeps its index link and drops `children`,
  * so the menu never shows an empty dropdown.
  */
@@ -52,14 +53,10 @@ export function buildNavModel(manifest: readonly RouteEntry[], areasLabel: strin
 
   return [
     group('Home', pathOf('home', '/'), []),
-    group(areasLabel, pathOf('areas-index', '/accreditation-areas'), ofKind('area').map(toChild)),
+    group('Certificate of Authenticity', pathOf('certificate', '/certificate-of-authenticity'), []),
     group('Compliance Report', pathOf('compliance-index', '/compliance-report'), complianceAreas),
+    group(areasLabel, pathOf('areas-index', '/accreditation-areas'), ofKind('area').map(toChild)),
     group('AVP', pathOf('avp', '/avp'), []),
-    group(
-      'Documents',
-      pathOf('certificate', '/certificate-of-authenticity'),
-      ofKind('certificate', 'additional-files').map(toChild),
-    ),
     group(
       'About',
       pathOf('about', '/about'),

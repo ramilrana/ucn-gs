@@ -11,7 +11,6 @@ export type RouteKind =
   | 'recommendation'
   | 'avp'
   | 'certificate'
-  | 'additional-files'
   | 'about'
   | 'about-people'
   | 'about-faculty'

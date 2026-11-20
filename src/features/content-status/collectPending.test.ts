@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import { sampleAreas, sampleRecommendations } from '../../dev/samples';
-import type { Area, Faq, Person, Recommendation, Resource, ResourceGroup } from '../../types/content';
+import type { Area, Faq, Person, Recommendation, Resource } from '../../types/content';
 import * as content from '../../content';
 import { collectPending } from './collectPending';
 
@@ -102,24 +102,10 @@ describe('collectPending', () => {
       answer: ['x'],
       status: 'pending',
     };
-    const sampleGroup: ResourceGroup = {
-      id: 'DEV-SAMPLE-files',
-      title: 'Sample files',
-      status: 'pending',
-      items: [
-        {
-          id: 'DEV-SAMPLE-file',
-          title: 'Sample file',
-          format: 'pdf',
-          status: 'pending',
-        },
-      ],
-    };
     const entries = collectPending({
       ...content,
       people: [samplePerson],
       faqs: [sampleFaq],
-      additionalFiles: [sampleGroup],
       contentAreas: sampleAreas,
       contentRecommendations: sampleRecommendations,
     });

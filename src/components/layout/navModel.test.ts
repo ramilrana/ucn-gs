@@ -51,21 +51,19 @@ describe('buildNavModel', () => {
     const nav = buildNavModel(full, 'Accreditation Areas');
     expect(nav.map((i) => [i.label, i.path])).toEqual([
       ['Home', '/'],
-      ['Accreditation Areas', '/accreditation-areas'],
+      ['Certificate of Authenticity', '/certificate-of-authenticity'],
       ['Compliance Report', '/compliance-report'],
+      ['Accreditation Areas', '/accreditation-areas'],
       ['AVP', '/avp'],
-      ['Documents', '/certificate-of-authenticity'],
       ['About', '/about'],
     ]);
     expect(nav[0]?.children).toBeUndefined();
-    expect(nav[3]?.children).toBeUndefined();
+    // The certificate is a single page now (Additional Files removed 2026-11-20), so no dropdown.
+    expect(nav[1]?.children).toBeUndefined();
+    expect(nav[4]?.children).toBeUndefined();
     expect(item(nav, 'Accreditation Areas').children?.map((c) => c.path)).toEqual([
       '/accreditation-areas/research',
       '/accreditation-areas/extension',
-    ]);
-    expect(item(nav, 'Documents').children?.map((c) => c.label)).toEqual([
-      'Certificate of Authenticity',
-      'Additional Files for the Accreditors',
     ]);
     expect(item(nav, 'About').children?.map((c) => c.label)).toEqual([
       'About the Graduate School',
@@ -76,7 +74,9 @@ describe('buildNavModel', () => {
   });
 
   it('uses the supplied areas label', () => {
-    expect(buildNavModel(full, 'Accreditation Scope')[1]?.label).toBe('Accreditation Scope');
+    expect(buildNavModel(full, 'Accreditation Scope').find((i) => i.path === '/accreditation-areas')?.label).toBe(
+      'Accreditation Scope',
+    );
   });
 
   it('omits children for a group with zero visible areas but keeps the index link', () => {
@@ -138,9 +138,9 @@ describe('isActive', () => {
     expect(isActive(compliance, '/compliance-reports')).toBe(false);
     expect(isActive(compliance, '/about')).toBe(false);
 
-    const documents = item(nav, 'Documents');
-    expect(isActive(documents, '/additional-files')).toBe(true);
-    expect(isActive(documents, '/certificate-of-authenticity')).toBe(true);
+    const certificate = item(nav, 'Certificate of Authenticity');
+    expect(isActive(certificate, '/certificate-of-authenticity')).toBe(true);
+    expect(isActive(certificate, '/additional-files')).toBe(false);
     expect(isActive(item(nav, 'About'), '/about/faculty-by-department')).toBe(true);
   });
 

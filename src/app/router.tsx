@@ -15,7 +15,6 @@ const pageLoaders: Record<RouteKind, () => Promise<PageModule>> = {
   recommendation: () => import('../pages/RecommendationPage'),
   avp: () => import('../pages/AvpPage'),
   certificate: () => import('../pages/CertificatePage'),
-  'additional-files': () => import('../pages/AdditionalFilesPage'),
   about: () => import('../pages/AboutPage'),
   'about-people': () => import('../pages/PeoplePage'),
   'about-faculty': () => import('../pages/FacultyByDepartmentPage'),
