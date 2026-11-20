@@ -1,6 +1,7 @@
-import chairPhoto from '../assets/home/messages/chair.png?w=240;480&format=webp&as=picture';
-import deanPhoto from '../assets/home/messages/dean.png?w=240;480&format=webp&as=picture';
-import presidentPhoto from '../assets/home/messages/president.png?w=240;480&format=webp&as=picture';
+import chairPhoto from '../assets/home/messages/chair.png?h=240;480&format=webp&as=picture';
+import deanPhoto from '../assets/home/messages/dean.png?h=240;480&format=webp&as=picture';
+// The President's file is only 247x339, so it is used at its own size (no enlargement).
+import presidentPhoto from '../assets/home/messages/president.png?format=webp&as=picture';
 import { toImageAsset } from '../lib/images';
 import type { HomeContent } from '../types/content';
 import { leadershipSlides } from './leadership';
@@ -17,8 +18,8 @@ export const home: HomeContent = {
   accreditationSlide2: { status: 'pending', label: 'Second accreditation slide' },
   gallery: { status: 'pending', label: 'Second slideshow or photo gallery' },
   video: { id: 'home-video', title: 'Graduate School video', format: 'video', status: 'pending' },
-  // Wording from UCN (2026-11-19). Photos from UCN (2026-11-20): backgrounds removed and cropped to the same
-  // head-and-shoulders framing (480x600, transparent; the card shows them on a light backdrop).
+  // Wording from UCN (2026-11-19). Photos from UCN (2026-11-20), shown in full as supplied (user's request: no
+  // cropping); only the Dean's white background was removed, and large files scaled down to 960px high.
   presidentMessage: {
     status: 'published',
     label: "President's photograph and message",
