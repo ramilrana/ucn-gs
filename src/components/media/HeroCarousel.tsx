@@ -15,7 +15,7 @@ interface HeroCarouselProps {
 const PEEK_WIDTH = 'min(80%, 1056px)';
 
 const SWIPE_DISTANCE = 40;
-export const HERO_INTERVAL_MS = 6000;
+export const HERO_INTERVAL_MS = 4000;
 
 const reducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
