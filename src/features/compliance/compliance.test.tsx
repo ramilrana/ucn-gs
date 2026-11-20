@@ -172,6 +172,51 @@ describe('ComplianceIndexView', () => {
     await waitFor(() => expect(document.activeElement?.textContent).toBe('Community Service'));
   });
 
+  it('index with an area hash shows only that area, without the overview, and links back to every area', () => {
+    production();
+    renderUi(
+      <ComplianceIndexView
+        overview={{ status: 'published', label: 'Overview', value: ['Overview text.'] }}
+        areas={[research, community]}
+        recommendations={[makeRec({ number: 1 }), makeRec({ areaSlug: 'community-service', number: 1 })]}
+      />,
+      '/compliance-report#community-service',
+    );
+    const headings = screen.getAllByRole('heading', { level: 2 });
+    expect(headings.map((h) => h.textContent)).toEqual(['Community Service']);
+    expect(screen.queryByText('Overview text.')).toBeNull();
+    expect(screen.getByRole('link', { name: 'Show the recommendations of every area' }).getAttribute('href')).toBe(
+      '/compliance-report',
+    );
+  });
+
+  it('index without a hash, or with an unknown or malformed one, shows every area and the overview', () => {
+    production();
+    for (const path of ['/compliance-report', '/compliance-report#nope', '/compliance-report#%']) {
+      const { unmount } = renderUi(
+        <ComplianceIndexView
+          overview={{ status: 'published', label: 'Overview', value: ['Overview text.'] }}
+          areas={[research, community]}
+          recommendations={[makeRec({ number: 1 }), makeRec({ areaSlug: 'community-service', number: 1 })]}
+        />,
+        path,
+      );
+      expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(2);
+      expect(screen.getByText('Overview text.')).toBeTruthy();
+      expect(screen.queryByRole('link', { name: 'Show the recommendations of every area' })).toBeNull();
+      unmount();
+    }
+  });
+
+  it('index has no "every area" link when only one area has recommendations', () => {
+    production();
+    renderUi(
+      <ComplianceIndexView overview={pendingOverview} areas={[research, community]} recommendations={[makeRec({ number: 1 })]} />,
+      '/compliance-report#research',
+    );
+    expect(screen.queryByRole('link', { name: 'Show the recommendations of every area' })).toBeNull();
+  });
+
   it('index puts the scroll margin on the focused h2, not the section', () => {
     production();
     renderUi(
