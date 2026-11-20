@@ -17,8 +17,8 @@ const PEEK_WIDTH = 'min(80%, 1056px)';
 const SWIPE_DISTANCE = 40;
 export const HERO_INTERVAL_MS = 4000;
 
-const reducedMotion = () =>
-  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
+const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia(REDUCED_MOTION).matches;
 
 const roundButton =
   'inline-flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-white text-white hover:bg-maroon-800';
@@ -26,27 +26,58 @@ const roundButton =
 /**
  * Full-width "peek" carousel for the Home leadership slides: slides move sideways, advance on their own, and can be moved
  * by buttons, dots, arrow keys or swipe. Auto-advance (user's request 2026-11-20, replacing D8 for this carousel)
- * follows WCAG 2.2.2: a visible Pause button, and it also pauses while the pointer is over it or focus is inside it.
- * With reduced motion it starts paused and slides change without animation.
+ * follows WCAG 2.2.2 and the APG auto-rotating carousel pattern: the Pause/Play button comes first; it pauses while the
+ * mouse is over it; keyboard focus entering it stops rotation until the user presses Play (Play also overrides the hover
+ * pause). With reduced motion (at load or switched on later) it is paused, and slides change without animation.
  */
 export function HeroCarousel({ label, slides, intervalMs = HERO_INTERVAL_MS }: HeroCarouselProps) {
   const [index, setIndex] = useState(0);
   const [userPaused, setUserPaused] = useState(reducedMotion);
   const [hovered, setHovered] = useState(false);
-  const [focused, setFocused] = useState(false);
   const [failed, setFailed] = useState<ReadonlySet<number>>(() => new Set());
   const swipeStart = useRef<number | null>(null);
+  // The last input anywhere on the page. Only focus that arrives after a key press counts as keyboard entry: a mouse
+  // click or a tap (Android focuses on the mousedown that follows pointerup) or returning to the window does not.
+  const lastInput = useRef<'keyboard' | 'pointer' | null>(null);
 
   const count = slides.length;
   const multiple = count > 1;
   const current = Math.min(index, Math.max(count - 1, 0));
-  const playing = multiple && !userPaused && !hovered && !focused;
+  const playing = multiple && !userPaused && !hovered;
 
   useEffect(() => {
     if (!playing) return undefined;
     const timer = window.setTimeout(() => setIndex((i) => (i + 1) % count), intervalMs);
     return () => window.clearTimeout(timer);
   }, [playing, current, count, intervalMs]);
+
+  useEffect(() => {
+    const onKey = (event: globalThis.KeyboardEvent) => {
+      // Alt-Tab and other system shortcuts are not navigation inside the page (Shift+Tab is).
+      if (event.altKey || event.ctrlKey || event.metaKey) return;
+      lastInput.current = 'keyboard';
+    };
+    const onPointer = () => {
+      lastInput.current = 'pointer';
+    };
+    window.addEventListener('keydown', onKey, true);
+    window.addEventListener('pointerdown', onPointer, true);
+    return () => {
+      window.removeEventListener('keydown', onKey, true);
+      window.removeEventListener('pointerdown', onPointer, true);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const query = window.matchMedia(REDUCED_MOTION);
+    if (typeof query.addEventListener !== 'function') return undefined;
+    const onChange = (event: MediaQueryListEvent) => {
+      if (event.matches) setUserPaused(true);
+    };
+    query.addEventListener('change', onChange);
+    return () => query.removeEventListener('change', onChange);
+  }, []);
 
   if (count === 0) return null;
 
@@ -81,9 +112,9 @@ export function HeroCarousel({ label, slides, intervalMs = HERO_INTERVAL_MS }: H
       onKeyDown={onKeyDown}
       onPointerEnter={(e) => e.pointerType === 'mouse' && setHovered(true)}
       onPointerLeave={() => setHovered(false)}
-      onFocus={() => setFocused(true)}
-      onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false);
+      onFocus={(e) => {
+        const entering = !e.currentTarget.contains(e.relatedTarget as Node | null);
+        if (entering && lastInput.current === 'keyboard') setUserPaused(true);
       }}
       className="on-maroon relative w-full bg-maroon-900 pt-6 sm:pt-8"
     >
@@ -139,16 +170,21 @@ export function HeroCarousel({ label, slides, intervalMs = HERO_INTERVAL_MS }: H
       {/* Controls sit below the slides so they never cover the names printed on them. */}
       {multiple && (
         <div className="flex items-center justify-center gap-3 px-4 py-3">
-          <button type="button" aria-label="Previous slide" onClick={() => go(current - 1)} className={roundButton}>
-            <ChevronLeft aria-hidden="true" className="size-6" />
-          </button>
+          {/* The rotation control comes first (APG), so it is the first stop for keyboard and screen-reader users. */}
           <button
             type="button"
             aria-label={userPaused ? 'Play slideshow' : 'Pause slideshow'}
-            onClick={() => setUserPaused((p) => !p)}
-            className="inline-flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-white text-white hover:bg-maroon-800"
+            onClick={() => {
+              // An explicit Play overrides the hover pause: the user asked for it while the pointer is still here.
+              if (userPaused) setHovered(false);
+              setUserPaused(!userPaused);
+            }}
+            className={roundButton}
           >
             {userPaused ? <Play aria-hidden="true" className="size-5" /> : <Pause aria-hidden="true" className="size-5" />}
+          </button>
+          <button type="button" aria-label="Previous slide" onClick={() => go(current - 1)} className={roundButton}>
+            <ChevronLeft aria-hidden="true" className="size-6" />
           </button>
           <div className="flex flex-wrap items-center justify-center gap-x-1">
             {slides.map((slide, i) => (

@@ -1,5 +1,16 @@
 import { useEffect } from 'react';
 
+/** Focuses the h2 inside the element with this id and scrolls it to the top (smoothly unless reduced motion). */
+export function focusSectionHeading(id: string): void {
+  const heading = document.getElementById(id)?.querySelector('h2');
+  if (!heading) return;
+  heading.focus({ preventScroll: true });
+  if (typeof heading.scrollIntoView === 'function') {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    heading.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+  }
+}
+
 /**
  * Moves focus to the h2 inside the element whose id the URL hash names, and scrolls it into view.
  * Only ids in `allowedIds` are targets; other ids on the page (such as #main) are ignored, and a
@@ -24,15 +35,7 @@ export function useFocusHashTarget(hash: string, allowedIds: readonly string[], 
       return;
     }
     if (!(JSON.parse(idKey) as string[]).includes(id)) return;
-    const timer = window.setTimeout(() => {
-      const heading = document.getElementById(id)?.querySelector('h2');
-      if (!heading) return;
-      heading.focus({ preventScroll: true });
-      if (typeof heading.scrollIntoView === 'function') {
-        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        heading.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
-      }
-    }, 0);
+    const timer = window.setTimeout(() => focusSectionHeading(id), 0);
     return () => window.clearTimeout(timer);
   }, [hash, idKey, navKey]);
 }

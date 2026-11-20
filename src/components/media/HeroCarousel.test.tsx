@@ -12,9 +12,20 @@ const tick = (ms: number) =>
   });
 
 const setReducedMotion = (reduce: boolean) => {
+  const listeners: ((event: MediaQueryListEvent) => void)[] = [];
   vi.spyOn(window, 'matchMedia').mockImplementation(
-    (query: string) => ({ matches: reduce && query.includes('reduce'), media: query }) as MediaQueryList,
+    (query: string) =>
+      ({
+        matches: reduce && query.includes('reduce'),
+        media: query,
+        addEventListener: (_type: string, fn: (event: MediaQueryListEvent) => void) => listeners.push(fn),
+        removeEventListener: () => undefined,
+      }) as unknown as MediaQueryList,
   );
+  return (matches: boolean) =>
+    act(() => {
+      for (const fn of listeners) fn({ matches } as MediaQueryListEvent);
+    });
 };
 
 afterEach(() => {
@@ -60,14 +71,22 @@ describe('HeroCarousel', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Pause slideshow' }));
     tick(HERO_INTERVAL_MS * 3);
     expect(currentDot()).toBe('Show slide 1');
-    fireEvent.click(screen.getByRole('button', { name: 'Play slideshow' }));
-    // Clicking Play moved focus into the carousel, which also pauses it until focus leaves.
-    fireEvent.blur(screen.getByRole('button', { name: 'Pause slideshow' }));
+    const play = screen.getByRole('button', { name: 'Play slideshow' });
+    play.focus();
+    fireEvent.click(play);
+    // Focus stays on the button, and Play still starts it (APG: the rotation control overrides the focus pause).
+    expect(document.activeElement?.getAttribute('aria-label')).toBe('Pause slideshow');
     tick(HERO_INTERVAL_MS);
     expect(currentDot()).toBe('Show slide 2');
   });
 
-  it('pauses while the mouse is over it or focus is inside it', () => {
+  it('the rotation control is the first button, before Previous', () => {
+    render(<HeroCarousel label="Leadership" slides={slides} />);
+    const names = screen.getAllByRole('button').map((b) => b.getAttribute('aria-label'));
+    expect(names.slice(0, 2)).toEqual(['Pause slideshow', 'Previous slide']);
+  });
+
+  it('pauses while the mouse is over it, and Play overrides that', () => {
     vi.useFakeTimers();
     render(<HeroCarousel label="Leadership" slides={slides} />);
     const region = screen.getByRole('region', { name: 'Leadership' });
@@ -75,9 +94,70 @@ describe('HeroCarousel', () => {
     tick(HERO_INTERVAL_MS * 2);
     expect(currentDot()).toBe('Show slide 1');
     fireEvent.pointerLeave(region);
-    fireEvent.focus(screen.getByRole('button', { name: 'Next slide' }));
+    tick(HERO_INTERVAL_MS);
+    expect(currentDot()).toBe('Show slide 2');
+    // Pause and Play again with the mouse still over it: it runs.
+    fireEvent.pointerEnter(region, { pointerType: 'mouse' });
+    fireEvent.click(screen.getByRole('button', { name: 'Pause slideshow' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Play slideshow' }));
+    tick(HERO_INTERVAL_MS);
+    expect(currentDot()).toBe('Show slide 3');
+  });
+
+  it('keyboard focus entering it stops rotation until Play is pressed, even after focus leaves', () => {
+    vi.useFakeTimers();
+    render(
+      <>
+        <button type="button">Before</button>
+        <HeroCarousel label="Leadership" slides={slides} />
+        <button type="button">After</button>
+      </>,
+    );
+    const before = screen.getByRole('button', { name: 'Before' });
+    const rotation = screen.getByRole('button', { name: 'Pause slideshow' });
+    fireEvent.keyDown(before, { key: 'Tab' });
+    fireEvent.focus(rotation, { relatedTarget: before });
+    expect(rotation.getAttribute('aria-label')).toBe('Play slideshow');
+    fireEvent.blur(rotation, { relatedTarget: screen.getByRole('button', { name: 'After' }) });
     tick(HERO_INTERVAL_MS * 2);
     expect(currentDot()).toBe('Show slide 1');
+  });
+
+  it('focus moved in by a tap (Android: focus after pointerup) or a click does not stop rotation', () => {
+    vi.useFakeTimers();
+    render(<HeroCarousel label="Leadership" slides={slides} />);
+    const next = screen.getByRole('button', { name: 'Next slide' });
+    fireEvent.pointerDown(next, { pointerType: 'touch' });
+    fireEvent.pointerUp(next, { pointerType: 'touch' });
+    fireEvent.mouseDown(next);
+    fireEvent.focus(next);
+    fireEvent.click(next);
+    expect(currentDot()).toBe('Show slide 2');
+    tick(HERO_INTERVAL_MS);
+    expect(currentDot()).toBe('Show slide 3');
+    // Returning to the window (Alt-Tab) refocuses the button (relatedTarget null): still not a keyboard entry.
+    fireEvent.blur(next);
+    fireEvent.keyDown(window, { key: 'Alt', altKey: true });
+    fireEvent.focus(next);
+    expect(screen.getByRole('button', { name: 'Pause slideshow' })).toBeTruthy();
+  });
+
+  it('a tap followed later by keyboard entry does pause', () => {
+    render(
+      <>
+        <button type="button">Before</button>
+        <HeroCarousel label="Leadership" slides={slides} />
+      </>,
+    );
+    const before = screen.getByRole('button', { name: 'Before' });
+    const next = screen.getByRole('button', { name: 'Next slide' });
+    fireEvent.pointerDown(next, { pointerType: 'touch' });
+    fireEvent.pointerUp(next, { pointerType: 'touch' });
+    fireEvent.focus(next);
+    fireEvent.blur(next, { relatedTarget: before });
+    fireEvent.keyDown(before, { key: 'Tab' });
+    fireEvent.focus(next, { relatedTarget: before });
+    expect(screen.getByRole('button', { name: 'Play slideshow' })).toBeTruthy();
   });
 
   it('starts paused when the user prefers reduced motion', () => {
@@ -86,6 +166,16 @@ describe('HeroCarousel', () => {
     render(<HeroCarousel label="Leadership" slides={slides} />);
     expect(screen.getByRole('button', { name: 'Play slideshow' })).toBeTruthy();
     tick(HERO_INTERVAL_MS * 3);
+    expect(currentDot()).toBe('Show slide 1');
+  });
+
+  it('pauses when reduced motion is switched on while the page is open', () => {
+    const change = setReducedMotion(false);
+    vi.useFakeTimers();
+    render(<HeroCarousel label="Leadership" slides={slides} />);
+    change(true);
+    expect(screen.getByRole('button', { name: 'Play slideshow' })).toBeTruthy();
+    tick(HERO_INTERVAL_MS * 2);
     expect(currentDot()).toBe('Show slide 1');
   });
 

@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { RootLayout } from '../../app/RootLayout';
@@ -259,6 +259,20 @@ describe('AboutView', () => {
       'LI: Dean One (2000 - 2001)',
       'LI: Dean Two (2001 - present)',
     ]);
+    // No visible h3 in History, so the list carries the slot label as its accessible name.
+    expect(within(history).getByRole('list', { name: 'Deans' })).toBeTruthy();
+  });
+
+  it('clicking the pill for the section already in the URL moves focus to its title again', async () => {
+    renderUi(<AboutView about={fullAbout} />, '/about#history');
+    const title = screen.getByRole('heading', { level: 2, name: 'History' });
+    await waitFor(() => expect(document.activeElement).toBe(title));
+    const pill = within(screen.getByRole('navigation', { name: 'On this page' })).getByRole('link', { name: 'History' });
+    pill.focus();
+    // The browser's own fragment navigation would reset focus, so the click must not take its default action.
+    expect(fireEvent.click(pill, { ctrlKey: true })).toBe(true);
+    expect(fireEvent.click(pill)).toBe(false);
+    expect(document.activeElement).toBe(title);
   });
 
   it('section titles sit on a maroon band and the page nav is a labelled bar of button links', () => {

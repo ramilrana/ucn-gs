@@ -197,6 +197,9 @@ export function checkDist(distDir, nginxDir = join(dirname(distDir), 'dist-nginx
     const name = file.slice(distDir.length + 1).replaceAll('\\', '/');
     if (/^dev-placeholder/i.test(name.split('/').pop() ?? '')) {
       errors.push(`Dev placeholder photo found at ${name}; placeholder images must not ship.`);
+    } else if (readFileSync(file).includes('dev-placeholder')) {
+      // A reference to a placeholder photo means the dev-only module was bundled (it would ship a broken photo).
+      errors.push(`${name} references a dev placeholder photo; dev placeholder code must not ship.`);
     }
   }
 
