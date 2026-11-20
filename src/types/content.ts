@@ -54,7 +54,7 @@ export interface HomeContent {
   presidentMessage: Slot<LeaderMessage>; deanMessage: Slot<LeaderMessage>; programChairMessage: Slot<LeaderMessage>;
 }
 export interface AboutContent {
-  photo: Slot<ImageAsset>; mission: Slot<string[]>; vision: Slot<string[]>;
+  photo: Slot<ImageAsset>; mission: Slot<string[]>; vision: Slot<string[]>; qualityPolicy: Slot<string[]>;
   goals: Slot<string[]>; objectives: Slot<ProgramText[]>; programDescriptions: Slot<ProgramText[]>;
   history: Slot<string[]>; deans: Slot<string[]>;
 }

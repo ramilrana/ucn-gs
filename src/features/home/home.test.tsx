@@ -65,6 +65,7 @@ const fullAbout: AboutContent = {
   photo: { status: 'published', label: 'About photograph', value: image('About photo') },
   mission: { status: 'published', label: 'Mission', value: ['Mission first.', 'Mission second.'] },
   vision: { status: 'published', label: 'Vision', value: ['Vision first.'] },
+  qualityPolicy: { status: 'published', label: 'Quality Policy', value: ['Quality first.'] },
   goals: { status: 'published', label: 'Goals', value: ['Goals first.', 'Goals second.'] },
   objectives: {
     status: 'published',
@@ -92,6 +93,7 @@ const pendingAbout: AboutContent = {
   photo: { status: 'pending', label: 'About photograph' },
   mission: { status: 'pending', label: 'Mission' },
   vision: { status: 'pending', label: 'Vision' },
+  qualityPolicy: { status: 'pending', label: 'Quality Policy' },
   goals: { status: 'pending', label: 'Goals' },
   objectives: { status: 'pending', label: 'Objectives' },
   programDescriptions: { status: 'pending', label: 'Program Description' },

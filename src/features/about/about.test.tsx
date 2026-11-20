@@ -34,6 +34,7 @@ const pendingAbout: AboutContent = {
   photo: { status: 'pending', label: 'About photograph' },
   mission: { status: 'pending', label: 'Mission' },
   vision: { status: 'pending', label: 'Vision' },
+  qualityPolicy: { status: 'pending', label: 'Quality Policy' },
   goals: { status: 'pending', label: 'Goals' },
   objectives: { status: 'pending', label: 'Objectives' },
   programDescriptions: { status: 'pending', label: 'Program Description' },
@@ -49,6 +50,7 @@ const fullAbout: AboutContent = {
   },
   mission: { status: 'published', label: 'Mission', value: ['Mission text.'] },
   vision: { status: 'published', label: 'Vision', value: ['Vision text.'] },
+  qualityPolicy: { status: 'published', label: 'Quality Policy', value: ['Quality policy text.'] },
   goals: { status: 'published', label: 'Goals', value: ['Goal one.', 'Goal two.'] },
   objectives: {
     status: 'published',
@@ -202,20 +204,28 @@ describe('AboutView', () => {
   it('about sections have stable anchors', () => {
     production();
     const { container } = renderUi(<AboutView about={fullAbout} />);
-    for (const id of ['mission-and-vision', 'goals-and-objectives', 'program-description', 'history']) {
+    for (const id of ['mission-and-vision', 'quality-policy', 'goals-and-objectives', 'program-description', 'history']) {
       const section = container.querySelector(`section#${id}`);
       expect(section, id).not.toBeNull();
       expect(section?.querySelector('h2')).not.toBeNull();
     }
     expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual([
       'Mission and Vision',
+      'Quality Policy',
       'Goals and Objectives',
       'Program Description',
       'History',
     ]);
     const nav = screen.getByRole('navigation', { name: 'On this page' });
     const hrefs = Array.from(nav.querySelectorAll('a')).map((a) => a.getAttribute('href'));
-    expect(hrefs).toEqual(['#mission-and-vision', '#goals-and-objectives', '#program-description', '#history']);
+    expect(hrefs).toEqual([
+      '#mission-and-vision',
+      '#quality-policy',
+      '#goals-and-objectives',
+      '#program-description',
+      '#history',
+    ]);
+    expect(within(container.querySelector('section#quality-policy') as HTMLElement).getByText('Quality policy text.')).toBeTruthy();
     // Navigation landmarks get 44px targets (ruling R11).
     for (const a of Array.from(nav.querySelectorAll('a'))) {
       expect(a.className).toContain('min-h-11');
@@ -314,7 +324,8 @@ describe('AboutView', () => {
   it('about shows pending notices for every section when pending content is shown', () => {
     vi.stubEnv('VITE_CONTENT_PREVIEW', 'true');
     renderUi(<AboutView about={pendingAbout} />);
-    expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(4);
+    expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(5);
+    expect(screen.getByText('Pending: Quality Policy')).toBeTruthy();
     expect(screen.getByText('Pending: Program Description')).toBeTruthy();
     expect(screen.getByText('Pending: Deans')).toBeTruthy();
     expect(screen.getByText('Pending: Mission')).toBeTruthy();
