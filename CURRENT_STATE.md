@@ -53,6 +53,7 @@ Spec §6. Typed content in `src/content/` (areas and recommendations as one file
 
 ## Plan and progress
 
+- **Merged to `main` 2026-11-20 (user's request), in order, after CI `build` and `nginx-smoke` passed on each:** PR #5 review fixes (merge commit `d04294a`), PR #6 batch 3 portraits, certificate, Vision, Mission and Quality Policy (`13a2c4a`), PR #7 nav order, Additional Files removed, quick-access tiles (`2f55278`). No GitHub review was requested. The branches `fix/task29-review`, `content/batch3-photos-certificate` and `feat/nav-certificate` still exist on GitHub.
 - Tasks 1–28: complete. Each task had a Sonnet implementer and an independent task review (spec + quality), with fix rounds until no Important finding remained.
 - **Checkpoint A (Tasks 3–12):** review 1 "Verdict: PASS WITH ISSUES" (1 High, 1 Medium, 4 Low) → fixes `f8c44ab..2aa8639`, `f76d38e` → re-review "Verdict: PASS WITH ISSUES. Every earlier finding is addressed, and no Critical, High or Medium finding is open." Cleared.
 - **Checkpoint B (Tasks 13–25):** review 1 "Verdict: PASS WITH ISSUES. There is one High finding." (local-file framing) → fixes `f6cf9c2..f3731ef` under R19 → re-review "Verdict: PASS WITH ISSUES. All six findings are fixed and no Critical, High or Medium findings remain." Cleared.
@@ -127,7 +128,7 @@ The docs commit changes no code and ran no checks.
 
 ## Next actions
 
-1. Merge in order: **PR #5** https://github.com/ramilrana/ucn-gs/pull/5 (`fix/task29-review`, CI passed), then **PR #6** https://github.com/ramilrana/ucn-gs/pull/6 (`content/batch3-photos-certificate`, stacked on #5), then the branch `feat/nav-certificate` (nav order, Additional Files removed, quick-access tiles; stacked on #6, committed locally, no PR yet). Run `ucn-opus-reviewer` and `accessibility-auditor` on batch 3 and the nav change (none has run). Deferred Lows R2, A5 and A6 can wait.
+1. Run `ucn-opus-reviewer` and `accessibility-auditor` on batch 3 and the nav change (PR #6 and PR #7, now on `main`; neither has been reviewed). Deferred Lows R2, A5 and A6 can wait.
 2. Answer the open questions for UCN (name spellings, 2008 dean dates, two program headings, President/Dean position lines). Then supply the remaining spec §13 materials (accreditation slides, second gallery, GS video, About photo, area and recommendation materials, the 14 recommendation titles, people, FAQs, contact) and run Task 29 batch by batch from a new branch off `main` (`docs/content-guide.md`; plan Task 29 steps). Each batch: add files/data with UCN's exact wording, flip to `published` only when verified, `npm test` + `npm run check:links`, render at 375/1280px, standard checks, update this file, commit `content: <batch>`.
 3. Before the first deploy: confirm the Nginx server's domain or IP, base path and HTTPS; build with `UCN_DOCROOT` and `UCN_NGINX_INCLUDE_DIR` set to the server's paths; follow `docs/deployment.md`, including the post-deploy checks.
 4. Optional: move the repo out of OneDrive (for example `C:/dev/ucn-gs`); consider adding `eslint-plugin-jsx-a11y` (new dependency, needs approval); run a screen-reader pass once real content exists; delete the merged branches `feat/home-banner` and `feat/content-messages-about` (local and on GitHub; both fully merged into `main`).
