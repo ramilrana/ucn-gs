@@ -116,7 +116,7 @@ describe('content (real data)', () => {
   });
   it('exports the documented shape', () => {
     expect(content.site.universityName).toBe('University of Camarines Norte');
-    expect(content.home.accreditationHeading).toBe('LEVEL IV AACCUP ACCREDITATION');
+    expect(content.home.accreditationHeading).toBe('MPA LEVEL 4 PHASE 2 AACCUP ACCREDITATION');
     expect(Array.isArray(content.areas)).toBe(true);
     expect(Array.isArray(content.recommendations)).toBe(true);
   });
@@ -387,5 +387,18 @@ describe('collectors traverse nested content', () => {
       recommendations: [{ ...rec, evidence: [group('y', 'published', [{ type: 'gallery', images: [noAlt('/rg.jpg')] }])] }],
     };
     expect(checkImages(collectImages(broken))).toHaveLength(8);
+  });
+
+  it('collectImages checks the photo of each published leader message, and skips pending ones', () => {
+    const noAlt = (src: string): ImageAsset => ({ ...img(src), alt: '' });
+    const located = collectImages({
+      home: {
+        presidentMessage: { status: 'published', value: { photo: noAlt('/pres.jpg') } },
+        deanMessage: { status: 'published', value: {} },
+        programChairMessage: { status: 'pending', value: { photo: noAlt('/chair.jpg') } },
+      },
+    });
+    expect(located.map((l) => l.where)).toEqual(['home.presidentMessage photo']);
+    expect(checkImages(located)).toHaveLength(1);
   });
 });

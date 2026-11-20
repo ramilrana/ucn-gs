@@ -50,11 +50,11 @@
 | D1 | Reference = structure only; all content from UCN materials. | The reference belongs to another university. |
 | D2 | Tailwind CSS v4; remove `antd` and `@ant-design/icons`. | Master prompt requires Tailwind. Removes the 719 kB chunk and the stock look. |
 | D3 | Mixed hosting: small files local in `/public`, large PDFs and videos on Google Drive or YouTube. | Accreditation scans can exceed repo and hosting limits. |
-| D4 | One program: the Master in Public Administration (MPA), AACCUP Level IV Phase 2 accreditation, 2026. Shown in the home hero as "Master in Public Administration". `accreditationHeading` stays "LEVEL IV AACCUP ACCREDITATION". | User's answer. Changed 2026-11-18: named the program, level, phase and year — reason: user's answer to §14. Changed 2026-11-19: hero line shortened to "Master in Public Administration" — reason: user's request. |
+| D4 | One program: the Master in Public Administration (MPA), AACCUP Level IV Phase 2 accreditation, 2026. Shown in the home hero as "Master in Public Administration". `accreditationHeading` is "MPA LEVEL 4 PHASE 2 AACCUP ACCREDITATION". | User's answer. Changed 2026-11-18: named the program, level, phase and year — reason: user's answer to §14. Changed 2026-11-19: hero line shortened to "Master in Public Administration" — reason: user's request. Changed 2026-11-20: home heading renamed from "LEVEL IV AACCUP ACCREDITATION" to "MPA LEVEL 4 PHASE 2 AACCUP ACCREDITATION" — reason: user's request. |
 | D5 | Each item has a `published` or `pending` status. Pending items show in dev and preview builds, are hidden in production, and are listed on a dev-only `/content-status` page. | Accreditors never see empty or fake slots. |
 | D6 | Deploy to UCN's own local server running Nginx. Write a per-route `index.html` after build and generate the Nginx config from `deploy/nginx.conf.template`. Remove `vercel.json`, `public/_headers` and `public/_redirects`. | Configure only the platform in use. Routes work without rewrites. Changed 2026-11-18: Nginx, Apache files removed — reason: user's answer to §14. |
 | D7 | Refactor in place (approach A). Content lives in typed TS modules plus a content validation test. | Preserves working CI, security setup and conventions. |
-| D8 | No slideshow autoplay. | Avoids distracting motion and the pause-control requirement. |
+| D8 | No slideshow autoplay, except the Home leadership carousel. | Avoids distracting motion and the pause-control requirement. Changed 2026-11-20: the Home leadership carousel is a full-width "peek" carousel (current slide centred at up to its own 1056px, neighbours' edges dimmed on both sides; chosen by the user from four previewed layouts: full, exact, in-banner, peek) and auto-advances every 4 s (was 6 s; faster at the user's request 2026-11-20) — reason: user's request. It meets WCAG 2.2.2 with a visible Pause/Play button, pauses on hover and while focus is inside, starts paused under reduced motion, and keeps its live region off while rotating. Area galleries still never autoplay. |
 | D9 | Gold is never used as text, focus ring or state indicator on white. | Gold on white is about 2.1:1, below the 3:1 minimum. |
 | R19 | Local PDFs may display inline only when the resource sets `inline: true` (rules in §7, headers in §8). Other local files show an Open / Download card and local video an Open link. | R19 (checkpoint B, 2026-10-30) said local files are never framed, because §8 forbade `frame-src 'self'`. Changed 2026-11-18: partly reversed — reason: user's answer to §14, PDF display is chosen per document. |
 
@@ -70,7 +70,7 @@
 | `/avp` | All AVPs, one entry per area, anchors such as `/avp#research` |
 | `/certificate-of-authenticity` | Certificate PDF and image |
 | `/additional-files` | Additional Files for the Accreditors (grouped when the data provides groups) |
-| `/about` | Mission and Vision, Goals and Objectives, History (anchored sections) |
+| `/about` | Mission and Vision (Vision first), Goals and Objectives (per-program objective lists), Program Description (per program; added 2026-11-19, user's request), History (with the list of Deans) (anchored sections) |
 | `/about/people` | Faculty, Staff and Student Assistants |
 | `/about/faculty-by-department` | Faculty grouped by department |
 | `/about/faqs-and-location` | FAQs plus map |
@@ -78,14 +78,14 @@
 | `*` | 404 |
 
 **Home sections, in the required order:**
-1. Leadership slideshow (President, then Dean, then faculty)
+1. Leadership carousel (President, then Dean, then faculty): full-width "peek" layout, sliding, auto-advancing with Pause/Play (D8 exception, 2026-11-20)
 2. Quick-access row: Areas, Compliance Report, AVP, Certificate
 3. First accreditation slide
-4. **LEVEL IV AACCUP ACCREDITATION** (wording preserved)
+4. **MPA LEVEL 4 PHASE 2 AACCUP ACCREDITATION** (renamed 2026-11-20, user's request; was "LEVEL IV AACCUP ACCREDITATION")
 5. Second accreditation slide
 6. Second slideshow or gallery
 7. Graduate School video, or a link to it
-8. Dean's photo and message, then the Program Chair's photo and message
+8. Messages, stacked full width: the President's, then the Dean's, then the Program Chair's photo and message (President added 2026-11-19, user's request). Until a real photo arrives, dev and preview show a scenery stand-in from `src/dev/placeholders/`; production shows a silhouette (check:dist rule 9).
 9. About preview: photo with Mission and Vision, Goals and Objectives, History, linking to `/about`
 
 **Header navigation:**
@@ -379,7 +379,7 @@ Each package is checked for maintenance and compatibility before install. `npm a
 
 | UCN page | Reference equivalent | UCN material status |
 |---|---|---|
-| Home | Home | Missing: leadership photos, accreditation slides 1–2, second gallery, GS video, Dean's and Program Chair's photos and messages, Mission and Vision, Goals and Objectives, History |
+| Home | Home | Received 2026-11-19: President's, Dean's and Program Chair's messages; Vision, Mission, Goals, Objectives (7 programs), Program Descriptions (7 programs), History and Deans. Received 2026-11-20: 18 leadership slides (President, Dean, chairpersons, faculty). Missing: accreditation slides 1–2, second gallery, GS video, the three message photos, About photo |
 | Additional Files | Additional Files for the Accreditors (9 links) | Missing: UCN file list |
 | Certificate of Authenticity | placeholder | Missing: certificate PDF and image |
 | Compliance Report and Recommendations | Rec 1–8 (3–5 evidence items each) | Known (2026-11-18): 14 recommendations by area — Research 2, Performance of Graduates 1, Community Service 5, International Linkages & Consortia 5, Planning Process 1. Missing: titles, documents, evidence |

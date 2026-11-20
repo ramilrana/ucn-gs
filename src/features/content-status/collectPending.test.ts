@@ -11,13 +11,13 @@ describe('collectPending', () => {
     const home = entries.filter((e) => e.page === 'Home');
     expect(home.map((e) => e.label)).toEqual(
       expect.arrayContaining([
-        'Leadership photographs (President, Dean, faculty)',
         'First accreditation slide',
         'Second accreditation slide',
         'Second slideshow or photo gallery',
         'Graduate School video',
-        "Dean's photograph and message",
-        "Program Chair's photograph and message",
+        "President's photograph (message is published)",
+        "Dean's photograph (message is published)",
+        "Program Chair's photograph (message is published)",
       ]),
     );
     expect(home.every((e) => e.path === '/')).toBe(true);

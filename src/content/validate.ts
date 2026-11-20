@@ -97,6 +97,9 @@ interface ImageSources {
     accreditationSlide1?: SlotLike<ImageAsset>;
     accreditationSlide2?: SlotLike<ImageAsset>;
     gallery?: SlotLike<ImageAsset[]>;
+    presidentMessage?: SlotLike<{ photo?: ImageAsset }>;
+    deanMessage?: SlotLike<{ photo?: ImageAsset }>;
+    programChairMessage?: SlotLike<{ photo?: ImageAsset }>;
   };
   people?: readonly Person[];
   areas?: ReadonlyArray<{ slug: string; status: string; gallery?: SlotLike<ImageAsset[]>; groups?: readonly GroupLike[] }>;
@@ -129,6 +132,10 @@ export function collectImages(content: ImageSources): LocatedImage[] {
   one('home.accreditationSlide1', content.home?.accreditationSlide1);
   one('home.accreditationSlide2', content.home?.accreditationSlide2);
   many('home.gallery', content.home?.gallery);
+  for (const key of ['presidentMessage', 'deanMessage', 'programChairMessage'] as const) {
+    const slot = content.home?.[key];
+    if (slot?.status === 'published' && slot.value?.photo) out.push({ where: `home.${key} photo`, image: slot.value.photo });
+  }
   for (const p of content.people ?? []) {
     if (p.status === 'published' && p.photo) out.push({ where: `person ${p.id} photo`, image: p.photo });
   }

@@ -52,13 +52,43 @@ function devSamplePdf(includeSamples: boolean, base: string): Plugin {
   };
 }
 
+/**
+ * Serves the leader-message stand-in photos (src/dev/placeholders/) at <base>dev-placeholders/ in dev and copies them
+ * into preview-content builds only. They are plain files, not imports, so a production build never emits them
+ * (check:dist rule 9 fails if one does).
+ */
+function devPlaceholderPhotos(includeSamples: boolean, base: string): Plugin {
+  const dir = fileURLToPath(new URL('./src/dev/placeholders/', import.meta.url));
+  const names = ['dev-placeholder-president.jpg', 'dev-placeholder-dean.jpg', 'dev-placeholder-chair.jpg'];
+  return {
+    name: 'dev-placeholder-photos',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const path = (req.url ?? '').split('?')[0] ?? '';
+        const name = names.find((n) => path === `/dev-placeholders/${n}` || path === `${base}dev-placeholders/${n}`);
+        if (!name) return next();
+        res.setHeader('Content-Type', 'image/jpeg');
+        res.end(readFileSync(`${dir}${name}`));
+      });
+    },
+    generateBundle() {
+      if (!includeSamples) return;
+      for (const name of names) {
+        this.emitFile({ type: 'asset', fileName: `dev-placeholders/${name}`, source: readFileSync(`${dir}${name}`) });
+      }
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const base = normalizeBase(env.VITE_BASE_PATH);
   return {
     // VITE_BASE_PATH=/gs/ in .env.production.local builds for a subpath (docs/deployment.md).
     base,
-    plugins: [react(), tailwindcss(), imagetools(), cspMetaOnBuild(), devSamplePdf(env.VITE_CONTENT_PREVIEW === 'true', base)],
+    plugins: [react(), tailwindcss(), imagetools(), cspMetaOnBuild(), devSamplePdf(env.VITE_CONTENT_PREVIEW === 'true', base),
+      devPlaceholderPhotos(env.VITE_CONTENT_PREVIEW === 'true', base),
+    ],
     test: {
       environment: 'jsdom',
       setupFiles: ['src/test/setup.ts'],

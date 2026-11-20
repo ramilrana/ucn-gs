@@ -39,6 +39,8 @@ export interface Person {
 export interface Faq { id: string; question: string; answer: string[]; status: Status }
 export interface ResourceGroup { id: string; title: string; status: Status; items: Resource[] }
 export interface LeaderMessage { name: string; position: string; photo?: ImageAsset; paragraphs: string[] }
+/** Text for one academic program: its heading and either list items (objectives) or paragraphs (descriptions). */
+export interface ProgramText { program: string; text: string[] }
 export interface SiteContent {
   universityName: string; schoolName: string; programName: Slot<string>;
   areasLabel: string; contentUpdated: string; // ISO date
@@ -49,10 +51,11 @@ export interface HomeContent {
   leadershipSlides: Slot<ImageAsset[]>; accreditationSlide1: Slot<ImageAsset>;
   accreditationHeading: string; accreditationSlide2: Slot<ImageAsset>;
   gallery: Slot<ImageAsset[]>; video: Resource;
-  deanMessage: Slot<LeaderMessage>; programChairMessage: Slot<LeaderMessage>;
+  presidentMessage: Slot<LeaderMessage>; deanMessage: Slot<LeaderMessage>; programChairMessage: Slot<LeaderMessage>;
 }
 export interface AboutContent {
   photo: Slot<ImageAsset>; mission: Slot<string[]>; vision: Slot<string[]>;
-  goals: Slot<string[]>; objectives: Slot<string[]>; history: Slot<string[]>;
+  goals: Slot<string[]>; objectives: Slot<ProgramText[]>; programDescriptions: Slot<ProgramText[]>;
+  history: Slot<string[]>; deans: Slot<string[]>;
 }
 export interface CertificateContent { pdf: Resource; image: Slot<ImageAsset> }
