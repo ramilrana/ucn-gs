@@ -1,6 +1,6 @@
 # Current State
 
-Canonical snapshot of where the project stands. Update in place; do not append session diaries. Last updated: 2026-11-19.
+Canonical snapshot of where the project stands. Update in place; do not append session diaries. Last updated: 2026-11-20.
 
 ## Objective
 
@@ -10,7 +10,7 @@ Stack after the refactor: React 19, TypeScript 5.8, Vite 7, React Router 7, Tail
 
 ## Phase
 
-**Tasks 1–28 complete and merged to `main`; checkpoints A, B and C cleared (2026-10-30). The structural changes from the 2026-11-18 answers (per-area recommendations, inline PDFs, Nginx, program name) are merged to `main` via **PR #2** https://github.com/ramilrana/ucn-gs/pull/2 (merge commit `233a038`, 2026-11-18, after CI `build` and `nginx-smoke` passed on `1651130`; no GitHub review requested). Task 29 (UCN content entry) has started: batch 1 (messages and About text) is on branch `feat/content-messages-about` (2026-11-19), stacked on `feat/home-banner` (PR #3).**
+**Tasks 1–28 complete and merged to `main`; checkpoints A, B and C cleared (2026-10-30). The structural changes from the 2026-11-18 answers (per-area recommendations, inline PDFs, Nginx, program name) are merged to `main` via **PR #2** https://github.com/ramilrana/ucn-gs/pull/2 (merge commit `233a038`, 2026-11-18, after CI `build` and `nginx-smoke` passed on `1651130`; no GitHub review requested). Task 29 (UCN content entry) is under way: the home banner (**PR #3**, merge commit `c55e96e`) and batches 1–2 (messages, About page, leadership carousel; **PR #4**, merge commit `c9af2c2`) were merged to `main` on 2026-11-20 after CI `build` and `nginx-smoke` passed; no GitHub review was requested. The branch `feat/home-banner` still exists on GitHub (deleting it was not done).**
 
 - **PR #1** https://github.com/ramilrana/ucn-gs/pull/1 (`feat/accreditation-site` → `main`, including the `chore/claude-model-routing` commits and the spec/plan docs) was **merged 2026-11-04** as merge commit `cfc0ea4` after CI `build` passed. No GitHub review was requested. Local `main` is fast-forwarded to `cfc0ea4`. Task 29 work branches from `main`.
 - Plan: `docs/superpowers/plans/2026-10-29-ucn-gs-accreditation-site.md` (29 tasks in 8 phases). Structure-change plan: `docs/superpowers/plans/2026-11-18-structure-changes.md` (8 tasks).
@@ -97,7 +97,7 @@ The docs commit changes no code and ran no checks.
 
 ## Next actions
 
-1. Finish batch 1: user reviews `feat/content-messages-about` and answers the open wording questions; then PR (after PR #3). Then supply the other spec §13 materials (and the 14 recommendation titles) and run Task 29 batch by batch (`docs/content-guide.md`; plan Task 29 steps). Each batch: add files/data with UCN's exact wording, flip to `published` only when verified, `npm test` + `npm run check:links`, render at 375/1280px, standard checks, update this file, commit `content: <batch>`. Name inline PDFs with simple file names (content guide 5.2.1).
+1. Answer the open questions for UCN (name spellings, 2008 dean dates, two program headings, President/Dean position lines). Then supply the remaining spec §13 materials (accreditation slides, second gallery, GS video, message photos, About photo, area and recommendation materials, the 14 recommendation titles, people, FAQs, contact) and run Task 29 batch by batch from a new branch off `main` (`docs/content-guide.md`; plan Task 29 steps). Each batch: add files/data with UCN's exact wording, flip to `published` only when verified, `npm test` + `npm run check:links`, render at 375/1280px, standard checks, update this file, commit `content: <batch>`.
 2. Before the first deploy: confirm the Nginx server's domain or IP, base path and HTTPS; build with `UCN_DOCROOT` and `UCN_NGINX_INCLUDE_DIR` set to the server's paths; follow `docs/deployment.md`, including the post-deploy checks.
 3. Optional: move the repo out of OneDrive (for example `C:/dev/ucn-gs`); consider adding `eslint-plugin-jsx-a11y` (new dependency, needs approval); run a screen-reader pass once real content exists. (All merged branches were deleted 2026-11-18; `main` is the only branch.)
 
