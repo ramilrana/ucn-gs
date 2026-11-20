@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { PendingNotice } from '../../components/content/PendingNotice';
 import { ImageGallery } from '../../components/media/ImageGallery';
-import { Slideshow } from '../../components/media/Slideshow';
+import { HeroCarousel } from '../../components/media/HeroCarousel';
 import { VideoEmbed } from '../../components/media/VideoEmbed';
 import { ActionLink } from '../../components/ui/ActionLink';
 import { SectionHeading } from '../../components/ui/SectionHeading';
@@ -112,20 +112,17 @@ export function HomeView({ home, about, site, messagePlaceholders = {} }: HomeVi
     <>
       <HomeHero universityName={site.universityName} schoolName={site.schoolName} programName={programName} />
 
-      {showLeadership && (
-        <div className="on-maroon bg-maroon-800 text-white">
-          <div className={`${wrap} py-8 sm:py-10`}>
-            {leadership && leadership.length > 0 ? (
-              // The white panel keeps the slideshow dots visible, and on-light resets the gold focus ring (D9: gold on maroon only).
-              <div className="on-light mx-auto max-w-4xl rounded bg-white p-3 sm:p-4">
-                <Slideshow label="Graduate School leadership" slides={leadership} />
-              </div>
-            ) : (
+      {showLeadership &&
+        (leadership && leadership.length > 0 ? (
+          // Full viewport width, edge to edge (user's request 2026-11-20).
+          <HeroCarousel label="Graduate School leadership" slides={leadership} />
+        ) : (
+          <div className="on-maroon bg-maroon-800 text-white">
+            <div className={`${wrap} py-8 sm:py-10`}>
               <PendingNotice label={home.leadershipSlides.label} />
-            )}
+            </div>
           </div>
-        </div>
-      )}
+        ))}
 
       <QuickAccess areasLabel={site.areasLabel} />
 

@@ -153,9 +153,10 @@ describe('HomeView', () => {
     expect(within(hero).getByText('Sample Program Name')).toBeTruthy();
     const photo = hero.querySelector('img');
     expect(photo?.getAttribute('alt')).toBe('');
-    // The leadership slideshow sits in its own maroon band after the hero.
-    const band = (hero.nextElementSibling as HTMLElement | null)?.closest('.on-maroon') as HTMLElement;
-    expect(within(band).getByRole('region', { name: 'Graduate School leadership' })).toBeTruthy();
+    // The leadership carousel follows the hero directly, full width.
+    const carousel = hero.nextElementSibling as HTMLElement;
+    expect(carousel.getAttribute('aria-label')).toBe('Graduate School leadership');
+    expect(carousel.className).toContain('w-full');
   });
 
   it('heading text is exactly LEVEL IV AACCUP ACCREDITATION', () => {
