@@ -42,11 +42,10 @@ describe('buildRouteManifest', () => {
     });
     expect(manifest.map((e) => e.path)).toEqual([
       '/',
-      '/accreditation-areas',
-      '/compliance-report',
-      '/avp',
       '/certificate-of-authenticity',
-      '/additional-files',
+      '/compliance-report',
+      '/accreditation-areas',
+      '/avp',
       '/about',
       '/about/people',
       '/about/faculty-by-department',
@@ -114,7 +113,6 @@ describe('buildRouteManifest', () => {
       expect(byPath.get(p)?.parentPath).toBe('/about');
     }
     expect(byPath.get('/certificate-of-authenticity')?.parentPath).toBeUndefined();
-    expect(byPath.get('/additional-files')?.parentPath).toBeUndefined();
   });
 
   it('numbers recommendations within their area', () => {

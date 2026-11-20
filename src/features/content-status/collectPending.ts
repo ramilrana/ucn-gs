@@ -123,13 +123,6 @@ export function collectPending(content: Content): PendingEntry[] {
   certificate.resource(content.certificate.pdf);
   certificate.slot(content.certificate.image);
 
-  const files = createCollector('Additional files', '/additional-files', out);
-  for (const g of content.additionalFiles) {
-    if (isSample(g.id)) continue;
-    if (isPending(g)) files.add(`${g.title} (group)`);
-    g.items.forEach(files.resource);
-  }
-
   createCollector('Compliance Report', COMPLIANCE_PATH, out).slot(content.compliance.overview);
 
   const realAreas = content.contentAreas.filter((area) => !isSample(area.narrativeReport.id));

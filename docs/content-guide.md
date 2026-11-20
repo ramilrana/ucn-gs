@@ -19,7 +19,7 @@ All content is in `src/content/`. You only edit these files; the page code is no
 | Officials, faculty, staff, student assistants | `src/content/people.ts` |
 | FAQs | `src/content/faqs.ts` |
 | Compliance Report overview | `src/content/compliance.ts` |
-| Certificate of Authenticity, Additional Files for the Accreditors | `src/content/documents.ts` |
+| Certificate of Authenticity | `src/content/documents.ts` |
 | One accreditation area | `src/content/areas/<slug>.ts` (one file per area) |
 | One recommendation | `src/content/recommendations/<area-slug>/rec-NN.ts` (one file per recommendation, in its area's folder) |
 

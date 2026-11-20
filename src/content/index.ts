@@ -7,7 +7,7 @@ export { home } from './home';
 export { about } from './about';
 export { people } from './people';
 export { faqs } from './faqs';
-export { certificate, additionalFiles } from './documents';
+export { certificate } from './documents';
 export { compliance } from './compliance';
 
 const areaModules = import.meta.glob<Area>(['./areas/*.ts', '!./areas/*.test.ts'], { eager: true, import: 'default' });

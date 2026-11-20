@@ -272,10 +272,10 @@ describe('SiteFooter', () => {
     const links = within(within(footer).getByRole('navigation', { name: 'Footer' })).getAllByRole('link');
     expect(links.map((link) => link.textContent)).toEqual([
       'Home',
-      'Accreditation Areas',
+      'Certificate of Authenticity',
       'Compliance Report',
+      'Accreditation Areas',
       'AVP',
-      'Documents',
       'About',
     ]);
   });

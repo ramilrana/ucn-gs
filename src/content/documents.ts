@@ -1,6 +1,6 @@
 import certificateScan from '../assets/certificate/certificate.jpg?w=782;1563&format=webp&as=picture';
 import { toImageAsset } from '../lib/images';
-import type { CertificateContent, ResourceGroup } from '../types/content';
+import type { CertificateContent } from '../types/content';
 
 // The signed certification from UCN (2026-11-20): the PDF as supplied, and its one page (a 1563x2240 scan taken
 // out of the PDF unchanged) shown as an image. The alt text repeats the certificate's wording.
@@ -27,14 +27,3 @@ export const certificate: CertificateContent = {
     ),
   },
 };
-
-export const additionalFiles: ResourceGroup[] = [
-  {
-    id: 'additional-files',
-    title: 'Additional Files for the Accreditors',
-    status: 'pending',
-    items: [
-      { id: 'additional-files-list', title: 'Additional Files for the Accreditors (UCN file list)', format: 'doc', status: 'pending' },
-    ],
-  },
-];
