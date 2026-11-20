@@ -3,36 +3,42 @@ import { Prose } from '../../components/content/Prose';
 import type { ImageAsset, LeaderMessage } from '../../types/content';
 
 /**
- * One leader's message: the photo, the name and position, then the paragraphs. Without a real photo it shows the
- * dev/preview-only `placeholderPhoto` if given, otherwise a silhouette (production never gets a placeholder).
+ * One leader's message as a "feature banner" (the user's pick of four previewed designs, 2026-11-20): a maroon header
+ * with the portrait standing on its bottom edge and the name and position beside it, then the paragraphs on white.
+ * Photos are cut-outs shown whole, as supplied, never cropped. Without a real photo it shows the dev/preview-only
+ * `placeholderPhoto` if given, otherwise a silhouette (production never gets a placeholder).
  */
 export function LeaderMessageCard({ message, placeholderPhoto }: { message: LeaderMessage; placeholderPhoto?: ImageAsset }) {
   const photo = message.photo ?? placeholderPhoto;
   return (
-    <article className="grid grid-cols-1 gap-6 rounded border border-line bg-white p-5 sm:grid-cols-[14rem_minmax(0,1fr)] lg:grid-cols-[18rem_minmax(0,1fr)] sm:p-6">
-      {photo ? (
-        <img
-          src={photo.src}
-          srcSet={photo.srcSet}
-          width={photo.width}
-          height={photo.height}
-          alt={photo.alt}
-          loading="lazy"
-          // Every photo gets the same 4:5 frame and is shown whole inside it (never cropped, user's request
-          // 2026-11-20), standing on the bottom edge. The cut-outs are transparent, so the paper backdrop is
-          // the same behind all of them.
-          className="aspect-[4/5] w-full max-w-72 rounded bg-paper object-contain object-bottom"
-        />
-      ) : (
-        <div aria-hidden="true" className="flex aspect-[4/5] w-full max-w-72 items-center justify-center rounded bg-paper">
-          <User strokeWidth={1} className="size-1/2 text-line" />
+    <article className="overflow-hidden rounded-lg border border-line bg-white shadow-sm">
+      <div className="on-maroon flex flex-col items-center gap-6 bg-linear-to-br from-maroon-800 to-maroon-900 px-6 pt-8 sm:flex-row sm:items-end sm:gap-10 sm:px-10">
+        {/* Same height for everyone; the person stands on the bottom edge of the banner. */}
+        <div className="relative flex h-[22rem] w-full max-w-80 shrink-0 items-end justify-center">
+          {photo ? (
+            <img
+              src={photo.src}
+              srcSet={photo.srcSet}
+              sizes="20rem"
+              width={photo.width}
+              height={photo.height}
+              alt={photo.alt}
+              loading="lazy"
+              className="relative h-full w-auto max-w-full object-contain object-bottom drop-shadow-2xl"
+            />
+          ) : (
+            <div aria-hidden="true" className="flex h-full w-full items-center justify-center">
+              <User strokeWidth={1} className="size-1/2 text-white/30" />
+            </div>
+          )}
         </div>
-      )}
-      <div className="min-w-0 space-y-4">
-        <div>
-          <h3 className="font-serif text-xl font-semibold text-maroon-800">{message.name}</h3>
-          <p className="text-ink-muted">{message.position}</p>
+        <div className="w-full border-t-4 border-gold-500 pb-8 pt-4 sm:border-t-0 sm:border-l-4 sm:pl-6 sm:pt-0">
+          <h3 className="font-serif text-2xl font-semibold text-white sm:text-3xl">{message.name}</h3>
+          {/* Gold text only on maroon (D9). */}
+          <p className="mt-1 text-lg text-gold-500">{message.position}</p>
         </div>
+      </div>
+      <div className="p-6 sm:p-10">
         <Prose paragraphs={message.paragraphs} />
       </div>
     </article>
