@@ -1,9 +1,15 @@
 import type { HomeContent } from '../types/content';
+import { leadershipSlides } from './leadership';
 
 export const home: HomeContent = {
-  leadershipSlides: { status: 'pending', label: 'Leadership photographs (President, Dean, faculty)' },
+  leadershipSlides: {
+    status: 'published',
+    label: 'Leadership photographs (President, Dean, faculty)',
+    value: leadershipSlides,
+  },
   accreditationSlide1: { status: 'pending', label: 'First accreditation slide' },
-  accreditationHeading: 'LEVEL IV AACCUP ACCREDITATION',
+  // Renamed 2026-11-20 at the user's request (was "LEVEL IV AACCUP ACCREDITATION").
+  accreditationHeading: 'MPA LEVEL 4 PHASE 2 AACCUP ACCREDITATION',
   accreditationSlide2: { status: 'pending', label: 'Second accreditation slide' },
   gallery: { status: 'pending', label: 'Second slideshow or photo gallery' },
   video: { id: 'home-video', title: 'Graduate School video', format: 'video', status: 'pending' },

@@ -11,7 +11,6 @@ describe('collectPending', () => {
     const home = entries.filter((e) => e.page === 'Home');
     expect(home.map((e) => e.label)).toEqual(
       expect.arrayContaining([
-        'Leadership photographs (President, Dean, faculty)',
         'First accreditation slide',
         'Second accreditation slide',
         'Second slideshow or photo gallery',

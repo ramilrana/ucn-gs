@@ -83,6 +83,7 @@ const fullAbout: AboutContent = {
 /** Every slot pending, as before any UCN material arrived. */
 const pendingHome: HomeContent = {
   ...realHome,
+  leadershipSlides: { status: 'pending', label: realHome.leadershipSlides.label },
   presidentMessage: { status: 'pending', label: realHome.presidentMessage.label },
   deanMessage: { status: 'pending', label: realHome.deanMessage.label },
   programChairMessage: { status: 'pending', label: realHome.programChairMessage.label },
@@ -210,7 +211,7 @@ describe('HomeView', () => {
     renderUi(<HomeView home={pendingHome} about={pendingAbout} site={realSite} />);
     expect(screen.getByRole('heading', { level: 1, name: 'University of Camarines Norte Graduate School' })).toBeTruthy();
     expect(screen.getByRole('navigation', { name: 'Principal accreditation resources' })).toBeTruthy();
-    expect(screen.getByRole('heading', { level: 2, name: 'LEVEL IV AACCUP ACCREDITATION' })).toBeTruthy();
+    expect(screen.getByRole('heading', { level: 2, name: realHome.accreditationHeading })).toBeTruthy();
     expect(screen.getByText('Accreditation materials are being prepared.')).toBeTruthy();
     expect(screen.queryAllByRole('note')).toHaveLength(0);
     expect(screen.queryByRole('heading', { level: 2, name: 'Messages' })).toBeNull();

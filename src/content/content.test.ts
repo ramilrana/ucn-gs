@@ -116,7 +116,7 @@ describe('content (real data)', () => {
   });
   it('exports the documented shape', () => {
     expect(content.site.universityName).toBe('University of Camarines Norte');
-    expect(content.home.accreditationHeading).toBe('LEVEL IV AACCUP ACCREDITATION');
+    expect(content.home.accreditationHeading).toBe('MPA LEVEL 4 PHASE 2 AACCUP ACCREDITATION');
     expect(Array.isArray(content.areas)).toBe(true);
     expect(Array.isArray(content.recommendations)).toBe(true);
   });

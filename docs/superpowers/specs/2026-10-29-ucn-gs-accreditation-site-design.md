@@ -50,7 +50,7 @@
 | D1 | Reference = structure only; all content from UCN materials. | The reference belongs to another university. |
 | D2 | Tailwind CSS v4; remove `antd` and `@ant-design/icons`. | Master prompt requires Tailwind. Removes the 719 kB chunk and the stock look. |
 | D3 | Mixed hosting: small files local in `/public`, large PDFs and videos on Google Drive or YouTube. | Accreditation scans can exceed repo and hosting limits. |
-| D4 | One program: the Master in Public Administration (MPA), AACCUP Level IV Phase 2 accreditation, 2026. Shown in the home hero as "Master in Public Administration". `accreditationHeading` stays "LEVEL IV AACCUP ACCREDITATION". | User's answer. Changed 2026-11-18: named the program, level, phase and year — reason: user's answer to §14. Changed 2026-11-19: hero line shortened to "Master in Public Administration" — reason: user's request. |
+| D4 | One program: the Master in Public Administration (MPA), AACCUP Level IV Phase 2 accreditation, 2026. Shown in the home hero as "Master in Public Administration". `accreditationHeading` is "MPA LEVEL 4 PHASE 2 AACCUP ACCREDITATION". | User's answer. Changed 2026-11-18: named the program, level, phase and year — reason: user's answer to §14. Changed 2026-11-19: hero line shortened to "Master in Public Administration" — reason: user's request. Changed 2026-11-20: home heading renamed from "LEVEL IV AACCUP ACCREDITATION" to "MPA LEVEL 4 PHASE 2 AACCUP ACCREDITATION" — reason: user's request. |
 | D5 | Each item has a `published` or `pending` status. Pending items show in dev and preview builds, are hidden in production, and are listed on a dev-only `/content-status` page. | Accreditors never see empty or fake slots. |
 | D6 | Deploy to UCN's own local server running Nginx. Write a per-route `index.html` after build and generate the Nginx config from `deploy/nginx.conf.template`. Remove `vercel.json`, `public/_headers` and `public/_redirects`. | Configure only the platform in use. Routes work without rewrites. Changed 2026-11-18: Nginx, Apache files removed — reason: user's answer to §14. |
 | D7 | Refactor in place (approach A). Content lives in typed TS modules plus a content validation test. | Preserves working CI, security setup and conventions. |
@@ -81,7 +81,7 @@
 1. Leadership slideshow (President, then Dean, then faculty)
 2. Quick-access row: Areas, Compliance Report, AVP, Certificate
 3. First accreditation slide
-4. **LEVEL IV AACCUP ACCREDITATION** (wording preserved)
+4. **MPA LEVEL 4 PHASE 2 AACCUP ACCREDITATION** (renamed 2026-11-20, user's request; was "LEVEL IV AACCUP ACCREDITATION")
 5. Second accreditation slide
 6. Second slideshow or gallery
 7. Graduate School video, or a link to it
@@ -379,7 +379,7 @@ Each package is checked for maintenance and compatibility before install. `npm a
 
 | UCN page | Reference equivalent | UCN material status |
 |---|---|---|
-| Home | Home | Received 2026-11-19: President's, Dean's and Program Chair's messages; Vision, Mission, Goals, Objectives (7 programs), Program Descriptions (7 programs), History and Deans. Missing: leadership photos, accreditation slides 1–2, second gallery, GS video, the three message photos, About photo |
+| Home | Home | Received 2026-11-19: President's, Dean's and Program Chair's messages; Vision, Mission, Goals, Objectives (7 programs), Program Descriptions (7 programs), History and Deans. Received 2026-11-20: 18 leadership slides (President, Dean, chairpersons, faculty). Missing: accreditation slides 1–2, second gallery, GS video, the three message photos, About photo |
 | Additional Files | Additional Files for the Accreditors (9 links) | Missing: UCN file list |
 | Certificate of Authenticity | placeholder | Missing: certificate PDF and image |
 | Compliance Report and Recommendations | Rec 1–8 (3–5 evidence items each) | Known (2026-11-18): 14 recommendations by area — Research 2, Performance of Graduates 1, Community Service 5, International Linkages & Consortia 5, Planning Process 1. Missing: titles, documents, evidence |
