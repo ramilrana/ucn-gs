@@ -103,15 +103,24 @@ describe('HomeView', () => {
     ]);
   });
 
-  it('hero is a maroon band holding the h1, the program name and the leadership slideshow', () => {
+  it('hero shows the university (gold) and school on separate lines over a decorative campus photo', () => {
     renderUi(<HomeView home={fullHome} about={fullAbout} site={site} />);
     const h1 = screen.getByRole('heading', { level: 1 });
     expect(h1.id).toBe('page-title');
     expect(h1.getAttribute('tabindex')).toBe('-1');
-    const hero = h1.closest('.on-maroon');
-    expect(hero).not.toBeNull();
-    expect(within(hero as HTMLElement).getByText('Sample Program Name')).toBeTruthy();
-    expect(within(hero as HTMLElement).getByRole('region', { name: 'Graduate School leadership' })).toBeTruthy();
+    // The accessible name keeps a space between the two lines.
+    expect(h1.textContent).toBe(`${site.universityName} ${site.schoolName}`);
+    const [university, school] = Array.from(h1.querySelectorAll('span'));
+    expect(university?.className).toContain('block');
+    expect(university?.className).toContain('text-gold-500');
+    expect(school?.className).toContain('block');
+    const hero = h1.closest('.on-maroon') as HTMLElement;
+    expect(within(hero).getByText('Sample Program Name')).toBeTruthy();
+    const photo = hero.querySelector('img');
+    expect(photo?.getAttribute('alt')).toBe('');
+    // The leadership slideshow sits in its own maroon band after the hero.
+    const band = (hero.nextElementSibling as HTMLElement | null)?.closest('.on-maroon') as HTMLElement;
+    expect(within(band).getByRole('region', { name: 'Graduate School leadership' })).toBeTruthy();
   });
 
   it('heading text is exactly LEVEL IV AACCUP ACCREDITATION', () => {

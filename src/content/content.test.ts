@@ -111,7 +111,7 @@ describe('content (real data)', () => {
   it('publishes the program name', () => {
     expect(content.site.programName).toMatchObject({
       status: 'published',
-      value: 'AACCUP Level IV Phase 2 Accreditation of the Master in Public Administration (MPA) Program, 2026',
+      value: 'Master in Public Administration',
     });
   });
   it('exports the documented shape', () => {
