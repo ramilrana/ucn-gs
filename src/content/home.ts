@@ -1,3 +1,7 @@
+import chairPhoto from '../assets/home/messages/chair.png?w=240;480&format=webp&as=picture';
+import deanPhoto from '../assets/home/messages/dean.png?w=240;480&format=webp&as=picture';
+import presidentPhoto from '../assets/home/messages/president.png?w=240;480&format=webp&as=picture';
+import { toImageAsset } from '../lib/images';
 import type { HomeContent } from '../types/content';
 import { leadershipSlides } from './leadership';
 
@@ -13,13 +17,15 @@ export const home: HomeContent = {
   accreditationSlide2: { status: 'pending', label: 'Second accreditation slide' },
   gallery: { status: 'pending', label: 'Second slideshow or photo gallery' },
   video: { id: 'home-video', title: 'Graduate School video', format: 'video', status: 'pending' },
-  // Wording from UCN (2026-11-19). Photos still to come: add `photo` to each message when they arrive.
+  // Wording from UCN (2026-11-19). Photos from UCN (2026-11-20): backgrounds removed and cropped to the same
+  // head-and-shoulders framing (480x600, transparent; the card shows them on a light backdrop).
   presidentMessage: {
     status: 'published',
     label: "President's photograph and message",
     value: {
       name: 'ATTY. RYAN L. ESTEVEZ, DPA',
       position: 'President, University of Camarines Norte',
+      photo: toImageAsset(presidentPhoto, 'Portrait of Atty. Ryan L. Estevez, DPA'),
       paragraphs: [
         'Warm greetings to our students, faculty, alumni, stakeholders, and esteemed accreditors from the Accrediting Agency of Chartered Colleges and Universities in the Philippines (AACCUP)!',
         'Welcome to the official webpage of the Graduate School – Master in Public Administration (MPA) program of the University of Camarines Norte (UCN).',
@@ -38,6 +44,7 @@ export const home: HomeContent = {
     value: {
       name: 'GIRLY H. NAVAL, DBA',
       position: 'Dean, Graduate School',
+      photo: toImageAsset(deanPhoto, 'Portrait of Girly H. Naval, DBA'),
       paragraphs: [
         'Our country continues to thirst for leaders whose commitment to public service goes beyond position and authority—leaders driven by integrity, competence, compassion, and a genuine sense of vocation.',
         'As we move closer to the aspirations of Ambisyon Natin 2040, an important question remains: How far have we come, and what more can we contribute to the future we envision? The government cannot pursue this vision alone. The academe has a vital role in preparing and nurturing the next generation of public servants who will translate good governance into meaningful results for our people.',
@@ -53,6 +60,7 @@ export const home: HomeContent = {
     value: {
       name: 'ROSALIE A. ALMADRONES, PhD',
       position: 'Program Chairperson, Master in Public Administration Program',
+      photo: toImageAsset(chairPhoto, 'Portrait of Rosalie A. Almadrones, PhD'),
       paragraphs: [
         'On behalf of the faculty members, students, and staff of the Master in Public Administration (MPA) Program, I warmly welcome you to our Graduate School. It is my privilege to share with you the continuing journey, accomplishments, and aspirations of our academic community as we pursue excellence in public administration education, research, and public service.',
         'The Master in Public Administration Program is committed to developing competent, ethical, and transformative public administrators who are equipped with the knowledge, skills, and values necessary to address the evolving challenges of governance and public service. Through quality instruction, relevant research, and meaningful community engagement, we strive to provide our students with opportunities to deepen their understanding of public policies, institutional management, leadership, and the dynamics of public governance.',

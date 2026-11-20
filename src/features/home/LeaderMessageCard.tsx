@@ -18,7 +18,8 @@ export function LeaderMessageCard({ message, placeholderPhoto }: { message: Lead
           height={photo.height}
           alt={photo.alt}
           loading="lazy"
-          className="aspect-[4/5] w-full max-w-48 rounded object-cover"
+          // The portraits are cut-outs on transparency; the paper backdrop gives all three the same background.
+          className="aspect-[4/5] w-full max-w-48 rounded bg-paper object-cover"
         />
       ) : (
         <div aria-hidden="true" className="flex aspect-[4/5] w-full max-w-48 items-center justify-center rounded bg-paper">

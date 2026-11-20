@@ -15,12 +15,20 @@ describe('collectPending', () => {
         'Second accreditation slide',
         'Second slideshow or photo gallery',
         'Graduate School video',
-        "President's photograph (message is published)",
-        "Dean's photograph (message is published)",
-        "Program Chair's photograph (message is published)",
       ]),
     );
     expect(home.every((e) => e.path === '/')).toBe(true);
+  });
+
+  it('lists a published message without a photo as a pending photograph', () => {
+    const msg = content.home.deanMessage;
+    if (msg.status !== 'published') throw new Error('fixture expects a published message');
+    const noPhoto = { ...msg.value, photo: undefined };
+    const withoutPhoto = { ...content, home: { ...content.home, deanMessage: { ...msg, value: noPhoto } } };
+    const labels = collectPending(withoutPhoto).map((e) => e.label);
+    expect(labels).toContain("Dean's photograph (message is published)");
+    // The real content has all three photos (2026-11-20).
+    expect(collectPending(content).map((e) => e.label).filter((l) => l.includes('photograph (message'))).toEqual([]);
   });
 
   it('reports missing area and recommendation lists', () => {

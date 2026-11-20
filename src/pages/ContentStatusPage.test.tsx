@@ -20,7 +20,7 @@ it('shows the pending table when pending content is shown', () => {
   renderPage();
   expect(screen.getByRole('heading', { level: 1, name: 'Content status' })).toBeTruthy();
   expect(screen.getByRole('table')).toBeTruthy();
-  expect(screen.getByText("Dean's photograph (message is published)")).toBeTruthy();
+  expect(screen.getAllByText('Graduate School video').length).toBeGreaterThan(0);
   // The pending area and recommendation stubs are listed, so the "not supplied" rows are gone.
   expect(screen.queryByText('Area list not supplied')).toBeNull();
   expect(screen.getAllByText('Area: Research').length).toBeGreaterThan(0);

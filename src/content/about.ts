@@ -1,19 +1,27 @@
 import type { AboutContent } from '../types/content';
 
-// Wording from UCN (2026-11-19), entered exactly as supplied, including "CNSC" in the Vision and Mission.
+// Wording from UCN, entered exactly as supplied: Vision, Mission and Quality Policy updated 2026-11-20 (the
+// supplied Mission has no closing full stop); the rest 2026-11-19.
 export const about: AboutContent = {
   photo: { status: 'pending', label: 'About photograph' },
   mission: {
     status: 'published',
     label: 'Mission',
     value: [
-      'The Camarines Norte State College shall provide higher and advance studies in the field of education, arts and science, economics, health, engineering, management, finance, accounting, business and public administration, fisheries, agriculture, natural resources development and management and ladderized courses. It shall also respond to research, extension and production services adherent to progressive leadership towards sustainable development.',
+      'We commit to providing accessible, innovative, and values-driven education that nurtures community-responsive and globally competent changemakers through culture, leadership, impact-driven instruction, research, extension, production, and partnerships for sustainable community development',
     ],
   },
   vision: {
     status: 'published',
     label: 'Vision',
-    value: ['CNSC as a Premier Higher Education Institution in the Bicol Region.'],
+    value: ['A Transformative Borderless University Empowering Sustainable Communities'],
+  },
+  qualityPolicy: {
+    status: 'published',
+    label: 'Quality Policy',
+    value: [
+      'The University of Camarines Norte commits to excellence in instruction, research, extension, and production services from classroom to communities. We lead through an institutionalized quality culture; we innovate through continuous improvement and responsive technology; and we transform stakeholders into changemakers with industry-aligned skills and values-driven character.',
+    ],
   },
   goals: {
     status: 'published',

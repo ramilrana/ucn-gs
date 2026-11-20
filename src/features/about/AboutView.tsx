@@ -83,6 +83,12 @@ export function AboutView({ about }: { about: AboutContent }) {
       ],
     },
     {
+      id: 'quality-policy',
+      title: 'Quality Policy',
+      labelled: false,
+      parts: [{ kind: 'paragraphs', slot: about.qualityPolicy }],
+    },
+    {
       id: 'goals-and-objectives',
       title: 'Goals and Objectives',
       labelled: true,
