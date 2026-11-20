@@ -187,6 +187,11 @@ describe('HomeView', () => {
     renderUi(<HomeView home={fullHome} about={fullAbout} site={site} />);
     expect(screen.getByText('Mission first.')).toBeTruthy();
     expect(screen.getByText('Vision first.')).toBeTruthy();
+    // Same order as the About page: Vision, then Mission.
+    expect(
+      screen.getByText('Vision first.').compareDocumentPosition(screen.getByText('Mission first.')) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
     expect(screen.getByText('Goals first.')).toBeTruthy();
     // Objectives are per-program lists, so the Goals and Objectives preview quotes the goal only.
     expect(screen.queryByText('Objectives first.')).toBeNull();

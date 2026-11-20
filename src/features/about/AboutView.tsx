@@ -4,7 +4,7 @@ import { Prose } from '../../components/content/Prose';
 import { PageShell } from '../../components/layout/PageShell';
 import { SectionHeading } from '../../components/ui/SectionHeading';
 import { showPending, slotValue } from '../../lib/published';
-import { useFocusHashTarget } from '../../lib/useFocusHashTarget';
+import { focusSectionHeading, useFocusHashTarget } from '../../lib/useFocusHashTarget';
 import type { AboutContent, ProgramText, Slot } from '../../types/content';
 
 const TITLE = 'About the Graduate School';
@@ -26,9 +26,9 @@ interface Section {
 /** A slot has something to show when it holds items, or (outside production) a pending notice. */
 const slotRenders = (slot: Slot<readonly unknown[]>): boolean => (slotValue(slot)?.length ?? 0) > 0 || showPending();
 
-function BulletList({ items }: { items: readonly string[] }) {
+function BulletList({ items, label }: { items: readonly string[]; label?: string }) {
   return (
-    <ul className="max-w-[70ch] list-disc space-y-2 pl-6 leading-relaxed text-ink marker:text-maroon-800">
+    <ul aria-label={label} className="max-w-[70ch] list-disc space-y-2 pl-6 leading-relaxed text-ink marker:text-maroon-800">
       {items.map((item, i) => (
         <li key={i}>{item}</li>
       ))}
@@ -58,7 +58,8 @@ function PartBlock({ part, labelled }: { part: Part; labelled: boolean }) {
   if (!value || value.length === 0) return <PendingNotice label={part.slot.label} />;
   let body;
   if (part.kind === 'paragraphs') body = <Prose paragraphs={value as string[]} />;
-  else if (part.kind === 'list') body = <BulletList items={value as string[]} />;
+  // Without a visible h3 (History's deans list), the slot label still names the list for screen readers.
+  else if (part.kind === 'list') body = <BulletList items={value as string[]} label={labelled ? undefined : part.slot.label} />;
   else body = <Programs programs={value as ProgramText[]} as={part.as} level={labelled ? 4 : 3} />;
   return (
     <div className="space-y-3">
@@ -141,6 +142,16 @@ export function AboutView({ about }: { about: AboutContent }) {
                 <li key={section.id}>
                   <a
                     href={`#${section.id}`}
+                    onClick={(event) => {
+                      // Same hash again: the router sees no new location, and the browser's own fragment navigation
+                      // (to the unfocusable section) would reset focus to the page. Nothing changes in the URL, so
+                      // skip it and scroll and focus the section title here.
+                      // Modified clicks (new tab or window) keep their normal behaviour.
+                      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                      if (hash !== `#${section.id}`) return;
+                      event.preventDefault();
+                      focusSectionHeading(section.id);
+                    }}
                     className="inline-flex min-h-11 items-center rounded-full border-2 border-maroon-800 bg-white px-5 font-semibold text-maroon-800 transition-colors hover:bg-maroon-800 hover:text-white"
                   >
                     {section.title}

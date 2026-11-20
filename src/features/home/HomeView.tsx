@@ -90,7 +90,7 @@ export function HomeView({ home, about, site, messagePlaceholders = {} }: HomeVi
   const aboutPhoto = slotValue(about.photo);
 
   const previews: Preview[] = [
-    { id: 'mission-and-vision', title: 'Mission and Vision', slots: [about.mission, about.vision] },
+    { id: 'mission-and-vision', title: 'Mission and Vision', slots: [about.vision, about.mission] },
     // Objectives are per-program lists, so the preview quotes the goal paragraph only.
     { id: 'goals-and-objectives', title: 'Goals and Objectives', slots: [about.goals] },
     { id: 'history', title: 'History', slots: [about.history] },

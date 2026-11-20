@@ -102,6 +102,14 @@ describe('checkDist', () => {
     expect(errors[0]).toContain('assets/dev-placeholder-dean-Ab12Cd.webp');
   });
 
+  it('flags a bundled reference to a dev placeholder photo', () => {
+    const dist = makeDist('/gs/');
+    write(join(dist, 'assets', 'index-Ab12Cd.js'), 'const p="/assets/dev-placeholder-dean-Ab12Cd.jpg";');
+    const errors = checkDist(dist);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain('assets/index-Ab12Cd.js references a dev placeholder photo');
+  });
+
   it('does not flag other PDFs', () => {
     const dist = makeDist('/gs/');
     write(join(dist, 'files', 'narrative-report.pdf'), PDF_BYTES);

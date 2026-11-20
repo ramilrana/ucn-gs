@@ -26,7 +26,9 @@ export function HomeHero({ universityName, schoolName, programName }: HomeHeroPr
       />
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-maroon-800/90 lg:bg-transparent lg:bg-linear-to-r lg:from-maroon-800 lg:from-50% lg:via-maroon-800/80 lg:via-65% lg:to-transparent"
+        // Between lg and xl the title runs to about 68% of the width, so the solid part reaches 65% there (a 2.9:1 gold
+        // contrast at 1024px over a bright roof before this change); from xl the title ends near 55%.
+        className="absolute inset-0 -z-10 bg-maroon-800/90 lg:bg-transparent lg:bg-linear-to-r lg:from-maroon-800 lg:from-65% lg:via-maroon-800/80 lg:via-80% lg:to-transparent xl:from-50% xl:via-65%"
       />
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:py-24">
         <div className="max-w-xl lg:max-w-3xl">
