@@ -4,6 +4,7 @@ import { SiteFooter } from '../components/layout/SiteFooter';
 import { SiteHeader } from '../components/layout/SiteHeader';
 import { SkipLink } from '../components/layout/SkipLink';
 import { RouteLoading } from './RouteLoading';
+import { dismissSplash } from './splash';
 
 const GIVE_UP_MS = 5000;
 
@@ -39,6 +40,12 @@ function useFocusPageTitleOnNavigation(): void {
   }, [pathname]);
 }
 
+/** Rendered next to the page inside Suspense, so its effect runs only once the first page has actually committed. */
+function DismissSplashWhenReady() {
+  useEffect(dismissSplash, []);
+  return null;
+}
+
 export function RootLayout() {
   useFocusPageTitleOnNavigation();
 
@@ -49,6 +56,7 @@ export function RootLayout() {
       <main id="main" tabIndex={-1} className="flex-1 outline-none">
         <Suspense fallback={<RouteLoading />}>
           <Outlet />
+          <DismissSplashWhenReady />
         </Suspense>
       </main>
       <SiteFooter />

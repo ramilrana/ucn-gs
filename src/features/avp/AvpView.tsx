@@ -34,7 +34,7 @@ export function AvpView({ areas }: AvpViewProps) {
           <section key={area.slug} id={area.slug} aria-labelledby={headingId(area.slug)} className="space-y-4">
             <div className="space-y-1">
               <p className="text-sm text-ink-muted">Area: {area.title}</p>
-              <SectionHeading level={2} id={headingId(area.slug)} tabIndex={-1} className="scroll-mt-24">
+              <SectionHeading level={2} id={headingId(area.slug)} tabIndex={-1} className="scroll-mt-6">
                 {avp.avpTitle ?? area.title}
               </SectionHeading>
             </div>

@@ -17,13 +17,13 @@ export function PageHeader({ title, intro }: PageHeaderProps) {
         <h1
           id="page-title"
           tabIndex={-1}
-          className="mt-4 break-words font-serif text-3xl font-semibold leading-tight tracking-tight text-maroon-800 outline-none sm:text-4xl lg:text-5xl"
+          className="reveal mt-4 break-words font-serif text-3xl font-semibold leading-tight tracking-tight text-maroon-800 outline-none sm:text-4xl lg:text-5xl"
         >
           {title}
         </h1>
-        <div aria-hidden="true" className="mt-5 h-[3px] w-16 bg-gold-500" />
+        <div aria-hidden="true" className="reveal-rule mt-5 h-[3px] w-16 bg-gold-500" />
         {intro && intro.length > 0 && (
-          <div className="mt-6">
+          <div className="reveal mt-6 [--d:1]">
             <Prose paragraphs={intro} />
           </div>
         )}

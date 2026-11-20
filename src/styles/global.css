@@ -3,6 +3,9 @@
 /* Descendants of .on-maroon, except inside a white .on-light panel nested in it (D9: no gold or white-on-white there). */
 @custom-variant on-maroon (&:where(.on-maroon *):not(:where(.on-light, .on-light *)));
 
+/* Screens tall enough for the sticky header (see SiteHeader). */
+@custom-variant tall (@media (min-height: 30rem));
+
 @theme {
   --color-maroon-800: #8f0404;
   --color-maroon-900: #6a0303;
@@ -35,6 +38,10 @@
 @layer base {
   html {
     font-family: var(--font-sans);
+    /* Anchored headings and keyboard focus land below the sticky header (2.4.11). */
+    @media (min-height: 30rem) {
+      scroll-padding-top: calc(var(--header-h, 5rem) + 0.5rem);
+    }
     color: var(--color-ink);
     background: #fff;
   }
@@ -76,5 +83,47 @@
       transition-duration: 0s !important;
       animation: none !important;
     }
+  }
+}
+
+/*
+ * Text entrance on load: `.reveal` lines fade up one after another (stagger with [--d:n]) and `.reveal-rule` gold rules
+ * draw in from the left, when they mount. While the splash is up, <html class="is-loading"> holds them paused at their
+ * start, so they play as it clears. Reduced motion: the base rule above removes every animation, so text simply appears.
+ */
+@layer components {
+  .reveal,
+  .reveal-rule {
+    animation-duration: 700ms;
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+    animation-fill-mode: both;
+  }
+
+  .reveal {
+    animation-name: reveal-rise;
+    animation-delay: calc(var(--d, 0) * 120ms);
+  }
+
+  .reveal-rule {
+    transform-origin: left;
+    animation-name: reveal-rule;
+    animation-delay: calc(var(--d, 0) * 120ms + 250ms);
+  }
+
+  .is-loading :is(.reveal, .reveal-rule) {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes reveal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.6em);
+  }
+}
+
+@keyframes reveal-rule {
+  from {
+    transform: scaleX(0);
   }
 }

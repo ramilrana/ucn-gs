@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="is-loading">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,11 +12,21 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/source-serif-4-latin-wght-normal.woff2" />
     <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/public-sans-latin-wght-normal.woff2" />
+    <link rel="stylesheet" href="/src/styles/splash.css" />
     <title>UCN Graduate School Accreditation</title>
   </head>
   <body>
+    <div id="splash" class="splash">
+      <div class="splash__inner">
+        <div class="splash__mark" aria-hidden="true">
+          <span class="splash__ring"></span>
+          <img class="splash__seal" src="/apple-touch-icon.png" width="88" height="88" alt="" />
+        </div>
+        <p class="splash__name">University of Camarines Norte<span class="splash__school">Graduate School</span></p>
+        <noscript><p class="splash__noscript">This site needs JavaScript to display accreditation documents.</p></noscript>
+      </div>
+    </div>
     <div id="root"></div>
-    <noscript><p>This site needs JavaScript to display accreditation documents.</p></noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

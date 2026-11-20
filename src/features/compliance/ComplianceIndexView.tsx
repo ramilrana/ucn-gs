@@ -53,7 +53,7 @@ export function ComplianceIndexView({ overview, areas, recommendations }: Compli
             aria-labelledby={headingId(area.slug)}
             className="space-y-3"
           >
-            <SectionHeading level={2} id={headingId(area.slug)} tabIndex={-1} className="scroll-mt-24">
+            <SectionHeading level={2} id={headingId(area.slug)} tabIndex={-1} className="scroll-mt-6">
               {area.title}
             </SectionHeading>
             <ol className="divide-y divide-line border-y border-line">
