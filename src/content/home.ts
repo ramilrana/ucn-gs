@@ -1,5 +1,5 @@
-import chairPhoto from '../assets/home/messages/chair.png?h=240;480&format=webp&as=picture';
-import deanPhoto from '../assets/home/messages/dean.png?h=240;480&format=webp&as=picture';
+import chairPhoto from '../assets/home/messages/chair.png?h=360;720&format=webp&as=picture';
+import deanPhoto from '../assets/home/messages/dean.png?h=360;720&format=webp&as=picture';
 // The President's file is only 247x339, so it is used at its own size (no enlargement).
 import presidentPhoto from '../assets/home/messages/president.png?format=webp&as=picture';
 import { toImageAsset } from '../lib/images';

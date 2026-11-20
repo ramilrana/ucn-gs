@@ -9,7 +9,7 @@ import type { ImageAsset, LeaderMessage } from '../../types/content';
 export function LeaderMessageCard({ message, placeholderPhoto }: { message: LeaderMessage; placeholderPhoto?: ImageAsset }) {
   const photo = message.photo ?? placeholderPhoto;
   return (
-    <article className="grid grid-cols-1 gap-6 rounded border border-line bg-white p-5 sm:grid-cols-[12rem_minmax(0,1fr)] sm:p-6">
+    <article className="grid grid-cols-1 gap-6 rounded border border-line bg-white p-5 sm:grid-cols-[14rem_minmax(0,1fr)] lg:grid-cols-[18rem_minmax(0,1fr)] sm:p-6">
       {photo ? (
         <img
           src={photo.src}
@@ -21,10 +21,10 @@ export function LeaderMessageCard({ message, placeholderPhoto }: { message: Lead
           // Every photo gets the same 4:5 frame and is shown whole inside it (never cropped, user's request
           // 2026-11-20), standing on the bottom edge. The cut-outs are transparent, so the paper backdrop is
           // the same behind all of them.
-          className="aspect-[4/5] w-full max-w-48 rounded bg-paper object-contain object-bottom"
+          className="aspect-[4/5] w-full max-w-72 rounded bg-paper object-contain object-bottom"
         />
       ) : (
-        <div aria-hidden="true" className="flex aspect-[4/5] w-full max-w-48 items-center justify-center rounded bg-paper">
+        <div aria-hidden="true" className="flex aspect-[4/5] w-full max-w-72 items-center justify-center rounded bg-paper">
           <User strokeWidth={1} className="size-1/2 text-line" />
         </div>
       )}
