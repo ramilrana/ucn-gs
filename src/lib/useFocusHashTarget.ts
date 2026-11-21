@@ -1,10 +1,17 @@
 import { useEffect } from 'react';
 
-/** Focuses the h2 inside the element with this id and scrolls it to the top (smoothly unless reduced motion). */
-export function focusSectionHeading(id: string): void {
+/**
+ * Focuses the h2 inside the element with this id and scrolls it to the top (smoothly unless reduced motion).
+ * With `scroll: 'page-top'` it scrolls the page to the top instead, for a page that shows only that section.
+ */
+export function focusSectionHeading(id: string, scroll: 'section' | 'page-top' = 'section'): void {
   const heading = document.getElementById(id)?.querySelector('h2');
   if (!heading) return;
   heading.focus({ preventScroll: true });
+  if (scroll === 'page-top') {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+    return;
+  }
   if (typeof heading.scrollIntoView === 'function') {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     heading.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
@@ -24,7 +31,12 @@ export function focusSectionHeading(id: string): void {
  * `navKey` (the router's `location.key`) re-runs the effect when the same hash is navigated to again:
  * the URL is unchanged, but the menu that held focus has closed, so focus must be moved back.
  */
-export function useFocusHashTarget(hash: string, allowedIds: readonly string[], navKey?: string): void {
+export function useFocusHashTarget(
+  hash: string,
+  allowedIds: readonly string[],
+  navKey?: string,
+  scroll: 'section' | 'page-top' = 'section',
+): void {
   const idKey = JSON.stringify(allowedIds);
   useEffect(() => {
     if (hash.length < 2) return;
@@ -35,7 +47,7 @@ export function useFocusHashTarget(hash: string, allowedIds: readonly string[], 
       return;
     }
     if (!(JSON.parse(idKey) as string[]).includes(id)) return;
-    const timer = window.setTimeout(() => focusSectionHeading(id), 0);
+    const timer = window.setTimeout(() => focusSectionHeading(id, scroll), 0);
     return () => window.clearTimeout(timer);
-  }, [hash, idKey, navKey]);
+  }, [hash, idKey, navKey, scroll]);
 }

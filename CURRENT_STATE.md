@@ -1,6 +1,6 @@
 # Current State
 
-Canonical snapshot of where the project stands. Update in place; do not append session diaries. Last updated: 2026-11-20.
+Canonical snapshot of where the project stands. Update in place; do not append session diaries. Last updated: 2026-11-21.
 
 ## Objective
 
@@ -28,6 +28,7 @@ Stack after the refactor: React 19, TypeScript 5.8, Vite 7, React Router 7, Tail
   - **Program (refines D4):** Master in Public Administration (MPA), AACCUP Level IV **Phase 2** accreditation, year 2026. The site is the Graduate School's site but covers only this accreditation. 2026-11-19 (user's request): the hero program line reads just "Master in Public Administration".
   - **Home banner (2026-11-19, user's choice of four previewed options):** aerial campus photo (`src/assets/home/campus-aerial.webp`, 1280×360, decorative) under a maroon tint that is solid behind the text and fades to the photo on the right at `lg`, fully tinted below. Title on two lines, "University of Camarines Norte" in gold (on maroon, allowed by D9) and "Graduate School" in white. The leadership carousel follows directly below (see D8). `src/features/home/HomeHero.tsx`; merged via PR #3.
   - **Navigation (2026-11-20, user's request; changes spec §4 and the header order):** the page "Additional Files for the Accreditors" (`/additional-files`) and the "Documents" menu are removed; Certificate of Authenticity is a top-level link. Header and footer order: Home, Certificate of Authenticity, Compliance Report, Accreditation Areas, AVP, About (`navModel.ts`, `static-routes.json`). Per-area and per-recommendation "Additional Files" lists stay (all empty, so hidden). Home quick-access tiles follow the same order (Certificate, Compliance Report, Areas, AVP) as maroon tiles with a gold icon ring and their own icons (BadgeCheck, ClipboardCheck, FolderOpen, MonitorPlay), the user's pick of four previewed designs. At 1024px the longer menu label wraps the site name beside the logo onto two lines.
+  - **Compliance Report menu (2026-11-20, user's request):** the "Compliance Report" item shows every area's recommendations and the overview; an area under it (`/compliance-report#<area-slug>`) shows only that area's recommendations, with focus on its heading, the page kept at the top, and a link "Show the recommendations of every area" (hidden when only one area has any). An unknown or malformed hash shows everything. Same URLs as before, so no route, Nginx or link changes. `ComplianceIndexView.tsx`; `useFocusHashTarget` gained a `'page-top'` scroll option.
   - **Message cards (2026-11-20, user's pick of four previewed options: maroon spotlight, clean cut-out, arch niche, feature banner):** feature banner, see Reference and content status. Photos are never cropped (user's request).
 - **About page styling (2026-11-19, user's request):** section titles (h2) on maroon bands with a gold left edge and white text; the on-this-page nav is a labelled paper box of pill-shaped button links.
   - **Areas (5, in order):** Research; Performance of Graduates; Community Service; International Linkages & Consortia; Planning Process. Each area has its own AVP.
@@ -53,6 +54,7 @@ Spec §6. Typed content in `src/content/` (areas and recommendations as one file
 
 ## Plan and progress
 
+- **PR #8 merged to `main` 2026-11-21 (user's request)** as merge commit `1e2b624` after CI `build` and `nginx-smoke` passed (sticky header, seal-ring splash, rise text animation, PR #6/#7 review record). No GitHub review was requested; branch `feat/sticky-nav-loader` still exists on GitHub. PR #9 was then retargeted from that branch to `main`.
 - **Merged to `main` 2026-11-20 (user's request), in order, after CI `build` and `nginx-smoke` passed on each:** PR #5 review fixes (merge commit `d04294a`), PR #6 batch 3 portraits, certificate, Vision, Mission and Quality Policy (`13a2c4a`), PR #7 nav order, Additional Files removed, quick-access tiles (`2f55278`). No GitHub review was requested. The branches `fix/task29-review`, `content/batch3-photos-certificate` and `feat/nav-certificate` still exist on GitHub.
 - Tasks 1–28: complete. Each task had a Sonnet implementer and an independent task review (spec + quality), with fix rounds until no Important finding remained.
 - **Checkpoint A (Tasks 3–12):** review 1 "Verdict: PASS WITH ISSUES" (1 High, 1 Medium, 4 Low) → fixes `f8c44ab..2aa8639`, `f76d38e` → re-review "Verdict: PASS WITH ISSUES. Every earlier finding is addressed, and no Critical, High or Medium finding is open." Cleared.
@@ -85,6 +87,8 @@ Spec §6. Typed content in `src/content/` (areas and recommendations as one file
 - Execution ledger (every ruling, deferred minor finding and review result): `.superpowers/sdd/2026-10-29-ucn-gs-accreditation-site/progress.md`, git-ignored via `.git/info/exclude`. Kept until Task 29 is done.
 
 ## Verification status
+
+**`feat/compliance-area-filter` (implementer-run, 2026-11-20):** lint, typecheck, `npm test` 43 files / 471 (clean full run, 3 new tests), build, check:dist pass. Browser (dev server, 1280px, real header menu): Compliance Report shows all 6 areas (dev includes the sample area); Community Service and Planning Process from the submenu show only their own recommendations, focus on the area h2, scroll at the top; the "every area" link brings back the full list and focuses the h1; no new console errors after a reload.
 
 **`feat/sticky-nav-loader` (implementer-run, 2026-11-20, final variant):** lint, typecheck, build, check:dist pass; `audit:prod` 0 vulnerabilities; `npm test` 465/468 in the full run (three OneDrive timeouts in `check-dist.test.ts` and `SiteHeader.test.tsx`, 42/42 when those two files were rerun alone); new `src/app/splash.test.ts` 4/4. No dev panel in `dist/`. Browser (dev server): ring splash, then rise and rule animations on the page title, sticky header, no console errors; earlier variant pass: anchor lands below the header, 375px no horizontal scroll, 800×400 header static, `vite preview` production clears the splash. Not checked: real mobile devices, screen reader, 1024px header with text spacing. No reviewer has run on this branch.
 
@@ -134,7 +138,7 @@ The docs commit changes no code and ran no checks.
 
 ## Next actions
 
-1. Push `feat/sticky-nav-loader` and open a PR to `main` (user's go-ahead needed); optionally run `ucn-opus-reviewer` on it first.
+1. PR #9 https://github.com/ramilrana/ucn-gs/pull/9 (`feat/compliance-area-filter`, Compliance Report area filter) is open against `main`: wait for CI `build` and `nginx-smoke`, then merge on the user's go-ahead. No reviewer has run on it or on PR #8.
 2. Ask the user/UCN to confirm the certificate signatory's spelling: the alt text says "Raynel D. Zabala"; the reviewer reads the scan as possibly "RAYNIEL" (review Medium M1, `src/content/documents.ts`). Optional Lows from the same review: President photo upscaled about 1.04× (cap `max-h-[339px]`, fix the comment), `sizes="20rem"` → about `15rem` on message portraits, long certificate alt (short alt plus transcript), dead `ResourceGroup` type, a "superseded" note in the spec for `/additional-files`.
 3. Answer the open questions for UCN (name spellings, 2008 dean dates, two program headings, President/Dean position lines). Then supply the remaining spec §13 materials (accreditation slides, second gallery, GS video, About photo, area and recommendation materials, the 14 recommendation titles, people, FAQs, contact) and run Task 29 batch by batch from a new branch off `main` (`docs/content-guide.md`; plan Task 29 steps). Each batch: add files/data with UCN's exact wording, flip to `published` only when verified, `npm test` + `npm run check:links`, render at 375/1280px, standard checks, update this file, commit `content: <batch>`.
 4. Before the first deploy: confirm the Nginx server's domain or IP, base path and HTTPS; build with `UCN_DOCROOT` and `UCN_NGINX_INCLUDE_DIR` set to the server's paths; follow `docs/deployment.md`, including the post-deploy checks.
