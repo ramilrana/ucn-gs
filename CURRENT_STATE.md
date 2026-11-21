@@ -1,6 +1,6 @@
 # Current State
 
-Canonical snapshot of where the project stands. Update in place; do not append session diaries. Last updated: 2026-11-20.
+Canonical snapshot of where the project stands. Update in place; do not append session diaries. Last updated: 2026-11-21.
 
 ## Objective
 
@@ -54,6 +54,7 @@ Spec §6. Typed content in `src/content/` (areas and recommendations as one file
 
 ## Plan and progress
 
+- **PR #8 merged to `main` 2026-11-21 (user's request)** as merge commit `1e2b624` after CI `build` and `nginx-smoke` passed (sticky header, seal-ring splash, rise text animation, PR #6/#7 review record). No GitHub review was requested; branch `feat/sticky-nav-loader` still exists on GitHub. PR #9 was then retargeted from that branch to `main`.
 - **Merged to `main` 2026-11-20 (user's request), in order, after CI `build` and `nginx-smoke` passed on each:** PR #5 review fixes (merge commit `d04294a`), PR #6 batch 3 portraits, certificate, Vision, Mission and Quality Policy (`13a2c4a`), PR #7 nav order, Additional Files removed, quick-access tiles (`2f55278`). No GitHub review was requested. The branches `fix/task29-review`, `content/batch3-photos-certificate` and `feat/nav-certificate` still exist on GitHub.
 - Tasks 1–28: complete. Each task had a Sonnet implementer and an independent task review (spec + quality), with fix rounds until no Important finding remained.
 - **Checkpoint A (Tasks 3–12):** review 1 "Verdict: PASS WITH ISSUES" (1 High, 1 Medium, 4 Low) → fixes `f8c44ab..2aa8639`, `f76d38e` → re-review "Verdict: PASS WITH ISSUES. Every earlier finding is addressed, and no Critical, High or Medium finding is open." Cleared.
@@ -137,7 +138,7 @@ The docs commit changes no code and ran no checks.
 
 ## Next actions
 
-1. PR #8 (`feat/sticky-nav-loader`) is open; branch `feat/compliance-area-filter` is stacked on it (Compliance Report area filter). Push it and open its PR once the user agrees (merge #8 first, or base the new PR on `feat/sticky-nav-loader`). Neither has had a reviewer run.
+1. PR #9 https://github.com/ramilrana/ucn-gs/pull/9 (`feat/compliance-area-filter`, Compliance Report area filter) is open against `main`: wait for CI `build` and `nginx-smoke`, then merge on the user's go-ahead. No reviewer has run on it or on PR #8.
 2. Ask the user/UCN to confirm the certificate signatory's spelling: the alt text says "Raynel D. Zabala"; the reviewer reads the scan as possibly "RAYNIEL" (review Medium M1, `src/content/documents.ts`). Optional Lows from the same review: President photo upscaled about 1.04× (cap `max-h-[339px]`, fix the comment), `sizes="20rem"` → about `15rem` on message portraits, long certificate alt (short alt plus transcript), dead `ResourceGroup` type, a "superseded" note in the spec for `/additional-files`.
 3. Answer the open questions for UCN (name spellings, 2008 dean dates, two program headings, President/Dean position lines). Then supply the remaining spec §13 materials (accreditation slides, second gallery, GS video, About photo, area and recommendation materials, the 14 recommendation titles, people, FAQs, contact) and run Task 29 batch by batch from a new branch off `main` (`docs/content-guide.md`; plan Task 29 steps). Each batch: add files/data with UCN's exact wording, flip to `published` only when verified, `npm test` + `npm run check:links`, render at 375/1280px, standard checks, update this file, commit `content: <batch>`.
 4. Before the first deploy: confirm the Nginx server's domain or IP, base path and HTTPS; build with `UCN_DOCROOT` and `UCN_NGINX_INCLUDE_DIR` set to the server's paths; follow `docs/deployment.md`, including the post-deploy checks.
