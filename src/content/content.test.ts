@@ -424,6 +424,13 @@ describe('people (UCN photo set, 2026-11-21)', () => {
       'Analyn D. Ramos',
       'Jocelyn O. Torio',
     ]);
+    // 9-28 follow the user's numbered list (2026-11-21); Bolos, not on it, follows.
+    expect(people.slice(8, 29).map((p) => p.id)).toEqual([
+      'rosemarie-t-biguueras', 'sarah-marie-p-aviado', 'aireen-v-ablao', 'noel-s-manila', 'jesse-o-opena-jr',
+      'emmalyn-c-guaves', 'gehana-d-lamug', 'mechelle-grace-b-geromo', 'jefferson-t-dacer', 'eduardo-m-abad',
+      'delma-jean-v-abad', 'adrian-c-guinto', 'nemia-c-puse', 'jennifer-s-rubio', 'edgar-p-aban', 'dolores-c-volante',
+      'rose-ann-dp-aler', 'melchor-m-amor', 'edwin-r-ichiano', 'ryan-s-rodriguez', 'mary-grace-b-bolos',
+    ]);
     expect(people.slice(-3).every((p) => p.role === 'student-assistant')).toBe(true);
     expect(people.filter((p) => p.role === 'student-assistant')).toHaveLength(3);
     expect(people.every((p) => p.status === 'published' && p.photo)).toBe(true);
