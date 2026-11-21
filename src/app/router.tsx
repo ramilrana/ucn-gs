@@ -17,7 +17,7 @@ const pageLoaders: Record<RouteKind, () => Promise<PageModule>> = {
   certificate: () => import('../pages/CertificatePage'),
   about: () => import('../pages/AboutPage'),
   'about-people': () => import('../pages/PeoplePage'),
-  'about-faculty': () => import('../pages/FacultyByDepartmentPage'),
+  'about-faculty': () => import('../pages/FacultyOfProgramsPage'),
   'about-faqs': () => import('../pages/FaqsLocationPage'),
   'content-status': () => import('../pages/ContentStatusPage'),
 };

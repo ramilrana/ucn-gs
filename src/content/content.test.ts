@@ -6,7 +6,9 @@ import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import { existsCaseExact } from '../test/publicFiles';
 import type { Area, EvidenceBlock, EvidenceGroup, Faq, ImageAsset, Person, Recommendation, Resource, ResourceGroup } from '../types/content';
-import * as content from './index';
+import * as contentIndex from './index';
+import { facultyOfPrograms } from './facultyOfPrograms';
+import { people } from './people';
 import {
   checkAreaOrders,
   checkFilenames,
@@ -21,6 +23,9 @@ import {
   collectPeople,
   collectResources,
 } from './validate';
+
+/** The index plus people, which the index leaves out to keep the first-load bundle small. */
+const content = { ...contentIndex, people, facultyOfPrograms };
 
 // Filenames are checked against the raw glob keys, independent of index.ts.
 const areaModules = import.meta.glob<Area>(['./areas/*.ts', '!./areas/*.test.ts'], { eager: true, import: 'default' });
@@ -400,5 +405,35 @@ describe('collectors traverse nested content', () => {
     });
     expect(located.map((l) => l.where)).toEqual(['home.presidentMessage photo']);
     expect(checkImages(located)).toHaveLength(1);
+  });
+});
+
+describe('people (UCN photo set, 2026-11-21)', () => {
+  it('lists the President and the Dean first, the numbered 3-8 next, and the student assistants last', async () => {
+    const { people } = await import('./people');
+    expect(people).toHaveLength(36);
+    expect(people.slice(0, 2).map((p) => [p.name, p.role])).toEqual([
+      ['Atty. Ryan L. Estevez', 'official'],
+      ['Girly H. Naval', 'official'],
+    ]);
+    expect(people.slice(2, 8).map((p) => p.name)).toEqual([
+      'Maria Christina C. Azuelo',
+      'Consuelo R. Saenz',
+      'Rosalie A. Almadrones',
+      'Manuel C. Dime',
+      'Analyn D. Ramos',
+      'Jocelyn O. Torio',
+    ]);
+    // 9-28 follow the user's numbered list (2026-11-21); Bolos, not on it, follows.
+    expect(people.slice(8, 29).map((p) => p.id)).toEqual([
+      'rosemarie-t-biguueras', 'sarah-marie-p-aviado', 'aireen-v-ablao', 'noel-s-manila', 'jesse-o-opena-jr',
+      'emmalyn-c-guaves', 'gehana-d-lamug', 'mechelle-grace-b-geromo', 'jefferson-t-dacer', 'eduardo-m-abad',
+      'delma-jean-v-abad', 'adrian-c-guinto', 'nemia-c-puse', 'jennifer-s-rubio', 'edgar-p-aban', 'dolores-c-volante',
+      'rose-ann-dp-aler', 'melchor-m-amor', 'edwin-r-ichiano', 'ryan-s-rodriguez', 'mary-grace-b-bolos',
+    ]);
+    expect(people.slice(-3).every((p) => p.role === 'student-assistant')).toBe(true);
+    expect(people.filter((p) => p.role === 'student-assistant')).toHaveLength(3);
+    expect(people.every((p) => p.status === 'published' && p.photo)).toBe(true);
+    expect(new Set(people.map((p) => p.id)).size).toBe(36);
   });
 });

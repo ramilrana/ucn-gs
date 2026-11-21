@@ -19,9 +19,10 @@ export function FaqsLocationView({ faqs, site }: FaqsLocationViewProps) {
   const shownFaqs = visible(faqs);
   const address = slotValue(site.contact)?.address.trim() || undefined;
   const hasMap = Boolean(slotValue(site.mapQuery)?.trim());
+  const coordinates = site.coordinates ? slotValue(site.coordinates)?.trim() || undefined : undefined;
 
   const showFaqs = shownFaqs.length > 0 || showPending();
-  const showLocation = address !== undefined || hasMap || showPending();
+  const showLocation = address !== undefined || hasMap || coordinates !== undefined || showPending();
 
   return (
     <PageShell title={TITLE} hasContent={showFaqs || showLocation}>
@@ -50,7 +51,12 @@ export function FaqsLocationView({ faqs, site }: FaqsLocationViewProps) {
               Location
             </SectionHeading>
             {address ? <p className="max-w-[70ch] leading-relaxed text-ink">{address}</p> : <PendingNotice label={site.contact.label} />}
-            <MapEmbed query={site.mapQuery} address={address} />
+            {coordinates && (
+              <p className="text-ink">
+                <span className="font-semibold text-maroon-800">Coordinates:</span> {coordinates}
+              </p>
+            )}
+            <MapEmbed query={site.mapQuery} address={address ?? site.universityName} />
           </section>
         )}
       </div>

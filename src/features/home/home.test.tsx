@@ -62,6 +62,7 @@ const fullHome: HomeContent = {
 };
 
 const fullAbout: AboutContent = {
+  intro: { status: 'published', label: 'About introduction', value: ['Intro first.'] },
   photo: { status: 'published', label: 'About photograph', value: image('About photo') },
   mission: { status: 'published', label: 'Mission', value: ['Mission first.', 'Mission second.'] },
   vision: { status: 'published', label: 'Vision', value: ['Vision first.'] },
@@ -91,6 +92,7 @@ const pendingHome: HomeContent = {
 };
 const pendingAbout: AboutContent = {
   photo: { status: 'pending', label: 'About photograph' },
+  intro: { status: 'pending', label: 'About introduction' },
   mission: { status: 'pending', label: 'Mission' },
   vision: { status: 'pending', label: 'Vision' },
   qualityPolicy: { status: 'pending', label: 'Quality Policy' },

@@ -6,6 +6,6 @@
   { "path": "/avp", "title": "Audio Visual Presentations", "kind": "avp" },
   { "path": "/about", "title": "About the Graduate School", "kind": "about" },
   { "path": "/about/people", "title": "Faculty, Staff and Student Assistants", "kind": "about-people" },
-  { "path": "/about/faculty-by-department", "title": "Faculty by Department", "kind": "about-faculty" },
+  { "path": "/about/faculty-of-programs", "title": "Faculty of Programs", "kind": "about-faculty" },
   { "path": "/about/faqs-and-location", "title": "FAQs and Location", "kind": "about-faqs" }
 ]

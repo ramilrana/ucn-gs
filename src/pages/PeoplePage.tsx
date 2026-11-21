@@ -1,5 +1,5 @@
 import { useRouteEntry } from '../app/useRouteEntry';
-import { people } from '../content';
+import { people } from '../content/people';
 import { PeopleView } from '../features/about/PeopleView';
 import NotFoundPage from './NotFoundPage';
 

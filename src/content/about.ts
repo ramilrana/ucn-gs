@@ -1,9 +1,26 @@
+import campusBuilding from '../assets/about/campus-building.jpg?w=640;1280;2000&format=webp&as=picture';
+import { toImageAsset } from '../lib/images';
 import type { AboutContent } from '../types/content';
 
-// Wording from UCN, entered exactly as supplied: Vision, Mission and Quality Policy updated 2026-11-20 (the
+// Wording from UCN, entered exactly as supplied: the introduction and the photo added 2026-11-21 (the photo's alt text is
+// ours); Vision, Mission and Quality Policy updated 2026-11-20 (the
 // supplied Mission has no closing full stop); the rest 2026-11-19.
 export const about: AboutContent = {
-  photo: { status: 'pending', label: 'About photograph' },
+  photo: {
+    status: 'published',
+    label: 'About photograph',
+    value: toImageAsset(
+      campusBuilding,
+      'The two-storey CNSC main campus building, with the college seal and the letters CNSC on its front wall',
+    ),
+  },
+  intro: {
+    status: 'published',
+    label: 'About introduction',
+    value: [
+      'The Graduate School offers an extensive selection of advanced degree programs aimed at professionals seeking to enhance their leadership abilities and subject-matter expertise across diverse sectors. With specialized programs in Business Administration, Public Administration, and Education, the Graduate School is dedicated to cultivating high-level executives, skilled public administrators, and visionary educational leaders. These programs provide a rigorous blend of in-depth theoretical knowledge, cutting-edge research, and practical applications, encouraging students to develop strong critical thinking, analytical reasoning, and leadership skills. The curriculum is designed to sharpen strategic decision-making capabilities, promote ethical and socially responsible leadership, and equip graduates to tackle complex and evolving challenges in both national and international contexts. By leveraging a combination of traditional classroom instruction, research initiatives, technology-enhanced learning, and real-world case studies, the Graduate School ensures its students are well-prepared to lead and innovate in government agencies, private enterprises, non-profit organizations, and educational institutions. The program’s commitment to addressing contemporary trends and societal needs guarantees that graduates are not only equipped with the knowledge and tools for success but are also empowered to drive meaningful change within their respective industries.',
+    ],
+  },
   mission: {
     status: 'published',
     label: 'Mission',

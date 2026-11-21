@@ -4,10 +4,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { RootLayout } from '../../app/RootLayout';
 import type { AboutContent, ImageAsset, Person } from '../../types/content';
 import { AboutView } from './AboutView';
-import { FacultyByDepartmentView } from './FacultyByDepartmentView';
+import { FacultyOfProgramsView } from './FacultyOfProgramsView';
 import { PeopleView } from './PeopleView';
 import { PersonCard } from './PersonCard';
-import { groupByDepartment, groupByRole } from './groupPeople';
+import { groupByRole } from './groupPeople';
 
 const renderUi = (ui: React.ReactElement, path = '/about') => {
   const router = createMemoryRouter([{ path: '*', element: ui }], { initialEntries: [path] });
@@ -32,6 +32,7 @@ const photo: ImageAsset = { src: '/assets/p-1.jpg', width: 400, height: 500, alt
 
 const pendingAbout: AboutContent = {
   photo: { status: 'pending', label: 'About photograph' },
+  intro: { status: 'pending', label: 'About introduction' },
   mission: { status: 'pending', label: 'Mission' },
   vision: { status: 'pending', label: 'Vision' },
   qualityPolicy: { status: 'pending', label: 'Quality Policy' },
@@ -43,6 +44,7 @@ const pendingAbout: AboutContent = {
 };
 
 const fullAbout: AboutContent = {
+  intro: { status: 'published', label: 'About introduction', value: ['Intro first.'] },
   photo: {
     status: 'published',
     label: 'About photograph',
@@ -121,22 +123,6 @@ describe('groupByRole', () => {
   });
 });
 
-describe('groupByDepartment', () => {
-  it('groupByDepartment sorts and files unassigned faculty last', () => {
-    const groups = groupByDepartment([
-      person('a', 'Zoe', { department: 'Education' }),
-      person('b', 'Ann'),
-      person('c', 'Bob', { department: 'Education' }),
-      person('d', 'Cal', { department: 'Business' }),
-      person('e', 'Staffer', { role: 'staff', department: 'Aardvark Studies' }),
-      person('f', 'Dee', { department: '  ' }),
-    ]);
-    expect(groups.map((g) => g.department)).toEqual(['Business', 'Education', 'Department not specified']);
-    expect(groups[1]?.people.map((p) => p.name)).toEqual(['Bob', 'Zoe']);
-    expect(groups[2]?.people.map((p) => p.name)).toEqual(['Ann', 'Dee']);
-  });
-});
-
 describe('PersonCard', () => {
   it('PersonCard without photo renders no img', () => {
     const { container } = render(
@@ -199,6 +185,13 @@ describe('AboutView', () => {
       unmount();
     }
     expect(scroll).not.toHaveBeenCalled();
+  });
+
+  it('shows the published introduction under the page title, before the photo', () => {
+    renderUi(<AboutView about={fullAbout} />);
+    const intro = screen.getByText('Intro first.');
+    const photo = screen.getByRole('img', { name: 'The campus' });
+    expect(intro.compareDocumentPosition(photo) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('about sections have stable anchors', () => {
@@ -334,7 +327,7 @@ describe('AboutView', () => {
   });
 });
 
-describe('PeopleView and FacultyByDepartmentView', () => {
+describe('PeopleView and FacultyOfProgramsView', () => {
   afterEach(() => vi.unstubAllEnvs());
 
   it('pending people are hidden in production', () => {
@@ -377,33 +370,79 @@ describe('PeopleView and FacultyByDepartmentView', () => {
     expect(screen.getAllByRole('list')).toHaveLength(3);
   });
 
-  it('faculty by department lists faculty only, grouped by department', () => {
+  it('faculty of programs lists every group as text, featuring the list whose members all have roles', () => {
     production();
     renderUi(
-      <FacultyByDepartmentView
-        people={[
-          person('a', 'Zoe', { department: 'Education' }),
-          person('b', 'Staffer', { role: 'staff', department: 'Education' }),
-          person('c', 'Hidden', { department: 'Law', status: 'pending' }),
-          person('d', 'Nodept'),
-        ]}
+      <FacultyOfProgramsView
+        faculty={{
+          status: 'published',
+          label: 'Faculty of Programs',
+          value: [
+            { title: 'Chairs', members: [{ name: 'Ana Cruz, PhD', role: 'MPA Chairperson' }] },
+            { title: 'Faculty of One', members: [{ name: 'Zed Reyes, DPA' }, { name: 'Amy Santos, PhD' }] },
+          ],
+        }}
       />,
-      '/about/faculty-by-department',
+      '/about/faculty-of-programs',
     );
-    expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual([
-      'Education',
-      'Department not specified',
+    expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual(['Chairs', 'Faculty of One']);
+    expect(screen.queryByRole('img')).toBeNull();
+    const chairs = screen.getByRole('region', { name: 'Chairs' });
+    expect(chairs.className).toContain('bg-maroon-800');
+    expect(within(chairs).getByText('MPA Chairperson')).toBeTruthy();
+    // Supplied order, not alphabetical.
+    const program = screen.getByRole('region', { name: 'Faculty of One' });
+    expect(within(program).getAllByRole('listitem').map((li) => li.textContent)).toEqual([
+      '1Zed Reyes, DPA',
+      '2Amy Santos, PhD',
     ]);
-    expect(screen.queryByText('Staffer')).toBeNull();
-    expect(screen.queryByText('Hidden')).toBeNull();
   });
 
-  it('faculty by department with no faculty shows the preparing note', () => {
+  it('faculty of programs while pending shows the preparing note', () => {
     production();
     renderUi(
-      <FacultyByDepartmentView people={[person('b', 'Staffer', { role: 'staff' })]} />,
-      '/about/faculty-by-department',
+      <FacultyOfProgramsView faculty={{ status: 'pending', label: 'Faculty of Programs' }} />,
+      '/about/faculty-of-programs',
     );
     expect(screen.getByText('Materials for this page are being prepared.')).toBeTruthy();
+  });
+});
+
+describe('PeopleView layout', () => {
+  it('shows the officials featured, one per row, and everyone else three to a row, in the given order', () => {
+    const list = [
+      person('p', 'President', { role: 'official', photo }),
+      person('d', 'Dean', { role: 'official', photo }),
+      person('f1', 'Zed Faculty'),
+      person('f2', 'Amy Faculty'),
+      person('s1', 'Staff One', { role: 'staff' }),
+      person('a1', 'Assistant One', { role: 'student-assistant' }),
+    ];
+    renderUi(<PeopleView people={list} />, '/about/people');
+    const headings = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
+    expect(headings).toEqual(['Officials', 'Faculty', 'Staff', 'Student Assistants']);
+    const [officials, faculty] = screen.getAllByRole('list');
+    expect(officials?.className).not.toContain('grid-cols-2');
+    expect((within(officials as HTMLElement).getAllByRole('listitem')[0]?.firstElementChild as HTMLElement).className).toContain(
+      'sm:flex-row',
+    );
+    expect(faculty?.className).toContain('md:grid-cols-3');
+    // Order within a group is the content's order, not alphabetical.
+    expect(within(faculty as HTMLElement).getAllByText(/Faculty$/).map((p) => p.textContent)).toEqual([
+      'Zed Faculty',
+      'Amy Faculty',
+    ]);
+    // Featured portraits are larger than the grid ones; no card box around any of them.
+    const imgs = within(officials as HTMLElement).getAllByRole('img');
+    expect(imgs[0]?.className).toContain('size-56');
+    for (const li of within(faculty as HTMLElement).getAllByRole('listitem'))
+      expect((li.firstElementChild as HTMLElement).className).not.toMatch(/border|bg-/);
+  });
+
+  it('keeps a "\n" in a position as a line break', () => {
+    render(<PersonCard person={person('x', 'Ana Cruz', { position: 'Associate Professor III\nDean, CBPA' })} />);
+    const position = screen.getByText(/Associate Professor III/);
+    expect(position.textContent).toBe('Associate Professor III\nDean, CBPA');
+    expect(position.className).toContain('whitespace-pre-line');
   });
 });

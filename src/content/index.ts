@@ -5,7 +5,8 @@ import type { Area, Recommendation } from '../types/content';
 export { site } from './site';
 export { home } from './home';
 export { about } from './about';
-export { people } from './people';
+// `people` (36 entries with photo URLs) is not re-exported here: this index is in every page's first-load bundle, so
+// the people pages and the content-status page import './people' directly.
 export { faqs } from './faqs';
 export { certificate } from './documents';
 export { compliance } from './compliance';
