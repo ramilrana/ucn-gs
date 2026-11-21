@@ -22,8 +22,9 @@ export function PeopleView({ people }: { people: readonly Person[] }) {
               {group.label}
             </SectionHeading>
             {group.role === 'official' ? (
-              // The officials (the President and the Dean) come first and larger, two to a row.
-              <ul className="grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2">
+              // The officials (the President and the Dean) come first, one per row, photo beside the name (the user's pick
+              // of three previewed layouts, 2026-11-21).
+              <ul className="grid grid-cols-1 gap-y-6">
                 {group.people.map((person) => (
                   <li key={person.id}>
                     <PersonCard person={person} size="featured" />

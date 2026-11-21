@@ -409,7 +409,7 @@ describe('PeopleView and FacultyOfProgramsView', () => {
 });
 
 describe('PeopleView layout', () => {
-  it('shows the officials featured, two to a row, and everyone else three to a row, in the given order', () => {
+  it('shows the officials featured, one per row, and everyone else three to a row, in the given order', () => {
     const list = [
       person('p', 'President', { role: 'official', photo }),
       person('d', 'Dean', { role: 'official', photo }),
@@ -422,7 +422,10 @@ describe('PeopleView layout', () => {
     const headings = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
     expect(headings).toEqual(['Officials', 'Faculty', 'Staff', 'Student Assistants']);
     const [officials, faculty] = screen.getAllByRole('list');
-    expect(officials?.className).toContain('md:grid-cols-2');
+    expect(officials?.className).not.toContain('grid-cols-2');
+    expect((within(officials as HTMLElement).getAllByRole('listitem')[0]?.firstElementChild as HTMLElement).className).toContain(
+      'sm:flex-row',
+    );
     expect(faculty?.className).toContain('md:grid-cols-3');
     // Order within a group is the content's order, not alphabetical.
     expect(within(faculty as HTMLElement).getAllByText(/Faculty$/).map((p) => p.textContent)).toEqual([
@@ -432,7 +435,8 @@ describe('PeopleView layout', () => {
     // Featured portraits are larger than the grid ones; no card box around any of them.
     const imgs = within(officials as HTMLElement).getAllByRole('img');
     expect(imgs[0]?.className).toContain('size-56');
-    for (const li of document.querySelectorAll('li')) expect((li.firstElementChild as HTMLElement).className).not.toMatch(/border|bg-/);
+    for (const li of within(faculty as HTMLElement).getAllByRole('listitem'))
+      expect((li.firstElementChild as HTMLElement).className).not.toMatch(/border|bg-/);
   });
 
   it('keeps a "\n" in a position as a line break', () => {
