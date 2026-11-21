@@ -48,7 +48,7 @@ describe('buildRouteManifest', () => {
       '/avp',
       '/about',
       '/about/people',
-      '/about/faculty-by-department',
+      '/about/faculty-of-programs',
       '/about/faqs-and-location',
     ]);
   });
@@ -109,7 +109,7 @@ describe('buildRouteManifest', () => {
       slug: 'research',
       number: 3,
     });
-    for (const p of ['/about/people', '/about/faculty-by-department', '/about/faqs-and-location']) {
+    for (const p of ['/about/people', '/about/faculty-of-programs', '/about/faqs-and-location']) {
       expect(byPath.get(p)?.parentPath).toBe('/about');
     }
     expect(byPath.get('/certificate-of-authenticity')?.parentPath).toBeUndefined();

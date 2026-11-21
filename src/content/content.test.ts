@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { existsCaseExact } from '../test/publicFiles';
 import type { Area, EvidenceBlock, EvidenceGroup, Faq, ImageAsset, Person, Recommendation, Resource, ResourceGroup } from '../types/content';
 import * as contentIndex from './index';
+import { facultyOfPrograms } from './facultyOfPrograms';
 import { people } from './people';
 import {
   checkAreaOrders,
@@ -24,7 +25,7 @@ import {
 } from './validate';
 
 /** The index plus people, which the index leaves out to keep the first-load bundle small. */
-const content = { ...contentIndex, people };
+const content = { ...contentIndex, people, facultyOfPrograms };
 
 // Filenames are checked against the raw glob keys, independent of index.ts.
 const areaModules = import.meta.glob<Area>(['./areas/*.ts', '!./areas/*.test.ts'], { eager: true, import: 'default' });

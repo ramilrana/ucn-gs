@@ -8,7 +8,7 @@ import { groupByRole } from './groupPeople';
 const TITLE = 'Faculty, Staff and Student Assistants';
 
 /** Three to a row from md up (user's request 2026-11-21); two, then one, on narrower screens. */
-export const PEOPLE_GRID = 'grid grid-cols-1 gap-x-8 gap-y-12 min-[480px]:grid-cols-2 md:grid-cols-3';
+const PEOPLE_GRID = 'grid grid-cols-1 gap-x-8 gap-y-12 min-[480px]:grid-cols-2 md:grid-cols-3';
 
 /** Officials (featured), then faculty, staff and student assistants, each group in the content's order. */
 export function PeopleView({ people }: { people: readonly Person[] }) {

@@ -11,5 +11,15 @@ export const site: SiteContent = {
   areasLabel: 'Accreditation Areas',
   contentUpdated: '2026-11-18',
   contact: { status: 'pending', label: 'Campus address and contact details' },
-  mapQuery: { status: 'pending', label: 'Campus address or map search for the location map' },
+  // Supplied 2026-11-21: the map is pinned at the given coordinates; the coordinates text is shown as supplied.
+  mapQuery: {
+    status: 'published',
+    label: 'Campus address or map search for the location map',
+    value: '14.109444,122.957500',
+  },
+  coordinates: {
+    status: 'published',
+    label: 'Campus coordinates',
+    value: `14.109444° N, 122.957500° E (14° 6' 34" N, 122° 57' 27" E)`,
+  },
 };

@@ -1,6 +1,6 @@
 import { recommendationPath, recommendationTitle } from '../../content/routes';
 import type * as ContentModule from '../../content';
-import type { Area, EvidenceGroup, Person, Recommendation, Resource, Slot, Status } from '../../types/content';
+import type { Area, EvidenceGroup, Person, ProgramFaculty, Recommendation, Resource, Slot, Status } from '../../types/content';
 
 export interface PendingEntry {
   /** Page name shown in the table. */
@@ -11,8 +11,8 @@ export interface PendingEntry {
   label: string;
 }
 
-/** The content index plus `people`, which the index leaves out of the first-load bundle. */
-type Content = typeof ContentModule & { people: readonly Person[] };
+/** The content index plus `people` and `facultyOfPrograms`, which the index leaves out of the first-load bundle. */
+type Content = typeof ContentModule & { people: readonly Person[]; facultyOfPrograms: Slot<ProgramFaculty[]> };
 
 // Id prefix of every item in src/dev/samples.ts. This page is dead code in production (showPending() is
 // false), so the literal is dropped from dist/; `npm run check:dist` fails if that ever stops being true.
@@ -107,12 +107,11 @@ export function collectPending(content: Content): PendingEntry[] {
     about.slot(s);
   }
 
-  const faculty = createCollector('Faculty by department', '/about/faculty-by-department', out);
+  createCollector('Faculty of Programs', '/about/faculty-of-programs', out).slot(content.facultyOfPrograms);
   const people = createCollector('People', '/about/people', out);
   for (const p of content.people) {
     if (isSample(p.id) || !isPending(p)) continue;
-    const label = `Person: ${p.name.trim() || p.id}`;
-    (p.role === 'faculty' ? faculty : people).add(label);
+    people.add(`Person: ${p.name.trim() || p.id}`);
   }
 
   const faqs = createCollector('FAQs and location', '/about/faqs-and-location', out);

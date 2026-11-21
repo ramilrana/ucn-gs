@@ -4,10 +4,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { RootLayout } from '../../app/RootLayout';
 import type { AboutContent, ImageAsset, Person } from '../../types/content';
 import { AboutView } from './AboutView';
-import { FacultyByDepartmentView } from './FacultyByDepartmentView';
+import { FacultyOfProgramsView } from './FacultyOfProgramsView';
 import { PeopleView } from './PeopleView';
 import { PersonCard } from './PersonCard';
-import { groupByDepartment, groupByRole } from './groupPeople';
+import { groupByRole } from './groupPeople';
 
 const renderUi = (ui: React.ReactElement, path = '/about') => {
   const router = createMemoryRouter([{ path: '*', element: ui }], { initialEntries: [path] });
@@ -120,22 +120,6 @@ describe('groupByRole', () => {
     // Input order is kept within a group (Bea before Abe).
     expect(groups[1]?.people.map((p) => p.id)).toEqual(['f1', 'f2']);
     expect(groupByRole([])).toEqual([]);
-  });
-});
-
-describe('groupByDepartment', () => {
-  it('groupByDepartment sorts and files unassigned faculty last', () => {
-    const groups = groupByDepartment([
-      person('a', 'Zoe', { department: 'Education' }),
-      person('b', 'Ann'),
-      person('c', 'Bob', { department: 'Education' }),
-      person('d', 'Cal', { department: 'Business' }),
-      person('e', 'Staffer', { role: 'staff', department: 'Aardvark Studies' }),
-      person('f', 'Dee', { department: '  ' }),
-    ]);
-    expect(groups.map((g) => g.department)).toEqual(['Business', 'Education', 'Department not specified']);
-    expect(groups[1]?.people.map((p) => p.name)).toEqual(['Bob', 'Zoe']);
-    expect(groups[2]?.people.map((p) => p.name)).toEqual(['Ann', 'Dee']);
   });
 });
 
@@ -343,7 +327,7 @@ describe('AboutView', () => {
   });
 });
 
-describe('PeopleView and FacultyByDepartmentView', () => {
+describe('PeopleView and FacultyOfProgramsView', () => {
   afterEach(() => vi.unstubAllEnvs());
 
   it('pending people are hidden in production', () => {
@@ -386,32 +370,39 @@ describe('PeopleView and FacultyByDepartmentView', () => {
     expect(screen.getAllByRole('list')).toHaveLength(3);
   });
 
-  it('faculty by department lists faculty only, grouped by department', () => {
+  it('faculty of programs lists every group as text, featuring the list whose members all have roles', () => {
     production();
     renderUi(
-      <FacultyByDepartmentView
-        people={[
-          person('a', 'Zoe', { department: 'Education' }),
-          person('b', 'Staffer', { role: 'staff', department: 'Education' }),
-          person('c', 'Hidden', { department: 'Law', status: 'pending' }),
-          person('d', 'Nodept'),
-        ]}
+      <FacultyOfProgramsView
+        faculty={{
+          status: 'published',
+          label: 'Faculty of Programs',
+          value: [
+            { title: 'Chairs', members: [{ name: 'Ana Cruz, PhD', role: 'MPA Chairperson' }] },
+            { title: 'Faculty of One', members: [{ name: 'Zed Reyes, DPA' }, { name: 'Amy Santos, PhD' }] },
+          ],
+        }}
       />,
-      '/about/faculty-by-department',
+      '/about/faculty-of-programs',
     );
-    expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual([
-      'Education',
-      'Department not specified',
+    expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual(['Chairs', 'Faculty of One']);
+    expect(screen.queryByRole('img')).toBeNull();
+    const chairs = screen.getByRole('region', { name: 'Chairs' });
+    expect(chairs.className).toContain('bg-maroon-800');
+    expect(within(chairs).getByText('MPA Chairperson')).toBeTruthy();
+    // Supplied order, not alphabetical.
+    const program = screen.getByRole('region', { name: 'Faculty of One' });
+    expect(within(program).getAllByRole('listitem').map((li) => li.textContent)).toEqual([
+      '1Zed Reyes, DPA',
+      '2Amy Santos, PhD',
     ]);
-    expect(screen.queryByText('Staffer')).toBeNull();
-    expect(screen.queryByText('Hidden')).toBeNull();
   });
 
-  it('faculty by department with no faculty shows the preparing note', () => {
+  it('faculty of programs while pending shows the preparing note', () => {
     production();
     renderUi(
-      <FacultyByDepartmentView people={[person('b', 'Staffer', { role: 'staff' })]} />,
-      '/about/faculty-by-department',
+      <FacultyOfProgramsView faculty={{ status: 'pending', label: 'Faculty of Programs' }} />,
+      '/about/faculty-of-programs',
     );
     expect(screen.getByText('Materials for this page are being prepared.')).toBeTruthy();
   });

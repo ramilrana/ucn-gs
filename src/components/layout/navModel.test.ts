@@ -68,7 +68,7 @@ describe('buildNavModel', () => {
     expect(item(nav, 'About').children?.map((c) => c.label)).toEqual([
       'About the Graduate School',
       'Faculty, Staff and Student Assistants',
-      'Faculty by Department',
+      'Faculty of Programs',
       'FAQs and Location',
     ]);
   });
@@ -141,7 +141,7 @@ describe('isActive', () => {
     const certificate = item(nav, 'Certificate of Authenticity');
     expect(isActive(certificate, '/certificate-of-authenticity')).toBe(true);
     expect(isActive(certificate, '/additional-files')).toBe(false);
-    expect(isActive(item(nav, 'About'), '/about/faculty-by-department')).toBe(true);
+    expect(isActive(item(nav, 'About'), '/about/faculty-of-programs')).toBe(true);
   });
 
   it('ignores a trailing slash', () => {

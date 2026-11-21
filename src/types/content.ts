@@ -36,6 +36,8 @@ export interface Person {
   id: string; name: string; postNominals?: string; position: string; rank?: string;
   department?: string; role: PersonRole; photo?: ImageAsset; status: Status;
 }
+/** One list on the Faculty of Programs page: a heading and its people, in the supplied order. */
+export interface ProgramFaculty { title: string; members: { name: string; role?: string }[] }
 export interface Faq { id: string; question: string; answer: string[]; status: Status }
 export interface ResourceGroup { id: string; title: string; status: Status; items: Resource[] }
 export interface LeaderMessage { name: string; position: string; photo?: ImageAsset; paragraphs: string[] }
@@ -46,6 +48,8 @@ export interface SiteContent {
   areasLabel: string; contentUpdated: string; // ISO date
   contact: Slot<{ address: string; email?: string; phone?: string; hours?: string }>;
   mapQuery: Slot<string>;
+  /** Campus coordinates shown as text above the map, as supplied. */
+  coordinates?: Slot<string>;
 }
 export interface HomeContent {
   leadershipSlides: Slot<ImageAsset[]>; accreditationSlide1: Slot<ImageAsset>;
