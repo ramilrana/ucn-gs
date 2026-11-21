@@ -1,6 +1,6 @@
 import { recommendationPath, recommendationTitle } from '../../content/routes';
 import type * as ContentModule from '../../content';
-import type { Area, EvidenceGroup, Recommendation, Resource, Slot, Status } from '../../types/content';
+import type { Area, EvidenceGroup, Person, Recommendation, Resource, Slot, Status } from '../../types/content';
 
 export interface PendingEntry {
   /** Page name shown in the table. */
@@ -11,7 +11,8 @@ export interface PendingEntry {
   label: string;
 }
 
-type Content = typeof ContentModule;
+/** The content index plus `people`, which the index leaves out of the first-load bundle. */
+type Content = typeof ContentModule & { people: readonly Person[] };
 
 // Id prefix of every item in src/dev/samples.ts. This page is dead code in production (showPending() is
 // false), so the literal is dropped from dist/; `npm run check:dist` fails if that ever stops being true.

@@ -1,5 +1,5 @@
 import { useRouteEntry } from '../app/useRouteEntry';
-import { people } from '../content';
+import { people } from '../content/people';
 import { FacultyByDepartmentView } from '../features/about/FacultyByDepartmentView';
 import NotFoundPage from './NotFoundPage';
 

@@ -2,8 +2,11 @@
 import { describe, expect, it } from 'vitest';
 import { sampleAreas, sampleRecommendations } from '../../dev/samples';
 import type { Area, Faq, Person, Recommendation, Resource } from '../../types/content';
-import * as content from '../../content';
+import * as contentIndex from '../../content';
+import { people } from '../../content/people';
 import { collectPending } from './collectPending';
+
+const content = { ...contentIndex, people };
 
 describe('collectPending', () => {
   it('lists every pending home slot by label', () => {

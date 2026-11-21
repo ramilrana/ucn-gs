@@ -2,6 +2,7 @@ import { PageShell } from '../../components/layout/PageShell';
 import { SectionHeading } from '../../components/ui/SectionHeading';
 import { visible } from '../../lib/published';
 import type { Person } from '../../types/content';
+import { PEOPLE_GRID } from './PeopleView';
 import { PersonCard } from './PersonCard';
 import { groupByDepartment } from './groupPeople';
 
@@ -20,7 +21,7 @@ export function FacultyByDepartmentView({ people }: { people: readonly Person[] 
               <SectionHeading level={2} id={id}>
                 {group.department}
               </SectionHeading>
-              <ul className="grid grid-cols-1 gap-6 min-[480px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <ul className={PEOPLE_GRID}>
                 {group.people.map((person) => (
                   <li key={person.id}>
                     <PersonCard person={person} />

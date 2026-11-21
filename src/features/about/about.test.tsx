@@ -416,3 +416,38 @@ describe('PeopleView and FacultyByDepartmentView', () => {
     expect(screen.getByText('Materials for this page are being prepared.')).toBeTruthy();
   });
 });
+
+describe('PeopleView layout', () => {
+  it('shows the officials featured, two to a row, and everyone else three to a row, in the given order', () => {
+    const list = [
+      person('p', 'President', { role: 'official', photo }),
+      person('d', 'Dean', { role: 'official', photo }),
+      person('f1', 'Zed Faculty'),
+      person('f2', 'Amy Faculty'),
+      person('s1', 'Staff One', { role: 'staff' }),
+      person('a1', 'Assistant One', { role: 'student-assistant' }),
+    ];
+    renderUi(<PeopleView people={list} />, '/about/people');
+    const headings = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
+    expect(headings).toEqual(['Officials', 'Faculty', 'Staff', 'Student Assistants']);
+    const [officials, faculty] = screen.getAllByRole('list');
+    expect(officials?.className).toContain('md:grid-cols-2');
+    expect(faculty?.className).toContain('md:grid-cols-3');
+    // Order within a group is the content's order, not alphabetical.
+    expect(within(faculty as HTMLElement).getAllByText(/Faculty$/).map((p) => p.textContent)).toEqual([
+      'Zed Faculty',
+      'Amy Faculty',
+    ]);
+    // Featured portraits are larger than the grid ones; no card box around any of them.
+    const imgs = within(officials as HTMLElement).getAllByRole('img');
+    expect(imgs[0]?.className).toContain('size-56');
+    for (const li of document.querySelectorAll('li')) expect((li.firstElementChild as HTMLElement).className).not.toMatch(/border|bg-/);
+  });
+
+  it('keeps a "\n" in a position as a line break', () => {
+    render(<PersonCard person={person('x', 'Ana Cruz', { position: 'Associate Professor III\nDean, CBPA' })} />);
+    const position = screen.getByText(/Associate Professor III/);
+    expect(position.textContent).toBe('Associate Professor III\nDean, CBPA');
+    expect(position.className).toContain('whitespace-pre-line');
+  });
+});

@@ -6,7 +6,8 @@ import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import { existsCaseExact } from '../test/publicFiles';
 import type { Area, EvidenceBlock, EvidenceGroup, Faq, ImageAsset, Person, Recommendation, Resource, ResourceGroup } from '../types/content';
-import * as content from './index';
+import * as contentIndex from './index';
+import { people } from './people';
 import {
   checkAreaOrders,
   checkFilenames,
@@ -21,6 +22,9 @@ import {
   collectPeople,
   collectResources,
 } from './validate';
+
+/** The index plus people, which the index leaves out to keep the first-load bundle small. */
+const content = { ...contentIndex, people };
 
 // Filenames are checked against the raw glob keys, independent of index.ts.
 const areaModules = import.meta.glob<Area>(['./areas/*.ts', '!./areas/*.test.ts'], { eager: true, import: 'default' });
@@ -400,5 +404,28 @@ describe('collectors traverse nested content', () => {
     });
     expect(located.map((l) => l.where)).toEqual(['home.presidentMessage photo']);
     expect(checkImages(located)).toHaveLength(1);
+  });
+});
+
+describe('people (UCN photo set, 2026-11-21)', () => {
+  it('lists the President and the Dean first, the numbered 3-8 next, and the student assistants last', async () => {
+    const { people } = await import('./people');
+    expect(people).toHaveLength(36);
+    expect(people.slice(0, 2).map((p) => [p.name, p.role])).toEqual([
+      ['Atty. Ryan L. Estevez', 'official'],
+      ['Girly H. Naval', 'official'],
+    ]);
+    expect(people.slice(2, 8).map((p) => p.name)).toEqual([
+      'Maria Christina C. Azuelo',
+      'Consuelo R. Saenz',
+      'Rosalie A. Almadrones',
+      'Manuel C. Dime',
+      'Analyn D. Ramos',
+      'Jocelyn O. Torio',
+    ]);
+    expect(people.slice(-3).every((p) => p.role === 'student-assistant')).toBe(true);
+    expect(people.filter((p) => p.role === 'student-assistant')).toHaveLength(3);
+    expect(people.every((p) => p.status === 'published' && p.photo)).toBe(true);
+    expect(new Set(people.map((p) => p.id)).size).toBe(36);
   });
 });
