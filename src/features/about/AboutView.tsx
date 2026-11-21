@@ -121,9 +121,10 @@ export function AboutView({ about }: { about: AboutContent }) {
   );
   const photo = slotValue(about.photo);
   const photoRenders = photo !== undefined || showPending();
+  const intro = slotValue(about.intro);
 
   return (
-    <PageShell title={TITLE} hasContent={photoRenders || shown.length > 0}>
+    <PageShell title={TITLE} intro={intro} hasContent={photoRenders || intro !== undefined || shown.length > 0}>
       <div className="space-y-12">
         {photo ? (
           <img
@@ -131,6 +132,7 @@ export function AboutView({ about }: { about: AboutContent }) {
             srcSet={photo.srcSet}
             width={photo.width}
             height={photo.height}
+            sizes="(min-width: 1280px) 1232px, 100vw"
             alt={photo.alt}
             className="h-auto max-h-[28rem] w-full rounded object-cover"
           />

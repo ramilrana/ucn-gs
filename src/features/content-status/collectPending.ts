@@ -102,7 +102,7 @@ export function collectPending(content: Content): PendingEntry[] {
 
   const about = createCollector('About', '/about', out);
   const a = content.about;
-  for (const s of [a.photo, a.vision, a.mission, a.qualityPolicy, a.goals, a.objectives, a.programDescriptions, a.history, a.deans]) {
+  for (const s of [a.photo, a.intro, a.vision, a.mission, a.qualityPolicy, a.goals, a.objectives, a.programDescriptions, a.history, a.deans]) {
     about.slot(s);
   }
 

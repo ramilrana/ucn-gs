@@ -32,6 +32,7 @@ const photo: ImageAsset = { src: '/assets/p-1.jpg', width: 400, height: 500, alt
 
 const pendingAbout: AboutContent = {
   photo: { status: 'pending', label: 'About photograph' },
+  intro: { status: 'pending', label: 'About introduction' },
   mission: { status: 'pending', label: 'Mission' },
   vision: { status: 'pending', label: 'Vision' },
   qualityPolicy: { status: 'pending', label: 'Quality Policy' },
@@ -43,6 +44,7 @@ const pendingAbout: AboutContent = {
 };
 
 const fullAbout: AboutContent = {
+  intro: { status: 'published', label: 'About introduction', value: ['Intro first.'] },
   photo: {
     status: 'published',
     label: 'About photograph',
@@ -199,6 +201,13 @@ describe('AboutView', () => {
       unmount();
     }
     expect(scroll).not.toHaveBeenCalled();
+  });
+
+  it('shows the published introduction under the page title, before the photo', () => {
+    renderUi(<AboutView about={fullAbout} />);
+    const intro = screen.getByText('Intro first.');
+    const photo = screen.getByRole('img', { name: 'The campus' });
+    expect(intro.compareDocumentPosition(photo) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('about sections have stable anchors', () => {
