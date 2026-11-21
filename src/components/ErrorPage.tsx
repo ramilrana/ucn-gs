@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { dismissSplash } from '../app/splash';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
 
 /**
@@ -6,6 +8,7 @@ import { useDocumentTitle } from '../lib/useDocumentTitle';
  */
 export function ErrorPage() {
   useDocumentTitle('Something went wrong');
+  useEffect(dismissSplash, []);
   return (
     <main className="mx-auto flex min-h-screen max-w-xl flex-col items-start justify-center gap-4 px-4 py-16">
       <h1 id="page-title" tabIndex={-1} className="text-3xl font-semibold text-maroon-800">

@@ -37,10 +37,11 @@ export function HomeHero({ universityName, schoolName, programName }: HomeHeroPr
             tabIndex={-1}
             className="font-serif text-3xl font-semibold leading-tight tracking-tight text-white outline-none sm:text-4xl lg:text-5xl"
           >
-            <span className="block text-gold-500">{universityName}</span> <span className="block">{schoolName}</span>
+            <span className="reveal block text-gold-500">{universityName}</span>{' '}
+            <span className="reveal block [--d:1]">{schoolName}</span>
           </h1>
-          {programName && <p className="mt-3 max-w-[60ch] text-lg text-white sm:text-xl">{programName}</p>}
-          <div aria-hidden="true" className="mt-5 h-[3px] w-16 bg-gold-500" />
+          {programName && <p className="reveal mt-3 max-w-[60ch] text-lg [--d:2] text-white sm:text-xl">{programName}</p>}
+          <div aria-hidden="true" className="reveal-rule mt-5 h-[3px] w-16 bg-gold-500 [--d:2]" />
         </div>
       </div>
     </div>

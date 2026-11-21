@@ -1,0 +1,107 @@
+/*
+ * Page-load splash. Linked from index.html so it is styled before any script runs; src/app/splash.ts removes it once
+ * the first page has rendered. It is decorative (aria-hidden); the accessible "Loading…" status stays in React.
+ */
+
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: #8f0404;
+  font-family: "Source Serif 4 Variable", Georgia, serif;
+  transition: opacity 450ms ease, visibility 0s linear 450ms;
+}
+
+.splash[hidden] {
+  display: none;
+}
+
+.splash--leaving {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.splash__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+.splash__mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 112px;
+  height: 112px;
+}
+
+.splash__seal {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.splash__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid #e6dedc;
+  border-top-color: #8f0404;
+  border-right-color: #e8b702;
+}
+
+.splash__name {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.splash__school {
+  display: block;
+  font-family: "Public Sans Variable", system-ui, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #5c4a4d;
+}
+
+/* The seal with a turning maroon and gold ring. */
+.splash__ring {
+  animation: splash-spin 1s linear infinite;
+}
+
+@keyframes splash-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .splash,
+  .splash * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Without JavaScript the splash never leaves, so it carries the no-script message. */
+.splash__noscript {
+  max-width: 32ch;
+  margin: 0;
+  font-family: "Public Sans Variable", system-ui, sans-serif;
+  font-size: 1rem;
+  color: #2a1a1d;
+  background: #fff;
+  padding: 0.75rem 1rem;
+  border-radius: 0.25rem;
+}

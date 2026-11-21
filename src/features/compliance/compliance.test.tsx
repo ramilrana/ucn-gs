@@ -179,7 +179,7 @@ describe('ComplianceIndexView', () => {
       '/compliance-report',
     );
     const h2 = screen.getByRole('heading', { level: 2 });
-    expect(h2.className).toContain('scroll-mt-24');
+    expect(h2.className).toContain('scroll-mt-6');
     expect((h2.closest('section') as HTMLElement).className).not.toContain('scroll-mt');
   });
 
