@@ -356,6 +356,7 @@ describe('PeopleView and FacultyOfProgramsView', () => {
       <PeopleView
         people={[
           person('s', 'Sam', { role: 'staff' }),
+          person('a', 'Ada', { role: 'admin-support' }),
           person('f', 'Fay', { role: 'faculty' }),
           person('o', 'Olly', { role: 'official' }),
         ]}
@@ -365,9 +366,14 @@ describe('PeopleView and FacultyOfProgramsView', () => {
     expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual([
       'Officials',
       'Faculty',
-      'Staff',
+      'Administrative Support Services',
+      'Graduate School Staff',
     ]);
-    expect(screen.getAllByRole('list')).toHaveLength(3);
+    expect(screen.getAllByRole('list')).toHaveLength(4);
+    for (const h2 of screen.getAllByRole('heading', { level: 2 })) {
+      expect(h2.className).toContain('text-white');
+      expect((h2.parentElement as HTMLElement).className).toContain('bg-maroon-800');
+    }
   });
 
   it('faculty of programs lists every group as text, featuring the list whose members all have roles', () => {
@@ -420,7 +426,7 @@ describe('PeopleView layout', () => {
     ];
     renderUi(<PeopleView people={list} />, '/about/people');
     const headings = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
-    expect(headings).toEqual(['Officials', 'Faculty', 'Staff', 'Student Assistants']);
+    expect(headings).toEqual(['Officials', 'Faculty', 'Graduate School Staff', 'Student Assistants']);
     const [officials, faculty] = screen.getAllByRole('list');
     expect(officials?.className).not.toContain('grid-cols-2');
     expect((within(officials as HTMLElement).getAllByRole('listitem')[0]?.firstElementChild as HTMLElement).className).toContain(

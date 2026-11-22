@@ -108,6 +108,32 @@ describe('SiteHeader', () => {
     expect(document.activeElement).toBe(button);
   });
 
+  it('each area in the Compliance Report dropdown opens its recommendations in a flyout; Esc closes it first', async () => {
+    const user = userEvent.setup();
+    renderHeader();
+    const nav = within(desktopNav());
+    const top = nav.getByRole('button', { name: 'Compliance Report submenu' });
+    await user.click(top);
+    const toggle = nav.getByRole('button', { name: 'Show Research recommendations' });
+    const flyoutId = toggle.getAttribute('aria-controls') ?? '';
+    expect(document.getElementById(flyoutId)?.hasAttribute('hidden')).toBe(true);
+    await user.click(toggle);
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    const flyout = document.getElementById(flyoutId) as HTMLElement;
+    expect(flyout.hasAttribute('hidden')).toBe(false);
+    const recLink = within(flyout).getByRole('link', { name: 'Recommendation 1 (Research)' });
+    expect(recLink.getAttribute('href')).toBe('/compliance-report/research/recommendation-1');
+    await user.tab(); // into the flyout
+    expect(flyout.contains(document.activeElement)).toBe(true);
+    await user.keyboard('{Escape}');
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    expect(document.activeElement).toBe(toggle);
+    expect(top.getAttribute('aria-expanded')).toBe('true');
+    await user.keyboard('{Escape}');
+    expect(top.getAttribute('aria-expanded')).toBe('false');
+    expect(document.activeElement).toBe(top);
+  });
+
   it('closes on outside click and when focus leaves the item', async () => {
     const user = userEvent.setup();
     renderHeader();
@@ -197,7 +223,8 @@ describe('SiteHeader', () => {
       .map((l) => l.getAttribute('href'));
     expect(links).toContain('/compliance-report');
     expect(links).toContain('/compliance-report#research');
-    expect(links).not.toContain('/compliance-report/research/recommendation-2');
+    // Third level: each area lists its recommendation pages.
+    expect(links).toContain('/compliance-report/research/recommendation-2');
     expect(links).toContain('/about');
   });
 
