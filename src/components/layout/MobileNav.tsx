@@ -126,6 +126,33 @@ export function MobileNav({ items, pathname }: MobileNavProps) {
                                   )}
                                 </span>
                               </Link>
+                              {child.children && child.children.length > 0 && (
+                                // Third level (recommendations of an area): always shown, indented under the area.
+                                <ul aria-label={`${child.label} recommendations`} className="ml-4 border-l border-line">
+                                  {child.children.map((grandchild) => {
+                                    const isCurrentGrandchild = normalizePath(pathname) === grandchild.path;
+                                    return (
+                                      <li key={grandchild.path}>
+                                        <Link
+                                          to={grandchild.path}
+                                          aria-current={isCurrentGrandchild ? 'page' : undefined}
+                                          className={`${rowClass} text-sm ${rowState(isCurrentGrandchild)}`}
+                                        >
+                                          <span>
+                                            {grandchild.label}
+                                            {grandchild.srSuffix && (
+                                              <>
+                                                {' '}
+                                                <span className="sr-only">{grandchild.srSuffix}</span>
+                                              </>
+                                            )}
+                                          </span>
+                                        </Link>
+                                      </li>
+                                    );
+                                  })}
+                                </ul>
+                              )}
                             </li>
                           );
                         })}

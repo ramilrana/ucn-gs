@@ -31,7 +31,7 @@ export interface Recommendation {
   areaSlug: string; number: number; title: string; status: Status; statement?: string[];
   document: Resource; evidence: EvidenceGroup[]; additionalFiles: Resource[];
 }
-export type PersonRole = 'official' | 'faculty' | 'staff' | 'student-assistant';
+export type PersonRole = 'official' | 'faculty' | 'admin-support' | 'staff' | 'student-assistant';
 export interface Person {
   id: string; name: string; postNominals?: string; position: string; rank?: string;
   department?: string; role: PersonRole; photo?: ImageAsset; status: Status;

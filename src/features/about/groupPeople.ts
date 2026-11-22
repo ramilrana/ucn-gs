@@ -3,7 +3,9 @@ import type { Person, PersonRole } from '../../types/content';
 const ROLE_ORDER: readonly { role: PersonRole; label: string }[] = [
   { role: 'official', label: 'Officials' },
   { role: 'faculty', label: 'Faculty' },
-  { role: 'staff', label: 'Staff' },
+  // Added and renamed 2026-11-22 (user's request): the Registrar III and Librarian III moved out of Staff.
+  { role: 'admin-support', label: 'Administrative Support Services' },
+  { role: 'staff', label: 'Graduate School Staff' },
   { role: 'student-assistant', label: 'Student Assistants' },
 ];
 

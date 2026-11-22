@@ -93,9 +93,29 @@ describe('buildNavModel', () => {
   it('lists one anchor per area that has recommendations, in manifest order', () => {
     const nav = buildNavModel(full, 'Accreditation Areas');
     expect(item(nav, 'Compliance Report').children).toEqual([
-      { label: 'Area research', path: '/compliance-report#research', srSuffix: 'recommendations' },
-      { label: 'Area extension', path: '/compliance-report#extension', srSuffix: 'recommendations' },
+      {
+        label: 'Area research',
+        path: '/compliance-report#research',
+        srSuffix: 'recommendations',
+        children: [
+          { label: 'Recommendation 1', path: '/compliance-report/research/recommendation-1', srSuffix: '(Area research)' },
+          { label: 'Recommendation 2', path: '/compliance-report/research/recommendation-2', srSuffix: '(Area research)' },
+        ],
+      },
+      {
+        label: 'Area extension',
+        path: '/compliance-report#extension',
+        srSuffix: 'recommendations',
+        children: [
+          { label: 'Recommendation 1', path: '/compliance-report/extension/recommendation-1', srSuffix: '(Area extension)' },
+        ],
+      },
     ]);
+  });
+
+  it('marks Compliance Report active on a recommendation page reached through the third level', () => {
+    const compliance = item(buildNavModel(full, 'Accreditation Areas'), 'Compliance Report');
+    expect(isActive(compliance, '/compliance-report/extension/recommendation-1')).toBe(true);
   });
 
   it('omits areas without recommendations and keeps the index link when none have any', () => {

@@ -5,6 +5,8 @@ export interface NavChild {
   path: string;
   /** Visually hidden word(s), added after a space, appended to the link's accessible name, to tell it apart from a same-named link. */
   srSuffix?: string;
+  /** A third level (the Compliance Report's recommendations under each area). */
+  children?: NavChild[];
 }
 
 export interface NavItem {
@@ -36,20 +38,29 @@ export function buildNavModel(manifest: readonly RouteEntry[], areasLabel: strin
   const pathOf = (kind: RouteKind, fallback: string) => ofKind(kind)[0]?.path ?? fallback;
 
   // One anchor per area that has recommendations, in manifest (area) order. The index page owns the
-  // `#<slug>` sections, so these links stay on that page and never match a pathname.
+  // `#<slug>` sections, so these links stay on that page and never match a pathname. Each area lists its
+  // recommendation pages as a third level (user's request 2026-11-22), as many as the area has.
   const areaTitles = new Map(ofKind('area').map((entry) => [entry.slug, entry.title]));
-  const complianceAreas = [...new Set(ofKind('recommendation').map((entry) => entry.slug))].flatMap(
-    (slug): NavChild[] =>
-      slug === undefined
-        ? []
-        : [
-            {
-              label: areaTitles.get(slug) ?? slug,
-              path: `${COMPLIANCE_PATH}#${slug}`,
-              srSuffix: 'recommendations',
-            },
-          ],
-  );
+  const recommendations = ofKind('recommendation');
+  const complianceAreas = [...new Set(recommendations.map((entry) => entry.slug))].flatMap((slug): NavChild[] => {
+    if (slug === undefined) return [];
+    const areaTitle = areaTitles.get(slug) ?? slug;
+    return [
+      {
+        label: areaTitle,
+        path: `${COMPLIANCE_PATH}#${slug}`,
+        srSuffix: 'recommendations',
+        children: recommendations
+          .filter((entry) => entry.slug === slug)
+          .map((entry) => ({
+            label: `Recommendation ${entry.number ?? ''}`.trim(),
+            path: entry.path,
+            // "Recommendation 1" repeats across areas; the area tells the links apart for screen readers.
+            srSuffix: `(${areaTitle})`,
+          })),
+      },
+    ];
+  });
 
   return [
     group('Home', pathOf('home', '/'), []),
@@ -75,7 +86,7 @@ export function isActive(item: NavItem, pathname: string): boolean {
   const current = normalizePath(pathname);
   if (current === item.path) return true;
   if (item.path === '/') return false;
-  if (item.children?.some((child) => child.path === current)) return true;
+  if (item.children?.some((child) => child.path === current || child.children?.some((c) => c.path === current))) return true;
   return current.startsWith(`${item.path}/`);
 }
 
