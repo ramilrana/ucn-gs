@@ -44,7 +44,7 @@ describe('HeroCarousel', () => {
     expect(track.style.transform).toContain('1.5 * min(80%, 1056px)');
     const groups = Array.from(container.querySelectorAll('[aria-roledescription="slide"]'));
     expect(groups.map((g) => g.className.includes('opacity-40'))).toEqual([true, false, true]);
-    expect(groups[1]?.className).toContain('max-w-[1056px]');
+    expect((groups[1] as HTMLElement).style.maxWidth).toBe('1056px');
     expect(currentDot()).toBe('Show slide 2');
   });
 

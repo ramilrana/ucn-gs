@@ -94,9 +94,7 @@ interface GroupLike { status: string; blocks: readonly EvidenceBlock[] }
 interface ImageSources {
   home?: {
     leadershipSlides?: SlotLike<ImageAsset[]>;
-    accreditationSlide1?: SlotLike<ImageAsset>;
-    accreditationSlide2?: SlotLike<ImageAsset>;
-    gallery?: SlotLike<ImageAsset[]>;
+    accreditationSlides?: SlotLike<ImageAsset[]>;
     presidentMessage?: SlotLike<{ photo?: ImageAsset }>;
     deanMessage?: SlotLike<{ photo?: ImageAsset }>;
     programChairMessage?: SlotLike<{ photo?: ImageAsset }>;
@@ -112,9 +110,6 @@ interface ImageSources {
  */
 export function collectImages(content: ImageSources): LocatedImage[] {
   const out: LocatedImage[] = [];
-  const one = (where: string, slot?: SlotLike<ImageAsset>) => {
-    if (slot?.status === 'published' && slot.value) out.push({ where, image: slot.value });
-  };
   const many = (where: string, slot?: SlotLike<ImageAsset[]>) => {
     if (slot?.status === 'published') (slot.value ?? []).forEach((image, i) => out.push({ where: `${where}[${i}]`, image }));
   };
@@ -129,9 +124,7 @@ export function collectImages(content: ImageSources): LocatedImage[] {
   };
 
   many('home.leadershipSlides', content.home?.leadershipSlides);
-  one('home.accreditationSlide1', content.home?.accreditationSlide1);
-  one('home.accreditationSlide2', content.home?.accreditationSlide2);
-  many('home.gallery', content.home?.gallery);
+  many('home.accreditationSlides', content.home?.accreditationSlides);
   for (const key of ['presidentMessage', 'deanMessage', 'programChairMessage'] as const) {
     const slot = content.home?.[key];
     if (slot?.status === 'published' && slot.value?.photo) out.push({ where: `home.${key} photo`, image: slot.value.photo });

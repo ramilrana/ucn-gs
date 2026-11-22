@@ -2,6 +2,7 @@ import { PendingNotice } from '../../components/content/PendingNotice';
 import { Prose } from '../../components/content/Prose';
 import { PageShell } from '../../components/layout/PageShell';
 import { MapEmbed } from '../../components/media/MapEmbed';
+import { ActionLink } from '../../components/ui/ActionLink';
 import { Disclosure } from '../../components/ui/Disclosure';
 import { SectionHeading } from '../../components/ui/SectionHeading';
 import { showPending, slotValue, visible } from '../../lib/published';
@@ -17,7 +18,9 @@ interface FaqsLocationViewProps {
 /** Frequently asked questions as native disclosures, then the campus address and map. */
 export function FaqsLocationView({ faqs, site }: FaqsLocationViewProps) {
   const shownFaqs = visible(faqs);
-  const address = slotValue(site.contact)?.address.trim() || undefined;
+  const contact = slotValue(site.contact);
+  const address = contact?.address.trim() || undefined;
+  const email = contact?.email?.trim() || undefined;
   const hasMap = Boolean(slotValue(site.mapQuery)?.trim());
   const coordinates = site.coordinates ? slotValue(site.coordinates)?.trim() || undefined : undefined;
 
@@ -50,7 +53,21 @@ export function FaqsLocationView({ faqs, site }: FaqsLocationViewProps) {
             <SectionHeading level={2} id="location-title">
               Location
             </SectionHeading>
-            {address ? <p className="max-w-[70ch] leading-relaxed text-ink">{address}</p> : <PendingNotice label={site.contact.label} />}
+            {address ? (
+              <address className="space-y-2 not-italic">
+                <p className="max-w-[70ch] leading-relaxed text-ink">
+                  <span className="font-semibold text-maroon-800">Location:</span> {address}
+                </p>
+                {email && (
+                  <p className="text-ink">
+                    <span className="font-semibold text-maroon-800">Email:</span>{' '}
+                    <ActionLink href={`mailto:${email}`}>{email}</ActionLink>
+                  </p>
+                )}
+              </address>
+            ) : (
+              <PendingNotice label={site.contact.label} />
+            )}
             {coordinates && (
               <p className="text-ink">
                 <span className="font-semibold text-maroon-800">Coordinates:</span> {coordinates}

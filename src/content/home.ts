@@ -4,6 +4,7 @@ import deanPhoto from '../assets/home/messages/dean.png?h=400;800&format=webp&as
 import presidentPhoto from '../assets/home/messages/president.png?format=webp&as=picture';
 import { toImageAsset } from '../lib/images';
 import type { HomeContent } from '../types/content';
+import { accreditationSlides } from './accreditation';
 import { leadershipSlides } from './leadership';
 
 export const home: HomeContent = {
@@ -12,12 +13,15 @@ export const home: HomeContent = {
     label: 'Leadership photographs (President, Dean, faculty)',
     value: leadershipSlides,
   },
-  accreditationSlide1: { status: 'pending', label: 'First accreditation slide' },
   // Renamed 2026-11-20 at the user's request (was "LEVEL IV AACCUP ACCREDITATION").
   accreditationHeading: 'MPA LEVEL 4 PHASE 2 AACCUP ACCREDITATION',
-  accreditationSlide2: { status: 'pending', label: 'Second accreditation slide' },
-  gallery: { status: 'pending', label: 'Second slideshow or photo gallery' },
-  video: { id: 'home-video', title: 'Graduate School video', format: 'video', status: 'pending' },
+  // The first accreditation slideshow, shown under the heading (2026-11-22, user's request; the second slide, the
+  // second slideshow/gallery and the Graduate School video were removed from Home at the same time).
+  accreditationSlides: {
+    status: 'published',
+    label: 'Accreditation slideshow',
+    value: accreditationSlides,
+  },
   // Wording from UCN (2026-11-19). Photos from UCN (2026-11-20), shown in full as supplied (user's request: no
   // cropping); only the Dean's white background was removed, and large files scaled down to 960px high.
   presidentMessage: {

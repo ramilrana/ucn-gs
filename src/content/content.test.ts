@@ -383,9 +383,7 @@ describe('collectors traverse nested content', () => {
     const broken = {
       home: {
         leadershipSlides: { status: 'published', value: [noAlt('/l.jpg')] },
-        accreditationSlide1: { status: 'published', value: noAlt('/s1.jpg') },
-        accreditationSlide2: { status: 'published', value: noAlt('/s2.jpg') },
-        gallery: { status: 'published', value: [noAlt('/hg.jpg')] },
+        accreditationSlides: { status: 'published', value: [noAlt('/s1.jpg'), noAlt('/s2.jpg'), noAlt('/hg.jpg')] },
       },
       people: [person({ photo: noAlt('/p.jpg') })],
       areas: [{ ...area, gallery: { status: 'published' as const, label: 'g', value: [noAlt('/ag.jpg')] }, groups: [group('x', 'published', [{ type: 'gallery', images: [noAlt('/eg.jpg')] }])] }],

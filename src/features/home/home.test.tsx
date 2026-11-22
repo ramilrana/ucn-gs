@@ -24,7 +24,6 @@ afterEach(() => {
 });
 
 const image = (name: string): ImageAsset => ({ src: `/assets/${name}.jpg`, width: 800, height: 500, alt: name });
-const YT = 'dQw4w9WgXcQ';
 
 const site: SiteContent = {
   ...realSite,
@@ -33,17 +32,8 @@ const site: SiteContent = {
 
 const fullHome: HomeContent = {
   leadershipSlides: { status: 'published', label: 'Leadership', value: [image('Leadership slide')] },
-  accreditationSlide1: { status: 'published', label: 'Slide 1', value: image('Accreditation slide one') },
   accreditationHeading: 'LEVEL IV AACCUP ACCREDITATION',
-  accreditationSlide2: { status: 'published', label: 'Slide 2', value: image('Accreditation slide two') },
-  gallery: { status: 'published', label: 'Gallery', value: [image('Gallery photo')] },
-  video: {
-    id: 'home-video',
-    title: 'Graduate School video',
-    format: 'video',
-    status: 'published',
-    source: { kind: 'youtube', videoId: YT },
-  },
+  accreditationSlides: { status: 'published', label: 'Accreditation slideshow', value: [image('Accreditation slide one')] },
   presidentMessage: {
     status: 'published',
     label: 'President',
@@ -86,6 +76,7 @@ const fullAbout: AboutContent = {
 const pendingHome: HomeContent = {
   ...realHome,
   leadershipSlides: { status: 'pending', label: realHome.leadershipSlides.label },
+  accreditationSlides: { status: 'pending', label: realHome.accreditationSlides.label },
   presidentMessage: { status: 'pending', label: realHome.presidentMessage.label },
   deanMessage: { status: 'pending', label: realHome.deanMessage.label },
   programChairMessage: { status: 'pending', label: realHome.programChairMessage.label },
@@ -106,13 +97,12 @@ const pendingAbout: AboutContent = {
 /** The page's outline: headings, named landmarks, and the key images and controls, in document order. */
 function outline(container: HTMLElement): string[] {
   const nodes = container.querySelectorAll<HTMLElement>(
-    'h1, h2, h3, nav[aria-label], section[aria-label], img[alt^="Accreditation slide"], img[alt="About photo"], button[aria-label^="Play video"]',
+    'h1, h2, h3, nav[aria-label], section[aria-label], img[alt="About photo"]',
   );
   return Array.from(nodes).map((el) => {
     const tag = el.tagName.toLowerCase();
     if (tag === 'nav' || tag === 'section') return `${tag}: ${el.getAttribute('aria-label')}`;
     if (tag === 'img') return `img: ${el.getAttribute('alt')}`;
-    if (tag === 'button') return 'video player';
     return `${tag}: ${el.textContent}`;
   });
 }
@@ -124,12 +114,8 @@ describe('HomeView', () => {
       'h1: University of Camarines Norte Graduate School',
       'section: Graduate School leadership',
       'nav: Principal accreditation resources',
-      'img: Accreditation slide one',
       'h2: LEVEL IV AACCUP ACCREDITATION',
-      'img: Accreditation slide two',
-      'section: Graduate School gallery',
-      'section: Graduate School video',
-      'video player',
+      'section: MPA accreditation photographs',
       'h2: Messages',
       'h3: Sample President',
       'h3: Sample Dean',
@@ -214,7 +200,7 @@ describe('HomeView', () => {
   it('shows a pending notice for each missing slot in development', () => {
     renderUi(<HomeView home={pendingHome} about={pendingAbout} site={realSite} />);
     expect(screen.getAllByRole('note').length).toBeGreaterThanOrEqual(8);
-    expect(screen.getByText('Pending: First accreditation slide')).toBeTruthy();
+    expect(screen.getByText('Pending: Accreditation slideshow')).toBeTruthy();
     expect(screen.queryByText('Accreditation materials are being prepared.')).toBeNull();
   });
 
@@ -234,10 +220,10 @@ describe('HomeView', () => {
     production();
     const partial: HomeContent = {
       ...pendingHome,
-      accreditationSlide1: fullHome.accreditationSlide1,
+      accreditationSlides: fullHome.accreditationSlides,
     };
     const { container } = renderUi(<HomeView home={partial} about={pendingAbout} site={realSite} />);
-    expect(outline(container)).toContain('img: Accreditation slide one');
+    expect(outline(container)).toContain('section: MPA accreditation photographs');
     expect(screen.queryByText('Accreditation materials are being prepared.')).toBeNull();
     expect(screen.queryAllByRole('note')).toHaveLength(0);
   });
