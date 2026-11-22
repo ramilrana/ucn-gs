@@ -8,11 +8,10 @@ import { DocumentViewer } from '../../components/media/DocumentViewer';
 import { HeroCarousel } from '../../components/media/HeroCarousel';
 import { ActionLink } from '../../components/ui/ActionLink';
 import { BandHeading } from '../../components/ui/BandHeading';
+import { areaEyebrow } from '../../lib/areaLabel';
 import { isVisible, showPending, slotValue, visible } from '../../lib/published';
 import { viewUrl } from '../../lib/resourceUrls';
 import type { Area } from '../../types/content';
-
-const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
 
 interface AreaViewProps {
   area: Area;
@@ -43,7 +42,7 @@ export function AreaView({ area, siblings }: AreaViewProps) {
       title={area.title}
       intro={area.summary}
       hasContent={hasContent}
-      banner={{ eyebrow: ROMAN[area.order - 1] ? `Area ${ROMAN[area.order - 1]}` : undefined }}
+      banner={{ eyebrow: areaEyebrow(area.order) }}
     >
       {/* Roomier than other pages (user's request 2026-11-22): 64–80px between sections. */}
       <div className="space-y-16 pt-2 lg:space-y-20">

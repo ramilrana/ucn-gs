@@ -279,6 +279,42 @@ describe('RecommendationView', () => {
     ]);
   });
 
+  it('shows the area eyebrow in a banner and hides a placeholder title', () => {
+    production();
+    renderUi(
+      <RecommendationView
+        rec={makeRec({ title: 'Recommendation 2' })}
+        title={TITLE}
+        path={PATH}
+        siblings={siblings}
+        eyebrow="Area I"
+      />,
+    );
+    const h1 = screen.getByRole('heading', { level: 1 });
+    expect(h1.closest('.bg-maroon-800, .from-maroon-800')).toBeTruthy();
+    expect(screen.getByText('Area I')).toBeTruthy();
+    expect(screen.queryByText('Recommendation 2', { exact: true })).toBeNull();
+  });
+
+  it('a link-type recommendation document is headed "Recommendation Link" and opens in a new tab', () => {
+    production();
+    const url = 'https://docs.google.com/spreadsheets/d/abc/edit?gid=0#gid=0&range=2:2';
+    const rec = makeRec({
+      document: {
+        id: 'matrix',
+        title: 'MPA LEVEL 4_COMPLIANCE MATRIX',
+        format: 'link',
+        status: 'published',
+        source: { kind: 'external', url },
+      },
+    });
+    const { container } = renderUi(<RecommendationView rec={rec} title={TITLE} path={PATH} siblings={siblings} />);
+    expect(screen.getByRole('heading', { level: 2, name: 'Recommendation Link' })).toBeTruthy();
+    const link = screen.getByRole('link', { name: /Open in new tab\s*MPA LEVEL 4_COMPLIANCE MATRIX/ });
+    expect(link.getAttribute('href')).toBe(url);
+    expect(container.querySelectorAll('iframe')).toHaveLength(0);
+  });
+
   it('evidence is numbered by visible position', () => {
     production();
     const rec = makeRec({
