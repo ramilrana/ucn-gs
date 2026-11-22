@@ -59,6 +59,7 @@ Spec §6. Typed content in `src/content/` (areas and recommendations as one file
 
 ## Plan and progress
 
+- **PR #11 merged to `main` 2026-11-22 (user's request, "merge when green")** as merge commit `94ba432` after CI `build` and `nginx-smoke` passed on `09114ae` (accreditation slideshow, contact details). No GitHub review.
 - **Branches cleaned up 2026-11-21 (user's request):** every merged work branch deleted locally and on GitHub; only `main` remains.
 - **PR #10 merged to `main` 2026-11-21 (user's request, "merge when green")** as merge commit `bc96c78` (About intro and photo, people page, Faculty of Programs, FAQs and location). `gh pr merge --auto` merged at once because the repo has no required checks, before CI finished; CI `build` and `nginx-smoke` then passed on the PR head `6f19cc3` (push and pull_request runs). Lesson: on this repo wait for green before calling merge. No GitHub review.
 - **PR #9 merged to `main` 2026-11-21 (user's request)** as merge commit `83b9136` after CI `build` and `nginx-smoke` passed on `f3a07a2` (Compliance Report area filter). No GitHub review was requested Local `main` matches `origin/main`.
@@ -96,7 +97,7 @@ Spec §6. Typed content in `src/content/` (areas and recommendations as one file
 
 ## Verification status
 
-**`content/accreditation-slides-contact` (implementer-run, 2026-11-22, uncommitted):** lint, typecheck, `npm test` 43 files / 474 (clean full run), build, check:dist pass (first-load JS 121.76 kB gzip of the 122,880-byte limit, about 1.1 KB headroom), `audit:prod` 0. Browser (`vite preview`, production): Home shows no pending notes, the accreditation carousel under the heading with 9 slides, none broken, current slide 776×582 in the pane and 288px wide at 375px, no horizontal scroll, auto-advance seen; FAQs and Location shows the address and email (mailto) and the map loads; footer Contact shows both; no console errors. No reviewer has run.
+**`content/accreditation-slides-contact` (implementer-run, 2026-11-22; merged via PR #11, CI `build` and `nginx-smoke` passed):** lint, typecheck, `npm test` 43 files / 474 (clean full run), build, check:dist pass (first-load JS 121.76 kB gzip of the 122,880-byte limit, about 1.1 KB headroom), `audit:prod` 0. Browser (`vite preview`, production): Home shows no pending notes, the accreditation carousel under the heading with 9 slides, none broken, current slide 776×582 in the pane and 288px wide at 375px, no horizontal scroll, auto-advance seen; FAQs and Location shows the address and email (mailto) and the map loads; footer Contact shows both; no console errors. No reviewer has run.
 
 **Faculty of Programs, FAQs, location (`content/people-photos`, implementer-run, 2026-11-21):** lint, typecheck, `npm test` 43 files / 474 (clean full run), build, check:dist pass (first-load JS 120.94 kB gzip), `audit:prod` 0; no `faculty-by-department` left in `dist/`, `dist-nginx/` or docs. Browser (dev, 1280px): Faculty of Programs and FAQ texts equal the paste exactly; coordinates line shown; the map frame stays blank in the desktop app pane (it loads no third-party frames), and the embed URL itself redirects correctly at Google: **the map still needs a look in Chrome**.
 
@@ -154,7 +155,7 @@ The docs commit changes no code and ran no checks.
 
 ## Next actions
 
-1. Branch `content/accreditation-slides-contact` (accreditation slideshow, contact details): confirm the slideshow design and the photo alt texts with the user, commit `content: accreditation slideshow and contact`, open a PR, merge when CI is green. Spec §4 Home order, the §13 row and the content guide are updated on the branch.
+1. Optional: confirm the 9 accreditation photo alt texts (`src/content/accreditation.ts`, worded by us) with the user.
 2. The map rendered in the desktop app pane on 2026-11-22; a look in Chrome is still worthwhile. Ask UCN where Mary Grace B. Bolos belongs in the faculty order, and confirm the people-entry spellings listed under Reference and content status.
 3. Optional: run `ucn-opus-reviewer` and `accessibility-auditor` on PR #8 and PR #9 (now on `main`, neither reviewed): sticky header (check the 1024px header with text spacing), splash, text animation, Compliance area filter.
 4. Ask the user/UCN to confirm the certificate signatory's spelling: the alt text says "Raynel D. Zabala"; the reviewer reads the scan as possibly "RAYNIEL" (review Medium M1, `src/content/documents.ts`). Optional Lows from the same review: President photo upscaled about 1.04× (cap `max-h-[339px]`, fix the comment), `sizes="20rem"` → about `15rem` on message portraits, long certificate alt (short alt plus transcript), dead `ResourceGroup` type, a "superseded" note in the spec for `/additional-files`.
