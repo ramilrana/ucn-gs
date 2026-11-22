@@ -5,10 +5,12 @@ import { Breadcrumbs } from './Breadcrumbs';
 interface PageHeaderProps {
   title: string;
   intro?: readonly string[];
+  /** Flow the intro into two columns from lg (About, 2026-11-22). */
+  introColumns?: boolean;
 }
 
 /** The white band at the top of every inner page: breadcrumbs, the serif h1, a short gold rule, an optional intro. */
-export function PageHeader({ title, intro }: PageHeaderProps) {
+export function PageHeader({ title, intro, introColumns = false }: PageHeaderProps) {
   useDocumentTitle(title);
   return (
     <div className="border-b border-line bg-white">
@@ -24,7 +26,7 @@ export function PageHeader({ title, intro }: PageHeaderProps) {
         <div aria-hidden="true" className="reveal-rule mt-5 h-[3px] w-16 bg-gold-500" />
         {intro && intro.length > 0 && (
           <div className="reveal mt-6 [--d:1]">
-            <Prose paragraphs={intro} />
+            <Prose paragraphs={intro} columns={introColumns} />
           </div>
         )}
       </div>
