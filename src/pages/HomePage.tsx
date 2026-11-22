@@ -1,4 +1,6 @@
-import { about, home, messagePlaceholders, site } from '../content';
+import { messagePlaceholders, site } from '../content';
+import { about } from '../content/about';
+import { home } from '../content/home';
 import { HomeView } from '../features/home/HomeView';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
 

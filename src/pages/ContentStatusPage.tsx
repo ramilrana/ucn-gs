@@ -1,6 +1,8 @@
 import { useRouteEntry } from '../app/useRouteEntry';
 import { PageShell } from '../components/layout/PageShell';
 import * as content from '../content';
+import { about } from '../content/about';
+import { home } from '../content/home';
 import { facultyOfPrograms } from '../content/facultyOfPrograms';
 import { people } from '../content/people';
 import { collectPending } from '../features/content-status/collectPending';
@@ -13,7 +15,7 @@ export default function ContentStatusPage() {
   if (!entry || !showPending()) return <NotFoundPage />;
   return (
     <PageShell title={entry.title} hasContent>
-      <ContentStatusView entries={collectPending({ ...content, people, facultyOfPrograms })} />
+      <ContentStatusView entries={collectPending({ ...content, home, about, people, facultyOfPrograms })} />
     </PageShell>
   );
 }

@@ -1,7 +1,9 @@
 import { render, screen, within } from '@testing-library/react';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { about as realAbout, home as realHome, site as realSite } from '../../content';
+import { site as realSite } from '../../content';
+import { about as realAbout } from '../../content/about';
+import { home as realHome } from '../../content/home';
 import HomePage from '../../pages/HomePage';
 import type { AboutContent, HomeContent, ImageAsset, LeaderMessage, SiteContent } from '../../types/content';
 import { HomeView } from './HomeView';

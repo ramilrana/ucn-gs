@@ -1,6 +1,17 @@
 import { recommendationPath, recommendationTitle } from '../../content/routes';
 import type * as ContentModule from '../../content';
-import type { Area, EvidenceGroup, Person, ProgramFaculty, Recommendation, Resource, Slot, Status } from '../../types/content';
+import type {
+  AboutContent,
+  Area,
+  EvidenceGroup,
+  HomeContent,
+  Person,
+  ProgramFaculty,
+  Recommendation,
+  Resource,
+  Slot,
+  Status,
+} from '../../types/content';
 
 export interface PendingEntry {
   /** Page name shown in the table. */
@@ -11,8 +22,13 @@ export interface PendingEntry {
   label: string;
 }
 
-/** The content index plus `people` and `facultyOfPrograms`, which the index leaves out of the first-load bundle. */
-type Content = typeof ContentModule & { people: readonly Person[]; facultyOfPrograms: Slot<ProgramFaculty[]> };
+/** The content index plus `home`, `about`, `people` and `facultyOfPrograms`, which the index leaves out of the first-load bundle. */
+type Content = typeof ContentModule & {
+  home: HomeContent;
+  about: AboutContent;
+  people: readonly Person[];
+  facultyOfPrograms: Slot<ProgramFaculty[]>;
+};
 
 // Id prefix of every item in src/dev/samples.ts. This page is dead code in production (showPending() is
 // false), so the literal is dropped from dist/; `npm run check:dist` fails if that ever stops being true.

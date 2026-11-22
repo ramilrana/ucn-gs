@@ -3,11 +3,13 @@ import { describe, expect, it } from 'vitest';
 import { sampleAreas, sampleRecommendations } from '../../dev/samples';
 import type { Area, Faq, Person, Recommendation, Resource } from '../../types/content';
 import * as contentIndex from '../../content';
+import { about } from '../../content/about';
 import { facultyOfPrograms } from '../../content/facultyOfPrograms';
+import { home } from '../../content/home';
 import { people } from '../../content/people';
 import { collectPending } from './collectPending';
 
-const content = { ...contentIndex, people, facultyOfPrograms };
+const content = { ...contentIndex, home, about, people, facultyOfPrograms };
 
 describe('collectPending', () => {
   it('lists every pending home slot by label', () => {
