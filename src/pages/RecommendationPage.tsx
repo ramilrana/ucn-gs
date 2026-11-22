@@ -1,6 +1,7 @@
 import { useRouteEntry } from '../app/useRouteEntry';
-import { recommendations } from '../content';
+import { areas, recommendations } from '../content';
 import { routeManifest } from '../content/routes';
+import { areaEyebrow } from '../lib/areaLabel';
 import { RecommendationView } from '../features/compliance/RecommendationView';
 import NotFoundPage from './NotFoundPage';
 
@@ -16,5 +17,14 @@ export default function RecommendationPage() {
       ? undefined
       : recommendations.find((r) => r.areaSlug === entry.slug && r.number === entry.number);
   if (!entry || !rec) return <NotFoundPage />;
-  return <RecommendationView rec={rec} title={entry.title} path={entry.path} siblings={siblings} />;
+  const area = areas.find((a) => a.slug === rec.areaSlug);
+  return (
+    <RecommendationView
+      rec={rec}
+      title={entry.title}
+      path={entry.path}
+      siblings={siblings}
+      eyebrow={area ? areaEyebrow(area.order) : undefined}
+    />
+  );
 }
