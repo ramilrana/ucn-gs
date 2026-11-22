@@ -7,6 +7,8 @@ import type { ImageAsset, LeaderMessage } from '../../types/content';
  * with the portrait standing on its bottom edge and the name and position beside it, then the paragraphs on white.
  * Photos are cut-outs shown whole, as supplied, never cropped. Without a real photo it shows the dev/preview-only
  * `placeholderPhoto` if given, otherwise a silhouette (production never gets a placeholder).
+ * From lg the message flows into two columns of about 70 characters a line, filling the card's width (the user's
+ * pick of four previewed layouts, 2026-11-22); below lg it is one column.
  */
 export function LeaderMessageCard({ message, placeholderPhoto }: { message: LeaderMessage; placeholderPhoto?: ImageAsset }) {
   const photo = message.photo ?? placeholderPhoto;
@@ -39,7 +41,7 @@ export function LeaderMessageCard({ message, placeholderPhoto }: { message: Lead
         </div>
       </div>
       <div className="p-6 sm:p-10">
-        <Prose paragraphs={message.paragraphs} />
+        <Prose paragraphs={message.paragraphs} columns />
       </div>
     </article>
   );

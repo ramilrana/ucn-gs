@@ -194,6 +194,19 @@ describe('AboutView', () => {
     expect(intro.compareDocumentPosition(photo) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
+  it('flows the introduction into two columns from lg, and keeps the page nav as a sticky sidebar before the sections', () => {
+    production();
+    renderUi(<AboutView about={fullAbout} />);
+    const introBody = screen.getByText('Intro first.').parentElement as HTMLElement;
+    expect(introBody.className.split(' ')).toContain('lg:columns-2');
+    const nav = screen.getByRole('navigation', { name: 'On this page' });
+    expect(nav.className.split(' ')).toEqual(expect.arrayContaining(['lg:sticky', 'lg:col-start-2']));
+    expect(nav.querySelector('ul')?.className.split(' ')).toContain('lg:flex-col');
+    // In the DOM (and so in tab order) the nav still comes before the first section title.
+    const firstH2 = screen.getAllByRole('heading', { level: 2 })[0] as HTMLElement;
+    expect(nav.compareDocumentPosition(firstH2) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it('about sections have stable anchors', () => {
     production();
     const { container } = renderUi(<AboutView about={fullAbout} />);
