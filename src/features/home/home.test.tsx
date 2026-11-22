@@ -254,6 +254,13 @@ describe('LeaderMessageCard', () => {
     expect(order).toEqual(['img:Dean photo', 'Sample Dean', 'Dean', 'First paragraph.', 'Second paragraph.']);
   });
 
+  it('flows the message into two columns from lg, one column below', () => {
+    render(<LeaderMessageCard message={message} />);
+    const body = screen.getByText('First paragraph.').parentElement;
+    expect(body?.className.split(' ')).toEqual(expect.arrayContaining(['lg:columns-2']));
+    expect(body?.className).not.toMatch(/(^|\s)columns-/);
+  });
+
   it('renders without a photo and never invents one', () => {
     const { container } = render(<LeaderMessageCard message={{ ...message, photo: undefined }} />);
     expect(container.querySelector('img')).toBeNull();
