@@ -1,5 +1,5 @@
 import { useRouteEntry } from '../app/useRouteEntry';
-import { about } from '../content';
+import { about } from '../content/about';
 import { AboutView } from '../features/about/AboutView';
 import NotFoundPage from './NotFoundPage';
 

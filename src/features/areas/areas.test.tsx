@@ -109,6 +109,34 @@ describe('AreaView', () => {
     expect(screen.getByRole('link', { name: /Next: Extension/ })).toBeTruthy();
   });
 
+  it('shows a maroon banner (Area I and the title only), then the narrative, then the auto-advancing photos', () => {
+    production();
+    const { container } = renderUi(<AreaView area={makeArea()} siblings={siblings} />);
+    const h1 = screen.getByRole('heading', { level: 1 });
+    const banner = h1.closest('.on-maroon') as HTMLElement;
+    expect(banner.className).toContain('bg-linear-to-br');
+    expect(within(banner).getByText('Area I')).toBeTruthy();
+    // No photo and no program line in the banner (user's request 2026-11-22).
+    expect(banner.querySelector('img')).toBeNull();
+    expect(h1.parentElement?.className).toContain('text-center');
+    // Document titles are large maroon serif text with a file icon.
+    const docTitle = screen.getAllByText('Research narrative').find((el) => el.tagName === 'SPAN' && el.id) as HTMLElement;
+    expect(docTitle.className).toContain('font-serif');
+    expect(docTitle.className).toContain('text-maroon-800');
+    expect(docTitle.querySelector('svg')).toBeTruthy();
+    // Narrative first, then the carousel.
+    const narrative = screen.getByRole('heading', { level: 2, name: 'Narrative Report' });
+    const carousel = screen.getByRole('region', { name: 'Research photos' });
+    expect(narrative.compareDocumentPosition(carousel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(within(carousel).getByRole('button', { name: 'Pause slideshow' })).toBeTruthy();
+    // Section titles sit on maroon bands.
+    for (const h2 of screen.getAllByRole('heading', { level: 2 })) {
+      expect(h2.className).toContain('text-white');
+      expect((h2.parentElement as HTMLElement).className).toContain('bg-maroon-800');
+    }
+    expect(container.querySelectorAll('[aria-roledescription="carousel"]')).toHaveLength(1);
+  });
+
   it('narrative report is embedded, evidence documents are on-demand', () => {
     production();
     const { container } = renderUi(<AreaView area={makeArea()} siblings={siblings} />);

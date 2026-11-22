@@ -1,4 +1,4 @@
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, FileText } from 'lucide-react';
 import { useId, useState } from 'react';
 import { isVisible } from '../../lib/published';
 import { formatLabels } from '../../lib/resourceFormat';
@@ -42,9 +42,16 @@ export function DocumentViewer({ resource, mode }: DocumentViewerProps) {
   const showPanel = canFrame && (mode === 'embedded' || previewOpen);
 
   return (
-    <div role="group" aria-labelledby={titleId} className="space-y-3">
+    <div role="group" aria-labelledby={titleId} className="space-y-4">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <span id={titleId} className="font-semibold text-ink">{resource.title}</span>
+        {/* A large maroon serif title with a file icon, so each document stands out (the user's pick, 2026-11-22). */}
+        <span
+          id={titleId}
+          className="inline-flex items-center gap-2 font-serif text-xl font-semibold text-maroon-800 sm:text-2xl"
+        >
+          <FileText aria-hidden="true" className="size-6 shrink-0" />
+          {resource.title}
+        </span>
         <Badge format={resource.format} />
         <span className="text-sm text-ink-muted">{hostLabel(source)}</span>
         {mode === 'on-demand' && canFrame && (

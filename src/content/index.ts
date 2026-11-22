@@ -3,10 +3,9 @@ import { sampleAreas, sampleRecommendations } from '../dev/samples';
 import type { Area, Recommendation } from '../types/content';
 
 export { site } from './site';
-export { home } from './home';
-export { about } from './about';
-// `people` (36 entries with photo URLs) is not re-exported here: this index is in every page's first-load bundle, so
-// the people pages and the content-status page import './people' directly.
+// `home`, `about` and `people` (slides, long texts, photo URLs) are not re-exported here: this index is in every
+// page's first-load bundle, so their pages and the content-status page import './home', './about' and './people'
+// directly (home and about moved out 2026-11-22, when the Research area content pushed first-load JS over budget).
 export { faqs } from './faqs';
 export { certificate } from './documents';
 export { compliance } from './compliance';
