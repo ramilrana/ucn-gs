@@ -11,16 +11,10 @@ const content = { ...contentIndex, people, facultyOfPrograms };
 
 describe('collectPending', () => {
   it('lists every pending home slot by label', () => {
-    const entries = collectPending(content);
+    const pendingSlides = { status: 'pending' as const, label: 'Accreditation slideshow' };
+    const entries = collectPending({ ...content, home: { ...content.home, accreditationSlides: pendingSlides } });
     const home = entries.filter((e) => e.page === 'Home');
-    expect(home.map((e) => e.label)).toEqual(
-      expect.arrayContaining([
-        'First accreditation slide',
-        'Second accreditation slide',
-        'Second slideshow or photo gallery',
-        'Graduate School video',
-      ]),
-    );
+    expect(home.map((e) => e.label)).toEqual(expect.arrayContaining(['Accreditation slideshow']));
     expect(home.every((e) => e.path === '/')).toBe(true);
   });
 

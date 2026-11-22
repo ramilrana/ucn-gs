@@ -80,13 +80,10 @@
 **Home sections, in the required order:**
 1. Leadership carousel (President, then Dean, then faculty): full-width "peek" layout, sliding, auto-advancing with Pause/Play (D8 exception, 2026-11-20)
 2. Quick-access row: Areas, Compliance Report, AVP, Certificate
-3. First accreditation slide
-4. **MPA LEVEL 4 PHASE 2 AACCUP ACCREDITATION** (renamed 2026-11-20, user's request; was "LEVEL IV AACCUP ACCREDITATION")
-5. Second accreditation slide
-6. Second slideshow or gallery
-7. Graduate School video, or a link to it
-8. Messages, stacked full width: the President's, then the Dean's, then the Program Chair's photo and message (President added 2026-11-19, user's request). Until a real photo arrives, dev and preview show a scenery stand-in from `src/dev/placeholders/`; production shows a silhouette (check:dist rule 9).
-9. About preview: photo with Mission and Vision, Goals and Objectives, History, linking to `/about`
+3. **MPA LEVEL 4 PHASE 2 AACCUP ACCREDITATION** (renamed 2026-11-20, user's request; was "LEVEL IV AACCUP ACCREDITATION")
+4. Accreditation slideshow (the first accreditation slide, as 9 photos), under the heading, same full-width peek carousel as item 1 (2026-11-22, user's request: the first slide moved below the heading; the second slide, the second slideshow or gallery and the Graduate School video were removed)
+5. Messages, stacked full width: the President's, then the Dean's, then the Program Chair's photo and message (President added 2026-11-19, user's request). Until a real photo arrives, dev and preview show a scenery stand-in from `src/dev/placeholders/`; production shows a silhouette (check:dist rule 9).
+6. About preview: photo with Mission and Vision, Goals and Objectives, History, linking to `/about`
 
 **Header navigation:**
 - **Desktop:** Home · Accreditation Areas ▾ · Compliance Report ▾ · AVP · Documents ▾ (Certificate of Authenticity, Additional Files) · About ▾
@@ -379,7 +376,7 @@ Each package is checked for maintenance and compatibility before install. `npm a
 
 | UCN page | Reference equivalent | UCN material status |
 |---|---|---|
-| Home | Home | Received 2026-11-19: President's, Dean's and Program Chair's messages; Vision, Mission, Goals, Objectives (7 programs), Program Descriptions (7 programs), History and Deans. Received 2026-11-20: 18 leadership slides (President, Dean, chairpersons, faculty). Missing: accreditation slides 1–2, second gallery, GS video, the three message photos, About photo |
+| Home | Home | Received 2026-11-19: President's, Dean's and Program Chair's messages; Vision, Mission, Goals, Objectives (7 programs), Program Descriptions (7 programs), History and Deans. Received 2026-11-20: 18 leadership slides (President, Dean, chairpersons, faculty). Received 2026-11-22: accreditation slideshow (9 photos); the second slide, second gallery and GS video were dropped from Home (user's request). |
 | Additional Files | Additional Files for the Accreditors (9 links) | Missing: UCN file list |
 | Certificate of Authenticity | placeholder | Missing: certificate PDF and image |
 | Compliance Report and Recommendations | Rec 1–8 (3–5 evidence items each) | Known (2026-11-18): 14 recommendations by area — Research 2, Performance of Graduates 1, Community Service 5, International Linkages & Consortia 5, Planning Process 1. Missing: titles, documents, evidence |

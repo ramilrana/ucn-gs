@@ -52,9 +52,8 @@ export interface SiteContent {
   coordinates?: Slot<string>;
 }
 export interface HomeContent {
-  leadershipSlides: Slot<ImageAsset[]>; accreditationSlide1: Slot<ImageAsset>;
-  accreditationHeading: string; accreditationSlide2: Slot<ImageAsset>;
-  gallery: Slot<ImageAsset[]>; video: Resource;
+  leadershipSlides: Slot<ImageAsset[]>;
+  accreditationHeading: string; accreditationSlides: Slot<ImageAsset[]>;
   presidentMessage: Slot<LeaderMessage>; deanMessage: Slot<LeaderMessage>; programChairMessage: Slot<LeaderMessage>;
 }
 export interface AboutContent {

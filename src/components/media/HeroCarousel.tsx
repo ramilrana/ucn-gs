@@ -8,11 +8,13 @@ interface HeroCarouselProps {
   slides: readonly ImageAsset[];
   /** Time each slide stays before the next one slides in. */
   intervalMs?: number;
+  /** Largest slide width in px (default 1056, the leadership slides' own width). */
+  slideMaxWidth?: number;
 }
 
-// Each slide is 80% of the width, at most its own 1056px (so it stays sharp); the track shifts so the current
+// Each slide is 80% of the width, at most `slideMaxWidth` (so it stays sharp); the track shifts so the current
 // slide is centred and the neighbours' edges show on both sides ("peek", the user's choice 2026-11-20).
-const PEEK_WIDTH = 'min(80%, 1056px)';
+const DEFAULT_SLIDE_MAX_WIDTH = 1056;
 
 const SWIPE_DISTANCE = 40;
 export const HERO_INTERVAL_MS = 4000;
@@ -30,7 +32,13 @@ const roundButton =
  * mouse is over it; keyboard focus entering it stops rotation until the user presses Play (Play also overrides the hover
  * pause). With reduced motion (at load or switched on later) it is paused, and slides change without animation.
  */
-export function HeroCarousel({ label, slides, intervalMs = HERO_INTERVAL_MS }: HeroCarouselProps) {
+export function HeroCarousel({
+  label,
+  slides,
+  intervalMs = HERO_INTERVAL_MS,
+  slideMaxWidth = DEFAULT_SLIDE_MAX_WIDTH,
+}: HeroCarouselProps) {
+  const peekWidth = `min(80%, ${slideMaxWidth}px)`;
   const [index, setIndex] = useState(0);
   const [userPaused, setUserPaused] = useState(reducedMotion);
   const [hovered, setHovered] = useState(false);
@@ -130,7 +138,7 @@ export function HeroCarousel({ label, slides, intervalMs = HERO_INTERVAL_MS }: H
         <div
           data-track=""
           className="flex transition-transform duration-700 ease-in-out motion-reduce:transition-none"
-          style={{ transform: `translateX(calc(50% - ${current + 0.5} * ${PEEK_WIDTH}))` }}
+          style={{ transform: `translateX(calc(50% - ${current + 0.5} * ${peekWidth}))` }}
         >
           {slides.map((slide, i) => {
             const broken = failed.has(i);
@@ -143,14 +151,15 @@ export function HeroCarousel({ label, slides, intervalMs = HERO_INTERVAL_MS }: H
                 aria-label={`${i + 1} of ${count}`}
                 aria-hidden={isCurrent ? undefined : true}
                 inert={!isCurrent}
-                className={`w-[80%] max-w-[1056px] shrink-0 px-1.5 transition-opacity duration-700 motion-reduce:transition-none sm:px-3 ${
+                style={{ maxWidth: slideMaxWidth }}
+                className={`w-[80%] shrink-0 px-1.5 transition-opacity duration-700 motion-reduce:transition-none sm:px-3 ${
                   isCurrent ? '' : 'opacity-40'
                 }`}
               >
                 <img
                   src={broken ? FALLBACK_IMAGE : slide.src}
                   srcSet={broken ? undefined : slide.srcSet}
-                  sizes="(min-width: 1320px) 1056px, 80vw"
+                  sizes={`(min-width: ${Math.round(slideMaxWidth / 0.8)}px) ${slideMaxWidth}px, 80vw`}
                   width={slide.width}
                   height={slide.height}
                   alt={slide.alt}

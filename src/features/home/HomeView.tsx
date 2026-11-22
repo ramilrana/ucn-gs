@@ -1,11 +1,9 @@
 import type { ReactNode } from 'react';
 import { PendingNotice } from '../../components/content/PendingNotice';
-import { ImageGallery } from '../../components/media/ImageGallery';
 import { HeroCarousel } from '../../components/media/HeroCarousel';
-import { VideoEmbed } from '../../components/media/VideoEmbed';
 import { ActionLink } from '../../components/ui/ActionLink';
 import { SectionHeading } from '../../components/ui/SectionHeading';
-import { isVisible, showPending, slotValue } from '../../lib/published';
+import { showPending, slotValue } from '../../lib/published';
 import type { AboutContent, HomeContent, ImageAsset, SiteContent, Slot } from '../../types/content';
 import { HomeHero } from './HomeHero';
 import { LeaderMessageCard } from './LeaderMessageCard';
@@ -24,28 +22,6 @@ const wrap = 'mx-auto max-w-7xl px-4 sm:px-6';
 /** A slot holding paragraphs or images has something to show; outside production a pending slot shows its notice. */
 const listRenders = (slot: Slot<readonly unknown[]>): boolean => (slotValue(slot)?.length ?? 0) > 0 || showPending();
 const singleRenders = (slot: Slot<unknown>): boolean => slotValue(slot) !== undefined || showPending();
-const videoRenders = (video: HomeContent['video']): boolean =>
-  isVisible(video) && (video.source !== undefined || showPending());
-
-function SlideImage({ slot }: { slot: Slot<ImageAsset> }) {
-  const image = slotValue(slot);
-  if (!image) return <PendingNotice label={slot.label} />;
-  return (
-    <figure>
-      <img
-        src={image.src}
-        srcSet={image.srcSet}
-        sizes="(min-width: 1280px) 1216px, 100vw"
-        width={image.width}
-        height={image.height}
-        alt={image.alt}
-        loading="lazy"
-        className="mx-auto h-auto w-full rounded border border-line"
-      />
-      {image.caption && <figcaption className="mt-2 text-sm text-ink-muted">{image.caption}</figcaption>}
-    </figure>
-  );
-}
 
 interface Preview {
   id: string;
@@ -83,7 +59,7 @@ function Band({ children }: { children: ReactNode }) {
 export function HomeView({ home, about, site, messagePlaceholders = {} }: HomeViewProps) {
   const programName = slotValue(site.programName);
   const leadership = slotValue(home.leadershipSlides);
-  const gallery = slotValue(home.gallery);
+  const accreditation = slotValue(home.accreditationSlides);
   const president = slotValue(home.presidentMessage);
   const dean = slotValue(home.deanMessage);
   const chair = slotValue(home.programChairMessage);
@@ -97,16 +73,13 @@ export function HomeView({ home, about, site, messagePlaceholders = {} }: HomeVi
   ].filter((preview) => preview.slots.some(listRenders));
 
   const showLeadership = listRenders(home.leadershipSlides);
-  const showSlide1 = singleRenders(home.accreditationSlide1);
-  const showSlide2 = singleRenders(home.accreditationSlide2);
-  const showGallery = listRenders(home.gallery);
-  const showVideo = videoRenders(home.video);
+  const showAccreditation = listRenders(home.accreditationSlides);
   const showMessages =
     singleRenders(home.presidentMessage) || singleRenders(home.deanMessage) || singleRenders(home.programChairMessage);
   const showAbout = singleRenders(about.photo) || previews.length > 0;
   // In production with everything pending, none of these is true and the page says so instead of ending after the heading.
   const hasAnything =
-    showLeadership || showSlide1 || showSlide2 || showGallery || showVideo || showMessages || showAbout;
+    showLeadership || showAccreditation || showMessages || showAbout;
 
   return (
     <>
@@ -127,12 +100,6 @@ export function HomeView({ home, about, site, messagePlaceholders = {} }: HomeVi
       <QuickAccess areasLabel={site.areasLabel} />
 
       <div className="pb-12 sm:pb-16">
-        {showSlide1 && (
-          <Band>
-            <SlideImage slot={home.accreditationSlide1} />
-          </Band>
-        )}
-
         <Band>
           <div className="text-center">
             <h2 className="font-serif text-2xl font-semibold tracking-wide text-maroon-800 sm:text-3xl">
@@ -142,29 +109,17 @@ export function HomeView({ home, about, site, messagePlaceholders = {} }: HomeVi
           </div>
         </Band>
 
-        {showSlide2 && (
-          <Band>
-            <SlideImage slot={home.accreditationSlide2} />
-          </Band>
-        )}
-
-        {showGallery && (
-          <Band>
-            {gallery && gallery.length > 0 ? (
-              <ImageGallery label="Graduate School gallery" images={gallery} />
-            ) : (
-              <PendingNotice label={home.gallery.label} />
-            )}
-          </Band>
-        )}
-
-        {showVideo && (
-          <Band>
-            <section aria-label={home.video.title} className="mx-auto max-w-4xl">
-              <VideoEmbed resource={home.video} />
-            </section>
-          </Band>
-        )}
+        {showAccreditation &&
+          (accreditation && accreditation.length > 0 ? (
+            // Full viewport width like the leadership carousel; 4:3 photos, so slides stop at 800px wide (600px tall).
+            <div className="mt-8">
+              <HeroCarousel label="MPA accreditation photographs" slides={accreditation} slideMaxWidth={800} />
+            </div>
+          ) : (
+            <Band>
+              <PendingNotice label={home.accreditationSlides.label} />
+            </Band>
+          ))}
 
         {showMessages && (
           <Band>

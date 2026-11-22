@@ -87,10 +87,7 @@ export function collectPending(content: Content): PendingEntry[] {
   const home = createCollector('Home', '/', out);
   const h = content.home;
   home.slot(h.leadershipSlides);
-  home.slot(h.accreditationSlide1);
-  home.slot(h.accreditationSlide2);
-  home.slot(h.gallery);
-  home.resource(h.video);
+  home.slot(h.accreditationSlides);
   for (const [slot, who] of [
     [h.presidentMessage, "President's"],
     [h.deanMessage, "Dean's"],

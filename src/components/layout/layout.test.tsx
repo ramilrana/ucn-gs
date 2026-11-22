@@ -201,7 +201,7 @@ describe('Pager', () => {
 describe('SiteFooter', () => {
   it('footer hides pending contact', () => {
     vi.stubEnv('DEV', false);
-    renderPlain(<SiteFooter manifest={manifest} />);
+    renderPlain(<SiteFooter manifest={manifest} contact={{ status: 'pending', label: site.contact.label }} />);
     const footer = screen.getByRole('contentinfo');
     expect(footer.textContent).not.toContain(site.contact.label);
     expect(within(footer).queryByText(/Pending/)).toBeNull();

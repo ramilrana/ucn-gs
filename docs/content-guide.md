@@ -14,7 +14,7 @@ All content is in `src/content/`. You only edit these files; the page code is no
 | What | File |
 |---|---|
 | University and school name, program name, contact details, map | `src/content/site.ts` |
-| Home page photos, slides, video, President, Dean and Program Chair messages | `src/content/home.ts` |
+| Home page leadership slides, President, Dean and Program Chair messages | `src/content/home.ts` (accreditation slideshow photos: `src/content/accreditation.ts`) |
 | About page: photo, vision, mission, goals, objectives and program descriptions (one entry per program), history, list of Deans | `src/content/about.ts` |
 | Officials, faculty, staff, student assistants | `src/content/people.ts` |
 | FAQs | `src/content/faqs.ts` |

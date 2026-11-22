@@ -10,7 +10,15 @@ export const site: SiteContent = {
   },
   areasLabel: 'Accreditation Areas',
   contentUpdated: '2026-11-18',
-  contact: { status: 'pending', label: 'Campus address and contact details' },
+  // Supplied 2026-11-22 (user's paste, verbatim).
+  contact: {
+    status: 'published',
+    label: 'Campus address and contact details',
+    value: {
+      address: 'Graduate School Office, F. Pimentel Ave., Daet, 4600 Camarines Norte, Philippines',
+      email: 'graduateschool@ucn.edu.ph',
+    },
+  },
   // Supplied 2026-11-21: the map is pinned at the given coordinates; the coordinates text is shown as supplied.
   mapQuery: {
     status: 'published',

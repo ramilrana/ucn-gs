@@ -34,7 +34,11 @@ const pendingSite: SiteContent = {
 
 const publishedSite: SiteContent = {
   ...pendingSite,
-  contact: { status: 'published', label: 'Contact', value: { address: '1 Sample Street, Sample City' } },
+  contact: {
+    status: 'published',
+    label: 'Contact',
+    value: { address: '1 Sample Street, Sample City', email: 'gs@example.org' },
+  },
   mapQuery: { status: 'published', label: 'Map', value: '1 Sample Street, Sample City' },
 };
 
@@ -83,7 +87,8 @@ describe('FaqsLocationView', () => {
     production();
     const { container } = renderUi(<FaqsLocationView faqs={[]} site={publishedSite} />);
     expect(screen.getByRole('heading', { level: 2, name: 'Location' })).toBeTruthy();
-    expect(screen.getByText('1 Sample Street, Sample City')).toBeTruthy();
+    expect(screen.getByText('1 Sample Street, Sample City', { exact: false })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'gs@example.org' }).getAttribute('href')).toBe('mailto:gs@example.org');
     expect(container.querySelectorAll('iframe')).toHaveLength(1);
     const link = screen.getByRole('link', { name: /Open in Google Maps/ });
     expect(link.getAttribute('href')).toContain('https://www.google.com/maps/search/');
