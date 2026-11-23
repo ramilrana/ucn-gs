@@ -115,6 +115,8 @@ Spec §6. Typed content in `src/content/` (areas and recommendations as one file
 
 ## Verification status
 
+**`fix/compliance-duplicate-title` (main session, 2026-11-23):** while a recommendation keeps its placeholder title "Recommendation N", the Compliance Report link reads "Recommendation N" instead of "Recommendation N: Recommendation N"; a real title still shows as "Recommendation N: <title>". The check is shared as `src/lib/placeholderTitle.ts` (also used by `RecommendationView` for the intro). New test in `compliance.test.tsx`; `RecommendationPage.test.tsx` accepts either form. lint, typecheck, `npm test` 43 files / 472 (clean full run; an earlier run had one unrecorded failure, taken as the known OneDrive flake), build (first-load JS 116.05 kB gzip), check:dist, `audit:prod` 0 pass. Browser (`vite preview`, production): the six links read "Recommendation N (Area)" in their accessible names, no console errors. No reviewer run.
+
 **`content/community-service-rec-1`, after the font change (main session, 2026-11-23):** lint, typecheck, `npm test` 43 files / 471 (clean full run), build, check:dist, `check:links`, `audit:prod` 0 pass; `dist/fonts/` holds only the Poppins and Raleway files and their licences. Production preview: h1 in Poppins, body in Raleway, lining numerals, both fonts loaded (none failed), no console errors. No reviewer run.
 
 **`content/community-service-rec-1`, after the rename, carousel timing and certificate border (main session, 2026-11-23):** lint, typecheck, `npm test` 43 files / 471 (clean full run; an earlier run had 2 OneDrive timeouts in `router.test.tsx` and `SiteHeader.test.tsx` that passed on rerun), build, check:dist, `check:links`, `audit:prod` 0 pass; `dist/` has no "Performance of Graduates". Browser: dev menus and footer say "Teaching and Learning" everywhere; both Home carousels advanced one slide within 2.7 s; production certificate page shows the maroon frame, no horizontal scroll, no console errors. No reviewer run.
@@ -195,7 +197,7 @@ The docs commit changes no code and ran no checks.
 
 ## Next actions
 
-0. Remaining recommendation materials (Research 2, Teaching and Learning 1, International Linkages & Consortia 1–5, Planning Process 1) and the Community Service area materials (narrative, photos, AVP) still to come. Placeholder titles make the Compliance Report link read "Recommendation 1: Recommendation 1"; consider hiding the duplicate until real titles arrive.
+0. Remaining recommendation materials (Research 2, Teaching and Learning 1, International Linkages & Consortia 1–5, Planning Process 1) and the Community Service area materials (narrative, photos, AVP) still to come. The duplicate "Recommendation 1: Recommendation 1" link text is fixed on branch `fix/compliance-duplicate-title` (committed on the branch, not pushed; PR and merge when the user asks).
 1. Optional: confirm the 9 accreditation photo alt texts (`src/content/accreditation.ts`, worded by us) with the user.
 2. The map rendered in the desktop app pane on 2026-11-22; a look in Chrome is still worthwhile. Ask UCN where Mary Grace B. Bolos belongs in the faculty order, and confirm the people-entry spellings listed under Reference and content status.
 3. Optional: run `ucn-opus-reviewer` and `accessibility-auditor` on PR #8 and PR #9 (now on `main`, neither reviewed): sticky header (check the 1024px header with text spacing), splash, text animation, Compliance area filter.

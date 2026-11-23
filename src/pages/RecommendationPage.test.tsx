@@ -62,6 +62,6 @@ it('ComplianceIndexPage groups recommendations under their area, with no sample 
   expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Compliance Report');
   expect(screen.getByRole('heading', { level: 2, name: 'Research' })).toBeTruthy();
   expect(screen.queryByRole('heading', { level: 2, name: 'Sample area' })).toBeNull();
-  const link = screen.getByRole('link', { name: /^Recommendation 1: .*\(Research\)$/ });
+  const link = screen.getByRole('link', { name: /^Recommendation 1(: .*)? \(Research\)$/ });
   expect(link.getAttribute('href')).toBe('/compliance-report/research/recommendation-1');
 });
