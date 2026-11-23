@@ -14,13 +14,13 @@ function renderAt(entry: RouteEntry | undefined) {
 
 it('AreaPage looks the area up by the route entry slug', () => {
   renderAt({
-    path: '/accreditation-areas/sample-area',
-    title: 'Sample area',
+    path: '/accreditation-areas/research',
+    title: 'Research',
     kind: 'area',
     parentPath: '/accreditation-areas',
-    slug: 'sample-area',
+    slug: 'research',
   });
-  expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Sample area');
+  expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Research');
 });
 
 it('AreaPage renders the 404 page for an unknown slug or a missing entry', () => {
@@ -33,8 +33,9 @@ it('AreaPage renders the 404 page without a route entry', () => {
   expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Page not found');
 });
 
-it('AreasIndexPage lists the sample area in dev', () => {
+it('AreasIndexPage lists the content areas and no sample area', () => {
   renderAt({ path: '/accreditation-areas', title: 'Accreditation Areas', kind: 'areas-index' });
   expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Accreditation Areas');
-  expect(screen.getByRole('link', { name: 'View Sample area' }).getAttribute('href')).toBe('/accreditation-areas/sample-area');
+  expect(screen.getByRole('link', { name: 'View Research' }).getAttribute('href')).toBe('/accreditation-areas/research');
+  expect(screen.queryByRole('link', { name: 'View Sample area' })).toBeNull();
 });

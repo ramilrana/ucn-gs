@@ -1,5 +1,4 @@
 import { devMessagePlaceholders, type MessagePlaceholders } from '../dev/messagePlaceholders';
-import { sampleAreas, sampleRecommendations } from '../dev/samples';
 import type { Area, Recommendation } from '../types/content';
 
 export { site } from './site';
@@ -25,14 +24,13 @@ export const contentRecommendations: Recommendation[] = Object.values(recommenda
   (a, b) => orderOf(a.areaSlug) - orderOf(b.areaSlug) || a.areaSlug.localeCompare(b.areaSlug) || a.number - b.number,
 );
 
-// Written inline so Rollup folds it to `false` in production builds and drops src/dev/samples.ts.
-// `npm run check:dist` fails if a DEV-SAMPLE id reaches dist/.
+// Written inline so Rollup folds it to `false` in production builds and drops the dev placeholders.
 const includeSamples = import.meta.env.DEV || import.meta.env.VITE_CONTENT_PREVIEW === 'true';
 
 /** Stand-in leader photos for dev and preview only; production gets none and the card shows a silhouette. */
 export const messagePlaceholders: Partial<MessagePlaceholders> = includeSamples ? devMessagePlaceholders : {};
 
-export const areas: Area[] = includeSamples ? [...contentAreas, ...sampleAreas] : contentAreas;
-export const recommendations: Recommendation[] = includeSamples
-  ? [...contentRecommendations, ...sampleRecommendations]
-  : contentRecommendations;
+// The DEV-SAMPLE area and recommendation (src/dev/samples.ts) are no longer added in dev or preview builds (user's
+// request 2026-11-23: no "Sample area" in the Compliance Report and Accreditation Areas menus). Tests still use them.
+export const areas: Area[] = contentAreas;
+export const recommendations: Recommendation[] = contentRecommendations;

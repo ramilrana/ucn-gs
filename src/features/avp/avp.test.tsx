@@ -99,28 +99,41 @@ describe('AvpView', () => {
     expect(screen.queryByRole('heading', { level: 2 })).toBeNull();
   });
 
-  it('scrolls to and focuses the h2 named by the hash', async () => {
+  it('a hash naming an area shows only that AVP, focuses its h2 and keeps the page at the top', async () => {
     production();
-    const scroll = stubScroll();
-    renderUi(<AvpView areas={areas} />, '/avp#research');
+    const scrollTo = vi.fn();
+    window.scrollTo = scrollTo;
+    const { container } = renderUi(<AvpView areas={areas} />, '/avp#research');
+    expect(Array.from(container.querySelectorAll('section')).map((s) => s.id)).toEqual(['research']);
     const h2 = screen.getByRole('heading', { level: 2, name: 'Research in Action' });
     expect(h2.getAttribute('tabindex')).toBe('-1');
     await waitFor(() => expect(document.activeElement).toBe(h2));
-    expect(scroll).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'auto' });
+    expect(screen.queryByText('Area: Governance')).toBeNull();
   });
 
-  it('scrolls instantly under reduced motion', async () => {
+  it('a filtered page links back to every area, which shows all AVPs again and focuses the h1', async () => {
     production();
-    const original = window.matchMedia;
-    window.matchMedia = ((query: string) => ({ ...original(query), matches: true })) as typeof window.matchMedia;
-    const scroll = stubScroll();
-    try {
-      renderUi(<AvpView areas={areas} />, '/avp#governance');
-      await waitFor(() => expect(scroll).toHaveBeenCalled());
-      expect(scroll).toHaveBeenCalledWith({ behavior: 'auto', block: 'start' });
-    } finally {
-      window.matchMedia = original;
-    }
+    window.scrollTo = vi.fn();
+    const router = createMemoryRouter(
+      [{ path: '*', element: <AvpView areas={areas} /> }],
+      { initialEntries: ['/avp#governance'] },
+    );
+    const { container } = render(<RouterProvider router={router} />);
+    const back = screen.getByRole('link', { name: 'Show the audio visual presentations of every area' });
+    expect(back.getAttribute('href')).toBe('/avp');
+    await act(async () => {
+      await router.navigate('/avp');
+    });
+    expect(container.querySelectorAll('section')).toHaveLength(2);
+    expect(screen.queryByRole('link', { name: /of every area/ })).toBeNull();
+    await waitFor(() => expect(document.activeElement?.id).toBe('page-title'));
+  });
+
+  it('no back link when only one area has an AVP', () => {
+    production();
+    renderUi(<AvpView areas={[areas[0] as Area]} />, '/avp#governance');
+    expect(screen.queryByRole('link', { name: /of every area/ })).toBeNull();
   });
 
   it('does nothing for an unknown hash', async () => {
