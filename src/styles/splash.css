@@ -12,7 +12,7 @@
   justify-content: center;
   background: #fff;
   color: #8f0404;
-  font-family: "Source Serif 4 Variable", Georgia, serif;
+  font-family: "Poppins", system-ui, sans-serif;
   transition: opacity 450ms ease, visibility 0s linear 450ms;
 }
 
@@ -68,7 +68,7 @@
 
 .splash__school {
   display: block;
-  font-family: "Public Sans Variable", system-ui, sans-serif;
+  font-family: "Raleway Variable", system-ui, sans-serif;
   font-size: 0.8125rem;
   font-weight: 600;
   letter-spacing: 0.18em;
@@ -98,7 +98,7 @@
 .splash__noscript {
   max-width: 32ch;
   margin: 0;
-  font-family: "Public Sans Variable", system-ui, sans-serif;
+  font-family: "Raleway Variable", system-ui, sans-serif;
   font-size: 1rem;
   color: #2a1a1d;
   background: #fff;

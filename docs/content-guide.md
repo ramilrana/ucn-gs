@@ -23,7 +23,7 @@ All content is in `src/content/`. You only edit these files; the page code is no
 | One accreditation area | `src/content/areas/<slug>.ts` (one file per area) |
 | One recommendation | `src/content/recommendations/<area-slug>/rec-NN.ts` (one file per recommendation, in its area's folder) |
 
-The five areas (Research; Performance of Graduates; Community Service; International Linkages & Consortia; Planning Process) and their 14 recommendations already exist as `pending` stubs: 2, 1, 5, 5 and 1 recommendations, in that order. Fill the stubs in place. The site finds files in these folders by itself, so you do not register anything.
+The five areas (Research; Teaching and Learning; Community Service; International Linkages & Consortia; Planning Process) and their 14 recommendations already exist as `pending` stubs: 2, 1, 5, 5 and 1 recommendations, in that order. Fill the stubs in place. The site finds files in these folders by itself, so you do not register anything.
 
 ## 2. Status: pending and published
 
@@ -277,9 +277,9 @@ Documents with many files do not slow the page: previews load only when a visito
 
 ## 8. Preview your changes
 
-- `npm run dev` starts the site on your computer (open the address it prints, usually `http://localhost:5173`). It shows **pending items** as placeholders, plus a built-in "Sample area" and "Sample 1/2/3" so you can see how pages look. The checklist page **`/content-status`** lists everything still pending. It exists only in dev and preview, never in production. Saving a file refreshes the page.
+- `npm run dev` starts the site on your computer (open the address it prints, usually `http://localhost:5173`). It shows **pending items** as placeholders, plus stand-in leader photos. (The built-in "Sample area" was removed from the menus and pages on 2026-11-23; `src/dev/samples.ts` is now used only by tests.) The checklist page **`/content-status`** lists everything still pending. It exists only in dev and preview, never in production. Saving a file refreshes the page.
 - `npm run build:preview` makes a preview build with the same pending view, for checking a built copy. `npm run preview` serves it. **Never deploy a preview build.**
-- Production (`npm run build`) **hides all pending items** and the samples. When nothing is published yet the site shows "materials being prepared" notes, not empty pages.
+- Production (`npm run build`) **hides all pending items** and the stand-in photos. When nothing is published yet the site shows "materials being prepared" notes, not empty pages.
 
 ## 9. Check your work
 

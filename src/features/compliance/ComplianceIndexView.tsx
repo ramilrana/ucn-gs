@@ -7,6 +7,7 @@ import { ActionLink } from '../../components/ui/ActionLink';
 import { SectionHeading } from '../../components/ui/SectionHeading';
 import { recommendationPath } from '../../content/routes';
 import { isSlotVisible, isVisible, slotValue, visible } from '../../lib/published';
+import { hashSlug } from '../../lib/hashSlug';
 import { useFocusHashTarget } from '../../lib/useFocusHashTarget';
 import type { Area, Recommendation, Slot } from '../../types/content';
 
@@ -20,17 +21,6 @@ const TITLE = 'Compliance Report';
 const COMPLIANCE_PATH = '/compliance-report';
 
 const headingId = (slug: string) => `${slug}-recommendations-title`;
-
-/** The area slug the URL hash names, if it is one of `slugs`; a malformed hash such as "#%" names none. */
-function selectedSlug(hash: string, slugs: readonly string[]): string | undefined {
-  if (hash.length < 2) return undefined;
-  try {
-    const id = decodeURIComponent(hash.slice(1));
-    return slugs.includes(id) ? id : undefined;
-  } catch {
-    return undefined;
-  }
-}
 
 /**
  * The Compliance Report index. Without a hash (the "Compliance Report" menu item) it shows the overview when
@@ -49,7 +39,7 @@ export function ComplianceIndexView({ overview, areas, recommendations }: Compli
       recs: visible(recommendations.filter((rec) => rec.areaSlug === area.slug)),
     }))
     .filter(({ recs }) => recs.length > 0);
-  const selected = selectedSlug(
+  const selected = hashSlug(
     hash,
     groups.map(({ area }) => area.slug),
   );

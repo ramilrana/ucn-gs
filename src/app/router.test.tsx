@@ -9,12 +9,12 @@ import { RootLayout } from './RootLayout';
 import { buildRouteObjects } from './router';
 
 const pendingDoc: Resource = { id: 'doc', title: 'Doc', format: 'pdf', status: 'pending' };
-// The area and recommendation pages look their data up in the real content (which includes the dev
-// samples under test), so these fixtures use the sample slug and number.
+// The area and recommendation pages look their data up in the real content, so these fixtures use the
+// Research area and its Recommendation 1 (the dev samples are no longer part of the content, 2026-11-23).
 const area: Area = {
-  slug: 'sample-area',
+  slug: 'research',
   order: 1,
-  title: 'Sample area',
+  title: 'Research',
   status: 'published',
   gallery: { label: 'Gallery', status: 'pending' },
   narrativeReport: pendingDoc,
@@ -22,9 +22,9 @@ const area: Area = {
   additionalFiles: [],
 };
 const rec: Recommendation = {
-  areaSlug: 'sample-area',
+  areaSlug: 'research',
   number: 1,
-  title: 'Sample recommendation',
+  title: 'Recommendation 1',
   status: 'published',
   document: pendingDoc,
   evidence: [],
@@ -82,8 +82,8 @@ describe('app router', () => {
   );
 
   it('renders the page with a trailing slash', async () => {
-    renderAt('/accreditation-areas/sample-area/');
-    expect(await screen.findByRole('heading', { level: 1, name: 'Sample area' })).toBeTruthy();
+    renderAt('/accreditation-areas/research/');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Research' })).toBeTruthy();
   });
 
   it('unknown path renders the 404 page', async () => {

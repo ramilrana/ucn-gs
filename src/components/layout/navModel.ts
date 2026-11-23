@@ -62,12 +62,19 @@ export function buildNavModel(manifest: readonly RouteEntry[], areasLabel: strin
     ];
   });
 
+  // One anchor per area with an AVP, in area order (user's request 2026-11-23). The AVP page owns the `#<slug>`
+  // sections, as the Compliance Report index does for its areas.
+  const avpPath = pathOf('avp', '/avp');
+  const avpAreas = ofKind('area')
+    .filter((entry) => entry.hasAvp === true && entry.slug !== undefined)
+    .map((entry): NavChild => ({ label: entry.title, path: `${avpPath}#${entry.slug ?? ''}`, srSuffix: 'audio visual presentation' }));
+
   return [
     group('Home', pathOf('home', '/'), []),
     group('Certificate of Authenticity', pathOf('certificate', '/certificate-of-authenticity'), []),
     group('Compliance Report', pathOf('compliance-index', '/compliance-report'), complianceAreas),
     group(areasLabel, pathOf('areas-index', '/accreditation-areas'), ofKind('area').map(toChild)),
-    group('AVP', pathOf('avp', '/avp'), []),
+    group('AVP', avpPath, avpAreas),
     group(
       'About',
       pathOf('about', '/about'),

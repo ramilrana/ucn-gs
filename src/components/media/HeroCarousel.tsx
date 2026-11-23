@@ -17,7 +17,7 @@ interface HeroCarouselProps {
 const DEFAULT_SLIDE_MAX_WIDTH = 1056;
 
 const SWIPE_DISTANCE = 40;
-export const HERO_INTERVAL_MS = 4000;
+export const HERO_INTERVAL_MS = 2500; // 2.5 s a slide on every carousel (user's request 2026-11-23; was 4 s)
 
 const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
 const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia(REDUCED_MOTION).matches;

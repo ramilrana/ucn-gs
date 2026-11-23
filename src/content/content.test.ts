@@ -106,7 +106,7 @@ describe('content (real data)', () => {
   it('has the five accreditation areas in order, with 2/1/5/5/1 recommendations', () => {
     expect(content.contentAreas.map((a) => [a.slug, a.order, a.title])).toEqual([
       ['research', 1, 'Research'],
-      ['performance-of-graduates', 2, 'Performance of Graduates'],
+      ['teaching-and-learning', 2, 'Teaching and Learning'],
       ['community-service', 3, 'Community Service'],
       ['international-linkages-and-consortia', 4, 'International Linkages & Consortia'],
       ['planning-process', 5, 'Planning Process'],

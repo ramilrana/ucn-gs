@@ -23,8 +23,8 @@ it('shows the pending table when pending content is shown', () => {
   // The pending area and recommendation stubs are listed, so the "not supplied" rows are gone.
   expect(screen.queryByText('Area list not supplied')).toBeNull();
   expect(screen.getAllByText('Area: Research').length).toBeGreaterThan(0);
-  expect(screen.getAllByText('Community Service: Recommendation 5').length).toBeGreaterThan(0);
-  // Samples are in the merged lists in dev but never in the checklist.
+  expect(screen.getAllByText('Planning Process: Recommendation 1').length).toBeGreaterThan(0);
+  // The dev samples are never in the checklist.
   expect(screen.queryByText(/sample/i)).toBeNull();
 });
 

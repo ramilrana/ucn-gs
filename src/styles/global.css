@@ -15,29 +15,57 @@
   --color-ink: #2a1a1d;
   --color-ink-muted: #5c4a4d;
 
-  --font-serif: "Source Serif 4 Variable", Georgia, serif;
-  --font-sans: "Public Sans Variable", system-ui, sans-serif;
+  /* Fonts (the user's pick of four previewed Poppins/Raleway options, 2026-11-23; was Source Serif 4 and Public Sans).
+     The token names stay: `--font-serif` (the `font-serif` utility) is the heading/display face, now Poppins. */
+  --font-serif: "Poppins", system-ui, sans-serif;
+  --font-sans: "Raleway Variable", system-ui, sans-serif;
 }
 
 @font-face {
-  font-family: "Source Serif 4 Variable";
+  font-family: "Poppins";
   font-style: normal;
   font-display: swap;
-  font-weight: 200 900;
-  src: url('/fonts/source-serif-4-latin-wght-normal.woff2') format('woff2-variations');
+  font-weight: 400;
+  src: url('/fonts/poppins-latin-400-normal.woff2') format('woff2');
 }
 
 @font-face {
-  font-family: "Public Sans Variable";
+  font-family: "Poppins";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url('/fonts/poppins-latin-500-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url('/fonts/poppins-latin-600-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url('/fonts/poppins-latin-700-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: "Raleway Variable";
   font-style: normal;
   font-display: swap;
   font-weight: 100 900;
-  src: url('/fonts/public-sans-latin-wght-normal.woff2') format('woff2-variations');
+  src: url('/fonts/raleway-latin-wght-normal.woff2') format('woff2-variations');
 }
 
 @layer base {
   html {
     font-family: var(--font-sans);
+    /* Raleway's default figures are old-style (they dip below the line); dates and document numbers read better level. */
+    font-variant-numeric: lining-nums;
     /* Anchored headings and keyboard focus land below the sticky header (2.4.11). */
     @media (min-height: 30rem) {
       scroll-padding-top: calc(var(--header-h, 5rem) + 0.5rem);

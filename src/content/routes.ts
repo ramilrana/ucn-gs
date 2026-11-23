@@ -24,6 +24,8 @@ export interface RouteEntry {
   parentPath?: string;
   slug?: string;
   number?: number;
+  /** Area entries only: the area's AVP is visible (published, or pending in dev/preview), so the AVP menu lists it. */
+  hasAvp?: boolean;
   devOnly?: boolean;
 }
 
@@ -71,6 +73,7 @@ export function buildRouteManifest({ areas: areaList, recommendations: recList, 
       kind: 'area',
       parentPath: AREAS_PATH,
       slug: area.slug,
+      ...(area.avp !== undefined && (includePending || area.avp.status === 'published') ? { hasAvp: true } : {}),
     });
   }
 

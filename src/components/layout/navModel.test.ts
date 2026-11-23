@@ -47,6 +47,26 @@ function item(items: NavItem[], label: string): NavItem {
 }
 
 describe('buildNavModel', () => {
+  it('lists each area with an AVP under AVP, as an anchor on the AVP page', () => {
+    const avp = (status: 'published' | 'pending'): Resource =>
+      status === 'published'
+        ? { id: 'avp-p', title: 'AVP', format: 'video', status, source: { kind: 'youtube', videoId: 'abcdefghijk' } }
+        : { id: 'avp-q', title: 'AVP', format: 'video', status };
+    const withAvp = (slug: string, order: number, status: 'published' | 'pending'): Area => ({ ...makeArea(slug, order), avp: avp(status) });
+    const areas = [withAvp('research', 1, 'published'), withAvp('extension', 2, 'pending'), makeArea('planning', 3)];
+
+    const prod = buildNavModel(buildRouteManifest({ areas, recommendations: [], includePending: false }), 'Areas');
+    expect(item(prod, 'AVP').children).toEqual([
+      { label: 'Area research', path: '/avp#research', srSuffix: 'audio visual presentation' },
+    ]);
+
+    const dev = buildNavModel(buildRouteManifest({ areas, recommendations: [], includePending: true }), 'Areas');
+    expect(item(dev, 'AVP').children?.map((c) => c.path)).toEqual(['/avp#research', '/avp#extension']);
+
+    const none = buildNavModel(buildRouteManifest({ areas: [makeArea('planning', 3)], recommendations: [], includePending: true }), 'Areas');
+    expect(item(none, 'AVP').children).toBeUndefined();
+  });
+
   it('builds the six top-level items in order', () => {
     const nav = buildNavModel(full, 'Accreditation Areas');
     expect(nav.map((i) => [i.label, i.path])).toEqual([
