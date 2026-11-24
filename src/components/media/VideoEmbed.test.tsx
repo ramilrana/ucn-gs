@@ -102,6 +102,19 @@ describe('VideoEmbed', () => {
     expect(link.getAttribute('rel')).toBe('noopener noreferrer');
   });
 
+  it('drive folder renders one link named by the folder title, never a frame or play button', () => {
+    const { container } = renderVideo(
+      <VideoEmbed resource={video({ kind: 'drive-folder', folderId: FILE_ID }, { title: '1. Research', format: 'folder' })} />,
+    );
+    expect(container.querySelector('iframe')).toBeNull();
+    expect(screen.queryByRole('button')).toBeNull();
+    const links = screen.getAllByRole('link');
+    expect(links).toHaveLength(1);
+    expect(links[0]?.getAttribute('href')).toBe(`https://drive.google.com/drive/folders/${FILE_ID}`);
+    expect(links[0]?.getAttribute('target')).toBe('_blank');
+    expect(links[0]?.textContent).toMatch(/^1\. Research \(Google Drive folder\)/);
+  });
+
   it('local video renders no frame and no play button, only the title and an Open link', () => {
     const { container } = renderVideo(<VideoEmbed resource={video({ kind: 'local', path: '/files/tour.mp4' })} />);
     expect(container.querySelector('iframe')).toBeNull();

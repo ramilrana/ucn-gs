@@ -97,7 +97,14 @@ const area: Area = {
     },
   ],
   additionalFiles: [],
-  avp: { id: 'area-planning-process-avp', title: 'Planning Process AVP', format: 'video', status: 'pending' },
+  // AVP: the "5. Planning Process" subfolder of UCN's AVP Drive folder (2026-11-24; a link, folders cannot be framed).
+  avp: {
+    id: 'area-planning-process-avp',
+    title: '5. Planning Process',
+    format: 'folder',
+    status: 'published',
+    source: { kind: 'drive-folder', folderId: '1w3xDaUx15CA5D5wfzVcbTff9DoK8UHfy' },
+  },
 };
 
 export default area;

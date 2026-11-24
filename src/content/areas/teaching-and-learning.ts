@@ -91,7 +91,14 @@ const area: Area = {
     },
   ],
   additionalFiles: [],
-  avp: { id: 'area-teaching-and-learning-avp', title: 'Teaching and Learning AVP', format: 'video', status: 'pending' },
+  // AVP: the "2. Teaching and Learning" subfolder of UCN's AVP Drive folder (2026-11-24; a link, folders cannot be framed).
+  avp: {
+    id: 'area-teaching-and-learning-avp',
+    title: '2. Teaching and Learning',
+    format: 'folder',
+    status: 'published',
+    source: { kind: 'drive-folder', folderId: '1LPBYfBmnEarAWFvuS4g6ZrcQQxTqzxAq' },
+  },
 };
 
 export default area;

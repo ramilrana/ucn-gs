@@ -89,7 +89,14 @@ const area: Area = {
     },
   ],
   additionalFiles: [],
-  avp: { id: 'area-community-service-avp', title: 'Community Service AVP', format: 'video', status: 'pending' },
+  // AVP: the "3. Community Services" subfolder of UCN's AVP Drive folder (2026-11-24; a link, folders cannot be framed).
+  avp: {
+    id: 'area-community-service-avp',
+    title: '3. Community Services',
+    format: 'folder',
+    status: 'published',
+    source: { kind: 'drive-folder', folderId: '1kgGXkdOqrwsYGowHieYf-bfLwtHNGG_x' },
+  },
 };
 
 export default area;

@@ -101,7 +101,14 @@ const area: Area = {
     },
   ],
   additionalFiles: [],
-  avp: { id: 'area-research-avp', title: 'Research AVP', format: 'video', status: 'pending' },
+  // AVP: the "1. Research" subfolder of UCN's AVP Drive folder (2026-11-24; a link, folders cannot be framed).
+  avp: {
+    id: 'area-research-avp',
+    title: '1. Research',
+    format: 'folder',
+    status: 'published',
+    source: { kind: 'drive-folder', folderId: '15qCifU9CE87YkLmKQmaXNTvxHcTVTj1c' },
+  },
 };
 
 export default area;

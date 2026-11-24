@@ -41,6 +41,18 @@ export function VideoEmbed({ resource, poster }: VideoEmbedProps) {
     );
   }
 
+  // A Drive folder (an AVP folder, user's request 2026-11-24) cannot be framed: one link named by the folder title.
+  if (source.kind === 'drive-folder') {
+    return openHref ? (
+      <ActionLink href={openHref} variant="primary" newTab>
+        {resource.title}
+        <span className="sr-only"> (Google Drive folder)</span>
+      </ActionLink>
+    ) : (
+      <span>{resource.title}</span>
+    );
+  }
+
   // Local videos are never framed: only an opted-in local PDF may be framed (the CSP allows frame-src
   // 'self' for that), so show the title and an Open link only.
   if (source.kind === 'local') {

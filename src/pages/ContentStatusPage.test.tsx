@@ -22,9 +22,10 @@ it('shows the pending table when pending content is shown', () => {
   expect(screen.getByRole('table')).toBeTruthy();
   // The pending area and recommendation stubs are listed, so the "not supplied" rows are gone.
   expect(screen.queryByText('Area list not supplied')).toBeNull();
-  expect(screen.getAllByText('Area: Research').length).toBeGreaterThan(0);
-  // An item still waiting for UCN's materials: every recommendation is published, the AVPs are not (2026-11-24).
-  expect(screen.getAllByText('Research AVP').length).toBeGreaterThan(0);
+  // An item still waiting for UCN's materials (2026-11-24: every area, recommendation and AVP is published, so no area
+  // or recommendation row is left; the Compliance Report overview is).
+  expect(screen.getAllByText('Compliance Report').length).toBeGreaterThan(0);
+  expect(screen.getAllByText('Compliance Report overview').length).toBeGreaterThan(0);
   // The dev samples are never in the checklist.
   expect(screen.queryByText(/sample/i)).toBeNull();
 });

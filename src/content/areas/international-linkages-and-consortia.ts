@@ -106,11 +106,13 @@ const area: Area = {
     },
   ],
   additionalFiles: [],
+  // AVP: the "4. International Linkages" subfolder of UCN's AVP Drive folder (2026-11-24; a link, folders cannot be framed).
   avp: {
     id: 'area-international-linkages-and-consortia-avp',
-    title: 'International Linkages & Consortia AVP',
-    format: 'video',
-    status: 'pending',
+    title: '4. International Linkages',
+    format: 'folder',
+    status: 'published',
+    source: { kind: 'drive-folder', folderId: '1ROEpr6Okyaak0y0PMeGvh7KcrZxXW-7N' },
   },
 };
 
