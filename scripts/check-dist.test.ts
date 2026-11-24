@@ -116,7 +116,7 @@ describe('checkDist', () => {
     expect(checkDist(dist)).toEqual([]);
   });
 
-  it('flags first-load JS over 120 kB gzip', () => {
+  it('flags first-load JS over 126 KiB gzip', () => {
     const dist = makeDist('/gs/');
     write(join(dist, 'assets', 'index-a.js'), randomBytes(400 * 1024).toString('base64'));
     expect(checkDist(dist).some((e) => /gzip/.test(e))).toBe(true);
