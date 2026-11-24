@@ -1,6 +1,6 @@
 # Deployment
 
-The site is a static build served by Nginx on a local UCN server. `npm run build` writes the site to `dist/` and an Nginx config to `dist-nginx/`; there is no server-side code. Apache is not supported: the build no longer writes `.htaccess` files.
+The site is a static build served by Nginx on a local UCN server. `npm run build` writes the site to `dist/` and an Nginx config to `dist-nginx/`; there is no server-side code. Apache is not supported: the build no longer writes `.htaccess` files. The one exception is the client-review copy on UCN's cPanel host, with a hand-made `.htaccess` (see Client-review copy on cPanel).
 
 ## Build
 
@@ -139,6 +139,84 @@ Run these against the real host after every deploy. Replace `<host>` with the do
 6. Open one inline PDF page in Chrome, Firefox and Safari on the real host. Inline PDF display has not been verified in any browser on the real host yet. A browser without a PDF viewer shows the Open / Download card.
 
 CI runs the same checks against a real Nginx (job `nginx-smoke`, `scripts/nginx-smoke.sh`, a Docker `nginx:1.27-alpine`). It uses a preview build, so it does not replace the post-deploy checks.
+
+## Client-review copy on cPanel
+
+UCN reviews the site at https://ucn.edu.ph/mpa-aaccup/ before the Nginx server exists (user's request, 2026-11-24). That host is UCN's main WordPress site (Apache behind Cloudflare), and this copy is a **preview build**: pending pages and menu items show with "Pending: …" notes, so UCN can see what is still to come. This is an exception to spec D5 for the review copy only; the real production build still hides pending items. Do not use these steps for the real deployment.
+
+### Build and zip (PowerShell, from the repo root)
+
+1. Build the preview for the subfolder:
+
+   ```powershell
+   Set-Content .env.preview-content.local "VITE_BASE_PATH=/mpa-aaccup/" -Encoding ascii
+   npm run build:preview
+   Remove-Item .env.preview-content.local
+   ```
+
+2. Delete the files the preview build adds but the site does not use: `dist/dev-placeholders/` and `dist/files/dev-sample.pdf`. Only delete them while all three leader messages have photos (the placeholders are the fallback for a missing one).
+3. `npm run check:dist` then reports exactly two errors, both expected for a preview build: `DEV-SAMPLE` in the content-status chunk and the dormant placeholder-photo code. Any other error is real.
+4. Zip with `tar.exe`, naming the top-level entries so the paths have no `./` prefix. Windows PowerShell's `Compress-Archive` writes backslashes into the paths, which unpack as flat files on Linux.
+
+   ```powershell
+   tar.exe -a -c -f ucn-gs-mpa-aaccup-review.zip -C dist @(Get-ChildItem dist -Force | ForEach-Object Name)
+   ```
+
+### Upload
+
+1. cPanel File Manager → `public_html/mpa-aaccup`. Turn on Settings → Show Hidden Files.
+2. Delete everything in the folder **except `.htaccess`**.
+3. Upload the zip, choose Extract and check that the target path ends in `/mpa-aaccup` (the first upload went into a new `ucn-gs-dist/` subfolder, so WordPress answered `/mpa-aaccup/` with its own 404). Delete the zip. `index.html` must sit directly in `mpa-aaccup`.
+
+### The `.htaccess`
+
+Kept on the server between uploads. If it is lost, or `config/csp.mjs` changes, recreate it in `public_html/mpa-aaccup` with the header values taken from `config/csp.mjs` (`CSP_HEADER`, `CSP_HEADER_PDF`, `SECURITY_HEADERS`):
+
+```apache
+Options -Indexes
+# Every page is a folder with its own index.html. The server redirects /about/people to /about/people/
+# and serves that index.html; the site accepts the trailing slash.
+DirectoryIndex index.html
+
+# Keep the main site's WordPress rewrite rules out of this folder, so unknown URLs get this site's 404 page.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+</IfModule>
+
+ErrorDocument 404 /mpa-aaccup/404.html
+
+<IfModule mod_headers.c>
+  # The main UCN site sends its own Content-Security-Policy, which would block the Google Drive, YouTube and
+  # map frames. Remove it here so only this site's policy applies.
+  Header unset Content-Security-Policy
+  Header always unset Content-Security-Policy
+  Header always set Content-Security-Policy "<CSP_HEADER>"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+
+  # Local PDFs may be shown in the site's own frames
+  <FilesMatch "\.(?i:pdf)$">
+    Header always set Content-Security-Policy "<CSP_HEADER_PDF>"
+  </FilesMatch>
+
+  <FilesMatch "\.(html|pdf)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>
+```
+
+If the site shows a 500 error, delete the `Options -Indexes` line. Do not add `DirectorySlash Off` or a rewrite rule for the pages: the folder redirect is enough.
+
+### Check after each upload
+
+```powershell
+curl.exe -s -I https://ucn.edu.ph/mpa-aaccup/
+curl.exe -s -o NUL -w "%{http_code}" https://ucn.edu.ph/mpa-aaccup/no-such-page
+```
+
+The page must send exactly **one** `Content-Security-Policy` header, ours (with `frame-src` listing the Google hosts). If a second, shorter one appears, the server's policy is back and the Drive, YouTube and map frames are blocked. The unknown URL must return 404 with this site's 404 page, not WordPress's. The copy is public; cPanel's Directory Privacy can put a password on the folder.
 
 ## Documents and inline viewing
 
