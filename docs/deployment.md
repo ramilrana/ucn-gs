@@ -140,6 +140,14 @@ Run these against the real host after every deploy. Replace `<host>` with the do
 
 CI runs the same checks against a real Nginx (job `nginx-smoke`, `scripts/nginx-smoke.sh`, a Docker `nginx:1.27-alpine`). It uses a preview build, so it does not replace the post-deploy checks.
 
+## Test deployments on Vercel
+
+For testing only; the real site stays on UCN's Nginx server. `vercel.json` tells Vercel to run `npm ci` and `npm run build` and to serve `dist/`. Each route is a folder with its own `index.html`, and Vercel serves `dist/404.html` for unknown URLs, so no rewrites are needed. Build at the domain root (no `VITE_BASE_PATH`).
+
+`vercel.json` sends the same five security headers as the Nginx config, with the PDF policy (`frame-ancestors 'self'`) on `.pdf` files, a one-year cache on `assets/`, and `X-Robots-Tag: noindex` so search engines skip the test copy. The values are copied from `config/csp.mjs`; `config/vercel.test.ts` fails if they drift, so update `vercel.json` whenever `config/csp.mjs` changes.
+
+To set it up, sign in at vercel.com with the GitHub account that owns the repository, choose **Add New → Project**, import the repository and deploy; the settings come from `vercel.json`. The default branch becomes the production deployment (`<project>.vercel.app`); other branches and pull requests get preview deployments. Check one page with `curl -I` for the headers above.
+
 ## Documents and inline viewing
 
 Local PDFs under `public/files/` display inline only when the content file sets `inline: true` (see `docs/content-guide.md`). Other local files open as an Open / Download card. A document that should display on the page without those rules can go on Google Drive (spec D3). Files under `dist/files/` must not be `.html`, `.svg`, `.xml` or `.js`: `check:dist` fails on them, because a same-origin frame must only ever hold a PDF.
