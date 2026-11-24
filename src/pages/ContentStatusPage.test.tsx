@@ -24,7 +24,7 @@ it('shows the pending table when pending content is shown', () => {
   expect(screen.queryByText('Area list not supplied')).toBeNull();
   expect(screen.getAllByText('Area: Research').length).toBeGreaterThan(0);
   // A recommendation still waiting for UCN's materials (2026-11-24).
-  expect(screen.getAllByText('International Linkages & Consortia: Recommendation 1').length).toBeGreaterThan(0);
+  expect(screen.getAllByText('International Linkages & Consortia: Recommendation 5').length).toBeGreaterThan(0);
   // The dev samples are never in the checklist.
   expect(screen.queryByText(/sample/i)).toBeNull();
 });
