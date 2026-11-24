@@ -8,6 +8,7 @@ import { SectionHeading } from '../../components/ui/SectionHeading';
 import { recommendationPath } from '../../content/routes';
 import { isSlotVisible, isVisible, slotValue, visible } from '../../lib/published';
 import { hashSlug } from '../../lib/hashSlug';
+import { hasPlaceholderTitle } from '../../lib/placeholderTitle';
 import { useFocusHashTarget } from '../../lib/useFocusHashTarget';
 import type { Area, Recommendation, Slot } from '../../types/content';
 
@@ -84,7 +85,7 @@ export function ComplianceIndexView({ overview, areas, recommendations }: Compli
                     {/* One wrapper keeps the text inline: ActionLink is a flex box that would drop the space before the hidden suffix.
                         The visible text starts the accessible name (SC 2.5.3); the hidden area name tells the areas apart. */}
                     <span>
-                      Recommendation {rec.number}: {rec.title}{' '}
+                      {hasPlaceholderTitle(rec) ? rec.title : `Recommendation ${rec.number}: ${rec.title}`}{' '}
                       <span className="sr-only">({area.title})</span>
                     </span>
                   </ActionLink>

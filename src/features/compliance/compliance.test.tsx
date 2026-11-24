@@ -144,6 +144,23 @@ describe('ComplianceIndexView', () => {
     );
   });
 
+  it('index does not repeat the placeholder title "Recommendation N" after the number', () => {
+    production();
+    renderUi(
+      <ComplianceIndexView
+        overview={pendingOverview}
+        areas={[research]}
+        recommendations={[makeRec({ number: 1, title: 'First title' }), makeRec({ number: 2, title: 'Recommendation 2' })]}
+      />,
+      '/compliance-report',
+    );
+    expect(screen.getAllByRole('listitem').map((li) => li.textContent)).toEqual([
+      'Recommendation 1: First title (Research)',
+      'Recommendation 2 (Research)',
+    ]);
+    expect(screen.getByRole('link', { name: 'Recommendation 2 (Research)' })).toBeTruthy();
+  });
+
   it('index hides an area whose recommendations are all hidden, and a pending area', () => {
     production();
     const recs = [makeRec({ number: 1, status: 'pending' }), makeRec({ areaSlug: 'community-service', number: 1 })];

@@ -6,6 +6,7 @@ import { PageShell } from '../../components/layout/PageShell';
 import { Pager, type PagerItem } from '../../components/layout/Pager';
 import { DocumentViewer } from '../../components/media/DocumentViewer';
 import { BandHeading } from '../../components/ui/BandHeading';
+import { hasPlaceholderTitle } from '../../lib/placeholderTitle';
 import { isVisible, showPending, visible } from '../../lib/published';
 import type { Recommendation } from '../../types/content';
 
@@ -32,7 +33,7 @@ export function RecommendationView({ rec, title, path, siblings, eyebrow }: Reco
   const extraFiles = visible(rec.additionalFiles);
 
   // The placeholder title "Recommendation N" only repeats the banner title, so it is not shown as an intro.
-  const intro = rec.title === `Recommendation ${rec.number}` ? undefined : [rec.title];
+  const intro = hasPlaceholderTitle(rec) ? undefined : [rec.title];
   const documentHeading = rec.document.format === 'link' ? 'Recommendation Link' : 'Recommendation document';
 
   const hasContent = statement.length > 0 || showDocument || evidence.length > 0 || extraFiles.length > 0;
