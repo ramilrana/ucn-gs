@@ -7,7 +7,9 @@ import { baseFromIndexHtml } from '../config/base.mjs';
 import { CSP_HEADER, CSP_HEADER_PDF, SECURITY_HEADERS } from '../config/csp.mjs';
 import { listRoutePaths } from './route-paths.mjs';
 
-const MAX_FIRST_LOAD_GZIP_BYTES = 122_880; // 120 kB
+// 126 KiB. Raised from 120 KiB on 2026-11-24 (user's request) as a stopgap: area and recommendation content is in the
+// first-load bundle and had filled the old budget. See CURRENT_STATE.md (Approved decisions).
+const MAX_FIRST_LOAD_GZIP_BYTES = 129_024;
 const CONTENT_DIR = fileURLToPath(new URL('../src/content', import.meta.url));
 
 /**
@@ -181,7 +183,7 @@ export function checkDist(distDir, nginxDir = join(dirname(distDir), 'dist-nginx
     }
   }
   if (gzipTotal > MAX_FIRST_LOAD_GZIP_BYTES) {
-    errors.push(`First-load JavaScript is ${gzipTotal} bytes gzip, over the ${MAX_FIRST_LOAD_GZIP_BYTES} byte (120 kB) limit.`);
+    errors.push(`First-load JavaScript is ${gzipTotal} bytes gzip, over the ${MAX_FIRST_LOAD_GZIP_BYTES} byte (126 KiB) limit.`);
   }
 
   // Rule 7: the dev sample PDF has no DEV-SAMPLE text, so rule 5 cannot see it.

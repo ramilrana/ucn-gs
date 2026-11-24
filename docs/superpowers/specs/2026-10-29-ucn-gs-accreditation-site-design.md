@@ -316,7 +316,7 @@ Each package is checked for maintenance and compatibility before install. `npm a
 - **Reduced motion** is respected.
 
 **Performance:**
-- Pages load per route, at most 120 kB gzipped JS on first load.
+- Pages load per route, at most 120 kB gzipped JS on first load. (Raised to 126 KiB on 2026-11-24 at the user's request; see `CURRENT_STATE.md`, Approved decisions.)
 - Two preloaded font files.
 - Iframes load on click, and images are responsive and lazy-loaded.
 - Dimensions are declared to prevent layout shift.
