@@ -79,7 +79,9 @@ const area: Area = {
   narrativeReport: drivePdf(
     'area-international-linkages-and-consortia-narrative',
     'International Linkages & Consortia Narrative Profile',
-    '1p7g4oqHZ4_dx2ocYEHPiCHZBazE3cMw1',
+    // Replaced 2026-11-25 (user's request): "GS NARRATIVE PROFILE - AREA 4.pdf" (was "Narrative Profile - International
+    // Linkages (MPA - Level 4).pdf").
+    '1bMt9zDrC_sqdLd7ZWf6uSW14SgbY74_K',
   ),
   groups: [
     {
