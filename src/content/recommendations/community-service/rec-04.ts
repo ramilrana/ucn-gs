@@ -4,6 +4,7 @@ import type { Recommendation } from '../../../types/content';
 // on Google Drive, shown in Drive's preview frame, followed by the "Recommendation 4" folder. Title is the supplied
 // file name without ".pdf". Every link was opened and matches its name.
 
+// Recommendation Link updated 2026-11-25 (user's request): the Google Doc "1. Compliance Report _Area 3.docx", no bookmark.
 // File name must match the number: this file is src/content/recommendations/community-service/rec-04.ts
 const recommendation: Recommendation = {
   areaSlug: 'community-service',
@@ -12,12 +13,12 @@ const recommendation: Recommendation = {
   status: 'published',
   document: {
     id: 'rec-community-service-04-document',
-    title: 'Compliance Report _Area 3.docx',
+    title: '1. Compliance Report _Area 3.docx',
     format: 'link',
     status: 'published',
     source: {
       kind: 'external',
-      url: 'https://docs.google.com/document/d/1josykUPsE2tSzn-hndhVRH8Fiu_COlq-/edit#bookmark=id.9b8q78c8in44',
+      url: 'https://docs.google.com/document/d/1ZlHAm3IkciBLH9Apb0yc7vKbW4HV4OrQ/edit',
     },
   },
   evidence: [
