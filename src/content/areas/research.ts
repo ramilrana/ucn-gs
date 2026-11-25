@@ -52,8 +52,9 @@ const area: Area = {
     title: 'Research Narrative Profile',
     format: 'pdf',
     status: 'published',
-    inline: true,
-    source: { kind: 'local', path: '/files/research/narrative-profile.pdf' },
+    // Replaced 2026-11-25 (user's request): "GS NARRATIVE PROFILE - AREA 1.pdf" on Google Drive, in Drive's preview frame
+    // (was the local "Area I Narrative Profile 3.pdf", now removed).
+    source: { kind: 'drive', fileId: '1cMRw1m2o2yv5cG_XkbgbSCd0RcD7Ezeq' },
   },
   groups: [
     {

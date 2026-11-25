@@ -66,11 +66,12 @@ const area: Area = {
       ),
     ],
   },
+  // Replaced 2026-11-25 (user's request): "GS NARRATIVE PROFILE - AREA 3.pdf" (was the Word file
+  // "NARRATIVE PROFILE_AREA 3_MPA Level 4.docx").
   narrativeReport: driveFile(
     'area-community-service-narrative',
     'Community Service Narrative Profile',
-    '1sInCu4pUh5hx796287iKcFsMp0OKSZIU',
-    'doc',
+    '16tjIhczmM4FOJSqIo5MmXn_I-7lkvx4N',
   ),
   groups: [
     {
