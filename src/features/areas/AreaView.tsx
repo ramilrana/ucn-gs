@@ -20,7 +20,8 @@ interface AreaViewProps {
 
 /**
  * One accreditation area: a maroon banner ("Area I" and the title; no photo or program line, user's request), then the narrative report, the
- * auto-advancing photo carousel, evidence, additional files and the AVP link (order and banner: user's request 2026-11-22).
+ * auto-advancing photo carousel, the Working Checklist (2026-11-26), evidence, additional files and the AVP link (order and banner: user's
+ * request 2026-11-22).
  */
 export function AreaView({ area, siblings }: AreaViewProps) {
   const images = slotValue(area.gallery) ?? [];
@@ -31,11 +32,19 @@ export function AreaView({ area, siblings }: AreaViewProps) {
   const showNarrative = isVisible(narrative) && (narrativeSource !== undefined || showPending());
   const narrativeHref = narrativeSource ? viewUrl(narrativeSource) : null;
 
+  const checklist = area.workingChecklist;
+  const showChecklist =
+    checklist !== undefined && isVisible(checklist) && (checklist.source !== undefined || showPending());
+
   const extraFiles = visible(area.additionalFiles);
   const avp = area.avp !== undefined && isVisible(area.avp) ? area.avp : undefined;
 
   const hasContent =
-    images.length > 0 || showNarrative || avp !== undefined || hasVisibleContent(area.groups, area.additionalFiles);
+    images.length > 0 ||
+    showNarrative ||
+    showChecklist ||
+    avp !== undefined ||
+    hasVisibleContent(area.groups, area.additionalFiles);
 
   return (
     <PageShell
@@ -70,6 +79,14 @@ export function AreaView({ area, siblings }: AreaViewProps) {
           ) : (
             <PendingNotice label={area.gallery.label} />
           ))}
+
+        {/* Right below the photo carousel (user's request 2026-11-26); shown like the recommendations' links. */}
+        {showChecklist && checklist && (
+          <section aria-labelledby="working-checklist" className="space-y-6">
+            <BandHeading id="working-checklist">Working Checklist</BandHeading>
+            <DocumentViewer resource={checklist} mode="embedded" />
+          </section>
+        )}
 
         {area.groups.map((group) => (
           <EvidenceGroup key={group.id} group={group} headingLevel={2} band />

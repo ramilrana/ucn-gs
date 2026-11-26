@@ -5,6 +5,7 @@ import p4 from '../../assets/areas/teaching-and-learning/photo-04.jpg?w=640;975&
 import p5 from '../../assets/areas/teaching-and-learning/photo-05.jpg?w=640;975&format=webp&as=picture';
 import p6 from '../../assets/areas/teaching-and-learning/photo-06.jpg?w=640;975&format=webp&as=picture';
 import { toImageAsset } from '../../lib/images';
+import { workingChecklist } from '../workingChecklist';
 import type { Area, Resource } from '../../types/content';
 
 // Renamed 2026-11-23 from "Performance of Graduates" (slug performance-of-graduates) at the user's request.
@@ -63,6 +64,8 @@ const area: Area = {
     'Teaching and Learning Narrative Profile',
     '1aAOdcBI2KTozWivI39EHz6scQduWlsd6',
   ),
+  // Working Checklist: the shared Google Doc (src/content/workingChecklist.ts), right below the photo carousel.
+  workingChecklist: workingChecklist('teaching-and-learning'),
   groups: [
     {
       id: 'area-teaching-and-learning-documents',

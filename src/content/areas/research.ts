@@ -5,6 +5,7 @@ import p4 from '../../assets/areas/research/photo-04.jpg?w=640;975&format=webp&a
 import p5 from '../../assets/areas/research/photo-05.jpg?w=640;975&format=webp&as=picture';
 import p6 from '../../assets/areas/research/photo-06.jpg?w=640;975&format=webp&as=picture';
 import { toImageAsset } from '../../lib/images';
+import { workingChecklist } from '../workingChecklist';
 import type { Area } from '../../types/content';
 
 // Materials from UCN (2026-11-22): the narrative profile ("Area I Narrative Profile 3.pdf"), 6 photos (Drive zip,
@@ -56,6 +57,8 @@ const area: Area = {
     // (was the local "Area I Narrative Profile 3.pdf", now removed).
     source: { kind: 'drive', fileId: '1cMRw1m2o2yv5cG_XkbgbSCd0RcD7Ezeq' },
   },
+  // Working Checklist: the shared Google Doc (src/content/workingChecklist.ts), right below the photo carousel.
+  workingChecklist: workingChecklist('research'),
   groups: [
     {
       id: 'area-research-documents',

@@ -9,6 +9,7 @@ import p8 from '../../assets/areas/international-linkages-and-consortia/photo-08
 import p9 from '../../assets/areas/international-linkages-and-consortia/photo-09.jpg?w=640;975&format=webp&as=picture';
 import p10 from '../../assets/areas/international-linkages-and-consortia/photo-10.jpg?w=640;975&format=webp&as=picture';
 import { toImageAsset } from '../../lib/images';
+import { workingChecklist } from '../workingChecklist';
 import type { Area, Resource } from '../../types/content';
 
 // Materials from UCN (2026-11-24): the narrative profile ("Narrative Profile - International Linkages (MPA - Level
@@ -83,6 +84,8 @@ const area: Area = {
     // Linkages (MPA - Level 4).pdf").
     '1bMt9zDrC_sqdLd7ZWf6uSW14SgbY74_K',
   ),
+  // Working Checklist: the shared Google Doc (src/content/workingChecklist.ts), right below the photo carousel.
+  workingChecklist: workingChecklist('international-linkages-and-consortia'),
   groups: [
     {
       id: 'area-international-linkages-and-consortia-documents',

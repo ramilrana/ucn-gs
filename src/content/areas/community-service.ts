@@ -8,6 +8,7 @@ import p7 from '../../assets/areas/community-service/photo-07.jpg?w=640;975&form
 import p8 from '../../assets/areas/community-service/photo-08.jpg?w=640;975&format=webp&as=picture';
 import p9 from '../../assets/areas/community-service/photo-09.jpg?w=640;975&format=webp&as=picture';
 import { toImageAsset } from '../../lib/images';
+import { workingChecklist } from '../workingChecklist';
 import type { Area, Resource } from '../../types/content';
 
 // Published 2026-11-23 (user's choice) so Recommendation 1 could go live. Materials from UCN (2026-11-24): the
@@ -73,6 +74,8 @@ const area: Area = {
     'Community Service Narrative Profile',
     '16tjIhczmM4FOJSqIo5MmXn_I-7lkvx4N',
   ),
+  // Working Checklist: the shared Google Doc (src/content/workingChecklist.ts), right below the photo carousel.
+  workingChecklist: workingChecklist('community-service'),
   groups: [
     {
       id: 'area-community-service-documents',
