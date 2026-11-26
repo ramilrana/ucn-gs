@@ -151,6 +151,62 @@ describe('AreaView', () => {
     expect(open.getAttribute('href')).toBe(`https://drive.google.com/file/d/${FILE_ID}/view`);
   });
 
+  it('shows the Working Checklist right below the photo carousel, before the evidence groups', () => {
+    production();
+    const checklist: Resource = {
+      id: 'research-checklist',
+      title: 'Working checklist document',
+      format: 'link',
+      status: 'published',
+      source: { kind: 'external', url: 'https://docs.google.com/document/d/1VdYsxfept_GsuDJc05dujzEVGYCGHAkm/edit' },
+    };
+    const { container } = renderUi(<AreaView area={makeArea({ workingChecklist: checklist })} siblings={siblings} />);
+    const h2s = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
+    expect(h2s).toEqual(['Narrative Report', 'Working Checklist', 'Faculty Research', 'Publications', 'Additional Files']);
+    const heading = screen.getByRole('heading', { level: 2, name: 'Working Checklist' });
+    const carousel = screen.getByRole('region', { name: 'Research photos' });
+    const firstGroup = screen.getByRole('heading', { level: 2, name: 'Faculty Research' });
+    expect(carousel.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(heading.compareDocumentPosition(firstGroup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // On a maroon band like the other sections.
+    expect((heading.parentElement as HTMLElement).className).toContain('bg-maroon-800');
+    const section = heading.closest('section') as HTMLElement;
+    expect(section.getAttribute('aria-labelledby')).toBe(heading.id);
+    const open = within(section).getByRole('link', { name: /Working checklist document/ });
+    expect(open.getAttribute('href')).toBe('https://docs.google.com/document/d/1VdYsxfept_GsuDJc05dujzEVGYCGHAkm/edit');
+    expect(open.getAttribute('target')).toBe('_blank');
+    // A Google Doc link is never framed: only the narrative frame exists.
+    expect(container.querySelectorAll('iframe')).toHaveLength(1);
+  });
+
+  it('hides the Working Checklist when it is missing or pending in production', () => {
+    production();
+    const { unmount } = renderUi(<AreaView area={makeArea()} siblings={siblings} />);
+    expect(screen.queryByRole('heading', { name: 'Working Checklist' })).toBeNull();
+    unmount();
+    renderUi(
+      <AreaView
+        area={makeArea({ workingChecklist: { id: 'c', title: 'Checklist', format: 'link', status: 'pending' } })}
+        siblings={siblings}
+      />,
+    );
+    expect(screen.queryByRole('heading', { name: 'Working Checklist' })).toBeNull();
+  });
+
+  it('shows a pending Working Checklist as a pending notice in dev and preview', () => {
+    vi.stubEnv('DEV', true);
+    renderUi(
+      <AreaView
+        area={makeArea({ workingChecklist: { id: 'c', title: 'Checklist', format: 'link', status: 'pending' } })}
+        siblings={siblings}
+      />,
+    );
+    const heading = screen.getByRole('heading', { level: 2, name: 'Working Checklist' });
+    const section = heading.closest('section') as HTMLElement;
+    expect(within(section).getByRole('note').textContent).toBe('Pending: Checklist');
+    expect(within(section).queryByRole('link')).toBeNull();
+  });
+
   it('links to its AVP anchor', () => {
     production();
     const avp = { ...pdf('research-avp', 'Research AVP'), format: 'video' as const };

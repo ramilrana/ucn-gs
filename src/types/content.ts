@@ -26,6 +26,8 @@ export interface Area {
   slug: string; order: number; title: string; status: Status; summary?: string[];
   gallery: Slot<ImageAsset[]>; narrativeReport: Resource; groups: EvidenceGroup[];
   additionalFiles: Resource[]; avp?: Resource & { avpTitle?: string };
+  /** "Working Checklist" section, shown right below the photo carousel (user's request 2026-11-26). */
+  workingChecklist?: Resource;
 }
 export interface Recommendation {
   areaSlug: string; number: number; title: string; status: Status; statement?: string[];

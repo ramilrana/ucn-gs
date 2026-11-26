@@ -65,6 +65,7 @@ function collectArea(area: Area, out: PendingEntry[]): void {
   if (area.status === 'pending') c.add('Area page (not yet published)');
   c.slot(area.gallery);
   c.resource(area.narrativeReport);
+  if (area.workingChecklist) c.resource(area.workingChecklist);
   area.groups.forEach(c.group);
   area.additionalFiles.forEach(c.resource);
   if (area.avp) c.resource(area.avp);

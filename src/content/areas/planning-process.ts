@@ -10,6 +10,7 @@ import p9 from '../../assets/areas/planning-process/photo-09.jpg?w=640;975&forma
 import p10 from '../../assets/areas/planning-process/photo-10.jpg?w=640;975&format=webp&as=picture';
 import p11 from '../../assets/areas/planning-process/photo-11.jpg?w=640;975&format=webp&as=picture';
 import { toImageAsset } from '../../lib/images';
+import { workingChecklist } from '../workingChecklist';
 import type { Area, Resource } from '../../types/content';
 
 // Materials from UCN (2026-11-24): the narrative profile ("Planning Process-Narrative Profile.pdf") and one document,
@@ -76,8 +77,11 @@ const area: Area = {
   narrativeReport: drivePdf(
     'area-planning-process-narrative',
     'Planning Process Narrative Profile',
-    '1J0MV6cJRKWF1Sh9GjGlX5FCWkgPk-UR3',
+    // Replaced 2026-11-26 (user's request): "GS NARRATIVE PROFILE - AREA 5.pdf" (was "Planning Process-Narrative Profile.pdf").
+    '1RmeCxL-RqHoJCeMNwuH3d0a4G1Q6vwLQ',
   ),
+  // Working Checklist: the shared Google Doc (src/content/workingChecklist.ts), right below the photo carousel.
+  workingChecklist: workingChecklist('planning-process'),
   groups: [
     {
       id: 'area-planning-process-documents',

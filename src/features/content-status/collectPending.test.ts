@@ -88,6 +88,15 @@ describe('collectPending', () => {
     });
   });
 
+  it('lists a pending Working Checklist on its area page', () => {
+    const withChecklist: Area = { ...realArea, workingChecklist: pendingDoc('real-checklist') };
+    const entries = collectPending({ ...content, contentAreas: [withChecklist], contentRecommendations: [] });
+    expect(entries.find((e) => e.label === 'Doc real-checklist')).toMatchObject({
+      path: '/accreditation-areas/real-area',
+      page: 'Area: Real area',
+    });
+  });
+
   it('excludes DEV-SAMPLE items', () => {
     const samplePerson: Person = {
       id: 'DEV-SAMPLE-person',
